@@ -1,0 +1,32 @@
+# Quarto / RStudio
+.Rproj.user/
+.Rhistory
+.RData
+.Ruserdata
+.Rproj
+
+# Quarto render cache (never commit)
+*_files/
+*_cache/
+output/
+
+# Quarto default output folder (if you’re not using it)
+_site/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Python venvs or renv caches if used
+.venv/
+renv/library/
+
+/.quarto/
+**/*.quarto_ipynb
+.Rproj.user
+.Rdata
+.httr-oauth
+.quarto
+
+data/dataset-1/
+data/dataset-3/

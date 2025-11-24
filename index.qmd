@@ -1,0 +1,29 @@
+---
+title: "MRMhub Workflow Examples"
+bibliography: references.bib
+---
+
+## Overview
+
+This website provides reproducible workflows demonstrating the use of [**MRMhub**](https://github.com/SLINGhub/MRMhub) for processing large-scale targeted lipidomics datasets. Each workflow is implemented as a **r**endered Quarto notebook, comprising a complete analysis pipeline with executable R code and corresponding outputs.
+
+Two example workflows based on different raw datasets are included:
+
+-   [**Dataset 1**](Dataset1.html): Targeted lipidomics data from the study by Tan *et al.* [@tan2022], measuring 503 features across 937 samples.\
+-   [**Dataset 3**](Dataset3.html): Targeted lipidomics data from the study by Chen *et al.* [@chen2025], measuring 829 features across 4,591 samples.
+
+All datasets and the corresponding Quarto notebooks can be obtained from [**Zenodo**](https://zenodo.org/records/15370293) (record **mrmhub-workflows**).\
+The corresponding GitHub repository does not include the datasets due to data size limitations.
+
+These notebooks are provided as Supplementary Materials for a manuscript currently in preparation.
+
+## More Information
+
+-   [MRMhub Documentation](https://slinghub.github.io/MRMhub)\
+-   [MRMhub GitHub Repository](https://github.com/SLINGhub/MRMhub)
+
+## Contact
+
+For questions, feedback, or reproducibility inquiries, please contact us via email (bo.burla\@nus.edu.sg and hyung_won_choi\@nus.edu.sg)
+
+## References

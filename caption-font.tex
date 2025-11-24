@@ -1,0 +1,13 @@
+\usepackage{caption}
+
+% Define an 8pt font for captions
+\DeclareCaptionFont{eightpt}{\fontsize{8pt}{9pt}\selectfont}
+
+% Apply it to all figure captions
+\captionsetup{font=eightpt}
+
+% Make all verbatim/code chunk text smaller
+\usepackage{etoolbox}
+
+% Options: \small, \footnotesize, \scriptsize, \tiny
+\AtBeginEnvironment{verbatim}{\small}

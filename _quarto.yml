@@ -1,0 +1,12 @@
+project:
+  type: website        
+  output-dir: docs    
+
+website:
+  title: "MRMhub Workflows"   
+  navbar:
+    left:
+      - text: "Dataset-1 Analysis"
+        href: Dataset1.html
+      - text: "Dataset-3 Analysis"
+        href: Dataset3.html
