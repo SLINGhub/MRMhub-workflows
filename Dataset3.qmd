@@ -22,7 +22,7 @@ format:
     toc: true
     fig-dpi: 300
     number-sections: true
-    keep-tex: true
+    keep-tex: false
     include-in-header: caption-font.tex
 bibliography: references.bib
 ---

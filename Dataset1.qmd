@@ -16,22 +16,14 @@ format:
     code-overflow: wrap
     toc: true
     fig-align: center
-
   pdf:
     pdf-engine: lualatex
     fig-format: pdf
     toc: true
     fig-dpi: 300
     number-sections: true
-    keep-tex: true
-header-includes: |
-  \usepackage{fvextra}
-  \fvset{
-    breaklines=true,
-    breakanywhere=true
-  }
-  % Smaller code font
-  \AtBeginEnvironment{Verbatim}{\small}
+    keep-tex: false
+    include-in-header: caption-font.tex
 
 bibliography: references.bib
 ---
