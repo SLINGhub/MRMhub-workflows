@@ -559,7 +559,7 @@ To proceed with further processing, we require additional metadata describing th
 After metadata import, a summary of the validation of data/metadata integrity is returned. For example, duplicate or missing data, such as IDs will be highlighted. The user can chose to ignore warnings (`ignore_warnings = TRUE`) and proceed with the analysis. Errors however, such as missing IDs or duplicate IDs must always be fixed before analysis can proceed.
 
 ```{r chunk16-import-metadata}
-file_path <- "./data/dataset-1/data/sPerfect_LongCirc_Metadata.xlsm"
+file_path <- "./data/dataset-1/data/sPerfect_LongCirc_Metadata.xlsx"
 mexp <- import_metadata_msorganiser(mexp, file_path, ignore_warnings = TRUE)
 ```
 

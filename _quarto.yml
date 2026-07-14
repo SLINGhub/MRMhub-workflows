@@ -1,12 +1,37 @@
 project:
-  type: website        
-  output-dir: docs    
+  type: website
+  output-dir: docs
+
+execute:
+  freeze: auto
 
 website:
-  title: "MRMhub Workflows"   
+  title: "MRMhub Workflows"
+  favicon: images/favicon.ico
   navbar:
+    background: "#2d5c80"   # shared MRMhub navy title bar
+    foreground: "#ffffff"
     left:
+      - text: "Home"
+        href: index.html
       - text: "Dataset-1 Analysis"
         href: Dataset1.html
       - text: "Dataset-3 Analysis"
         href: Dataset3.html
+      - text: "Dataset-4 Analysis"
+        href: Dataset4.html
+      - text: "Manuscript Figure"
+        href: ManuscriptFigure.html
+    right:
+      - icon: github
+        href: https://github.com/SLINGhub/mrmhub-workflows
+        aria-label: GitHub
+
+format:
+  html:
+    # `brand` after `cosmo` so _brand.yml (steel-blue primary) overrides cosmo's
+    # default blue; the navy navbar is set above via website.navbar.background.
+    theme:
+      - cosmo
+      - brand
+    css: styles.css

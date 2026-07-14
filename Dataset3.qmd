@@ -70,17 +70,17 @@ The parameter mz_tol, defining the maximum tolerance in m/z values for identifyi
 
 ![**Global settings file (param.txt).** Screenshot of the param.txt file used for this dataset, showing all configured parameters and their values.](images/paste-7.png){fig-align="center" width="70%"}
 
-#### Sample Table
+### Sample Table
 
 In the sample table (run_order_20251009.csv) the samples to be processed were listed by their .mzML file names. The first two BQC (batch quality control) samples were selected as retention time reference anchors. The sample type for each sample was defined in column C (sample_type) using the [MRMhub QC type](https://slinghub.github.io/MRMhub/articles/02_keydataids.html#qc-types-sample-types) nomenclature. This is optional and INTEGRATOR distinguishes only between blanks (identified by the presence of the text `BLK`), and non-blanks.
 
 ![Sample Table. Screenshot of a portion of the CSV file used for this dataset (run_order_20251010.csv).](images/paste-8.png){fig-align="center" width="50%"}
 
-#### Feature/Transition (Feature) Table
+### Feature/Transition (Feature) Table
 
 The feature/transition table (transition_list_20251010.csv) defined the transitions to be extracted from the .mzML files by precursor and product m/z values. Each feature (peak or peak group) was specified by its expected retention time (RT, in minutes). For some transitions, multiple features were defined. The corresponding internal standard feature for each entry was included in the table, however, these internal standards were not used by INTEGRATOR but were exported in the integration results.
 
-![**Feature/Transition Table**. Screenshot of a portion of the CSV file (transition_list_20251010_Final.csv) used for this dataset. Feature-specific peak widths and fixed integration borders were set for three adjacent features to ensure correct integration.](data/dataset-3/images/paste-6.png){fig-align="center" width="75%"}
+![**Feature/Transition Table**. Screenshot of a portion of the CSV file (transition_list_20251010_Final.csv) used for this dataset. Feature-specific peak widths and fixed integration borders were set for three adjacent features to ensure correct integration.](images/ds3-paste-6.png){fig-align="center" width="75%"}
 
 Feature-specific 'peak_width' settings were applied for multiple features in this dataset when peaks were broader, exhibited increased tailing, or consisted of convoluted peaks that had to be co-integrated (see Figure 4 a-d). Fixed borders were assigned for features for which automatic integration failed or produced inconsistent results due to being poorly separated from adjacent peaks or having noisy, and consequently were applied when necessary (see Figure 4 e-h). The final version of the feature/transition table (transition_list_20251010.csv) is the result from several rounds of parameter optimization with INTEGRATOR.
 
@@ -92,7 +92,7 @@ The most recent release OF INTEGRATOR was obtained from <https://github.com/SLIN
 
 The peak integration results were inspected for all features across samples using the generated PDFs (see above). In this dataset, RT shifts across the entire run of 4,591 samples were less than 0.04 min, except for \~ 20 samples at the start of a batch towards the end of this analysis, which had increased RT shifts.
 
-![MRMhub-INTEGRATOR application.](data/dataset-3/images/paste-3.png){fig-align="center" width="62%"}
+![MRMhub-INTEGRATOR application.](images/ds3-paste-3.png){fig-align="center" width="62%"}
 
 # Data Postprocessing and QC
 
@@ -102,8 +102,8 @@ A [Quarto](https://quarto.org/) notebook was created in [RStudio](https://posit.
 
 ```{r chunk2-installpkg, include = TRUE, eval = FALSE}
 if (!require("remotes")) install.packages("remotes")
-remotes::install_github("SLINGhub/MRMhub", subdir = "quant")
-install.packages("here") # Used for parallel processing
+#remotes::install_github("SLINGhub/MRMhub", subdir = "quant")
+#install.packages("here") # Used for parallel processing
 ```
 
 The Quarto notebook code generated in this example workflow is available from <https://github.com/SLINGhub/MRMhub-workflows> (file Dataset3.qmd). In the subsequent section, the data postprocessing is encoded and documented step-by-step into the notebook as individual code chunks using {mrmhub} functions. Certain code chunks include additional R code to showcase specific examples for illustrative purposes. In real-world applications, this supplementary may not be necessary.
@@ -122,22 +122,22 @@ library(mirai)  # Used for parallel processing
 
 ### Import the MRMhub-INTEGRATOR results
 
-The results from the peak integration performed with the INTEGRATOR workflow, as described in the previous section, were imported into a `MRMhubExperiment` data object. This object represents the central data container used in this postprocessing workflow. Nogte that the original result file from INTEGRATOR ('long.csv') has been renamed to 'Dataset3_MRMhub-Integrator_20251010.csv'
+The results from the peak integration performed with the INTEGRATOR workflow, as described in the previous section, were imported into a `MRMhubExperiment` data object. This object represents the central data container used in this postprocessing workflow. Nogte that the original result file from INTEGRATOR ('long.csv') has been renamed to 'Dataset3_MRMhub-INTEGRATOR_20251010.csv'
 
 ```{r chunk4-importdata1}
 #| cache: false
-data_path <- "./data/dataset-3/data/Dataset3_MRMhub-Integrator_20251010.csv"
+data_path <- "./data/dataset-3/Dataset3_MRMhub-INTEGRATOR_20251010.csv"
 mexp <- MRMhubExperiment()
 mexp <- import_data_mrmhub(mexp, data_path, import_metadata = TRUE)                        
 ```
 
 ### Import the analysis metadata
 
-Detailed analysis metadata, describing the analytes, samples, features, internal standards (ISTDs), and response curves required for subsequent steps, were imported from the Excel workbook 'Dataset3_Metadata_20251010.xlsm'. This workbook is available within the previously mentioned Zenodo archive (record Dataset 3).
+Detailed analysis metadata, describing the analytes, samples, features, internal standards (ISTDs), and response curves required for subsequent steps, were imported from the Excel workbook 'Dataset3_Metadata_20251010.xlsx'. This workbook is available within the previously mentioned Zenodo archive (record Dataset 3).
 
 ```{r chunk5-import-metadata1}
 #| cache: false
-file_path <- "./data/dataset-3/data/Dataset3_Metadata_20251010.xlsm"
+file_path <- "./data/dataset-3/Dataset3_Metadata_20251010.xlsx"
 mexp <- import_metadata_msorganiser(mexp, file_path, ignore_warnings = TRUE)
 ```
 
@@ -148,6 +148,8 @@ An overview of the analysis structure, detailing the types and sequence of QC sa
 ```{r chunk6-runsequence}
 #| fig.alt: >
 #|   RunSequence plot
+#| fig-format: png
+#| dpi: 400
 plot_runsequence(
   mexp, 
   show_batches = TRUE, 
@@ -167,6 +169,8 @@ The following plot shows the retention time distribution of all detected lipid s
 #| cache: false
 #| fig.alt: >
 #|   RLA plot - overview of all analyses
+#| fig-format: png
+#| dpi: 400
 plot_abundanceprofile(
   data = mexp,
   log_scale = FALSE,
@@ -190,6 +194,8 @@ First, an overview of all analyses (samples) or samples is plotted, whereby on t
 #| cache: false
 #| fig.alt: >
 #|   RLA plot - overview of all analyses
+#| fig-format: png
+#| dpi: 400
 fig2a <- plot_rla_boxplot(
   data = mexp,
   rla_type_batch = c("within"),
@@ -227,6 +233,8 @@ To confirm these potential outliers, the peak areas of all ISTDs in different QC
 ```{r chunk8-runscatter-plot-istd-1}
 #| fig-width: 6
 #| fig-height: 7.8
+#| fig-format: png
+#| dpi: 400
 plot_runscatter(mexp, variable = "intensity", 
                 include_qualifier = FALSE,
                 qc_types = c("SPL", "BQC", "TQC", "PBLK", "RQC", "SBLK"),
@@ -249,6 +257,8 @@ Sepatedly, the full dataset is then checked for potential systematic outliers in
 #| cache: false
 #| fig.alt: >
 #|   RLA plot - overview of all analyses
+#| fig-format: png
+#| dpi: 400
 
 fig2b <- plot_rla_boxplot(
   data = mexp,
@@ -359,6 +369,8 @@ Feature correlation analysis was performed as an additional check for potential 
 
 ```{r chunk14-feature-correlation}
 #| fig-height: 6.5
+#| fig-format: png
+#| dpi: 400
 # this below is to exclude a sample that has a very low intensity for all features, see next steps for 
 # details
 plot_feature_correlations(
@@ -397,6 +409,8 @@ To obtain an overview of the data and to perform an additional check for potenti
 
 ```{r chunk17-pca-plot}
 #| cache: false
+#| fig-format: png
+#| dpi: 400
 plot_pca(
   data = mexp,
   variable = "intensity",
@@ -491,6 +505,8 @@ mexp <- quantify_by_istd(mexp)
 The PCA plot of the normalized and quantified data revealed that most TQC samples clustered together. However, the TQCs from batch P-43 formed a distinct cluster in the lower right corner, and TQCs from the last four batches (P-01 to P-04) were also separated from the main TQC cluster. A separate cluster of BQCs, distinct from the main group in the top right corner, was composed primarily of samples from batches P-30 to P-38. These batches also contained BQCs that were identified as outliers in the PCA on raw intensities. This observation suggests that the normalization procedure was insufficient to correct for the observed differences in these BQC samples.
 
 ```{r chunk21b-normaquant-pca}
+#| fig-format: png
+#| dpi: 400
 plot_pca(
   data = mexp,
   variable = "conc",
@@ -572,9 +588,7 @@ mexp <- correct_batch_centering(
   variable = "conc")
 ```
 
-
 After applying the drift and batch correction, the RunScatter plots for the same features showed that the drift and batch effects observed in the study samples were minimized. However, because these corrections were based on the study samples, drift and batch effects appear to have been introduced into the QC samples. This is a further indicates that the QC samples did not adequately represent the analytical variations affecting the study samples.
-
 
 ```{r chunk24b-runsactter-individual}
 #| fig-width: 6
@@ -604,7 +618,6 @@ plot_runscatter(mexp, variable = "conc",
     path = "rt_all.pdf")
 
 ```
-
 
 ## RunScatter plots of final concentrations of all features
 
@@ -688,7 +701,8 @@ plot_normalization_qc(
 
 ## Process vs instrument variability
 
-To understand how much of the total technical variability comes from the overall process (sample preparation and the instrument variability) or just from the instrument, the CVs of a feature in batch(process)  QC samples (a pooled sample repeatdly extracted and measured along with the study samples ) and the technical QC samples (a pooled extract measured at regula intervals) are compared. The plot below shows that for most features, the variability in the BQCs is higher than in the TQCs, indicating that sample preparation contributes considerable to the overall technical variability. 
+To understand how much of the total technical variability comes from the overall process (sample preparation and the instrument variability) or just from the instrument, the CVs of a feature in batch(process) QC samples (a pooled sample repeatdly extracted and measured along with the study samples ) and the technical QC samples (a pooled extract measured at regula intervals) are compared. The plot below shows that for most features, the variability in the BQCs is higher than in the TQCs, indicating that sample preparation contributes considerable to the overall technical variability.
+
 ```{r chunk27-bqctqc-variability}
 #| fig-width: 6
 #| fig-height: 6
@@ -707,8 +721,7 @@ mrmhub::plot_qcmetrics_comparison(
   y_lim = c(-15, 15))
 ```
 
-
-## Effect of feature intensity on technical variability 
+## Effect of feature intensity on technical variability
 
 An analysis of the relationship between feature abundance and technical variability can be used to determine the intensity threshold at which feature signals exhibit increased noise and variance. This information can then be applied during peak picking to set appropriate intensity thresholds for feature detection and to reduce the processing time spent on integrating low-abundance features
 
@@ -734,7 +747,6 @@ scale_x_log10(expand = ggplot2::expansion(mult = c(0, 0.00)),
              breaks = c(1E2, 1E3, 1E4, 1E5, 1E6, 1E7, 1E8)) +
 scale_y_continuous(expand = ggplot2::expansion(mult = c(0.03, 0.00)),breaks = c(0, 20, 40, 60, 80))
 ```
-
 
 ## Response curves
 
@@ -765,7 +777,6 @@ plot_responsecurves(
         strip.text = element_text(size = 6),
         legend.position.inside = c(0.9, 0.01))
 ```
-
 
 The code below generates PDF files with response curve plots for all features. Run this code manually if you wish to generate these plots.
 
@@ -813,7 +824,17 @@ mexp  <- filter_features_qc(
 
 ```{r chunk30-feature-filter-results-class}
 #| cache: false
-plot_qc_summary_byclass(mexp) + 
+# `plot_qc_summary_byclass()` draws one x-axis level per feature class in the QC metrics
+# but only summarises non-ISTD/non-qualifier features. A class made up solely of such
+# features is empty in the summary, so the axis has more breaks than labels — which aborts
+# the secondary axis under ggplot2 >= 4.0. Drop those phantom classes from a copy first.
+mexp_byclass <- mexp
+.keep_classes <- mexp@metrics_qc |>
+  dplyr::filter(valid_feature, in_data, pass_istd, pass_qualifier) |>
+  dplyr::pull(feature_class) |> unique()
+mexp_byclass@metrics_qc <- dplyr::filter(mexp@metrics_qc, feature_class %in% .keep_classes)
+
+plot_qc_summary_byclass(mexp_byclass) +
     theme(
       strip.text = ggplot2::element_text(size = 5),
       #aspect.ratio = 0.9,

@@ -10,8 +10,16 @@
 *_cache/
 output/
 
+# Transient render artifacts
+*.rmarkdown
+Rplots.pdf
+
 # Quarto default output folder (if you’re not using it)
 _site/
+
+# Quarto freeze cache (freeze: auto). Local render speed-up only; the published
+# site is the committed docs/, so the freeze cache is not tracked.
+/_freeze/
 
 # OS files
 .DS_Store
@@ -28,5 +36,14 @@ renv/library/
 .httr-oauth
 .quarto
 
-data/dataset-1/
-data/dataset-3/
+# Bulk data stays ignored, but keep each dataset's README.txt tracked so the
+# folders are visible on GitHub with their Zenodo provenance.
+data/dataset-*/*
+!data/dataset-*/README.txt
+
+# Superseded raw versions moved out of the dataset folders (kept locally, never committed)
+_archive/
+
+# Figure-regeneration inputs: by_transition PDFs are large and archived on Zenodo
+# (see figures/dataset4/by_transition/README.txt). Keep the README + script tracked.
+figures/dataset4/by_transition/*.pdf

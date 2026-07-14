@@ -1,0 +1,231 @@
+---
+title: "Building a publication figure with MRMhub"
+subtitle: "Reproducing the manuscript-figure QC panels (Dataset 1 · SPERFECT)"
+author:
+  - name: "Bo Burla"
+    affiliation: "National University of Singapore"
+date: "`r Sys.Date()`"
+format:
+  html:
+    code-tools: true
+    code-overflow: wrap
+    toc: true
+    fig-align: center
+---
+
+# About this notebook
+
+This notebook is a **worked example of how to produce publication-ready QC panels with
+`{mrmhub}`**. It reproduces the data-driven panels of the manuscript's main workflow
+figure — panel **c** (*Global analysis QC*, *Peak annotation QC*, *Analyte and
+sample-level QC*) and panel **d** (*Post-QC report*, *Concentration summary*) — using the
+**Dataset 1 (SPERFECT)** pipeline, and composes them with `{patchwork}`.
+
+Each panel is a standard `{mrmhub}` plot (`plot_pca`, `plot_rt_vs_chain`,
+`plot_runscatter`, `plot_qc_summary_byclass`, `plot_abundanceprofile`) built from a single
+`MRMhubExperiment` object, following the same pipeline as `Dataset1.qmd` (see that notebook
+for the full narrative). The composed figure is written to
+`output/ManuscriptFigure_panelsCD.{png,pdf}`; the vector PDF is the ingredient that is
+combined with the hand-drawn schematic panels (a, b) and the timing/memory benchmark
+(panel e) in a vector editor (Illustrator) for the final manuscript figure.
+
+::: callout-important
+Needs the Zenodo data present locally
+(`data/dataset-1/Dataset1_MRMhub-INTEGRATOR_Final.csv` + `Dataset1_Metadata.xlsx`).
+A clean `quarto render` re-runs the full Dataset 1 pipeline; for iterating on figure
+layout, run the pipeline once interactively and then re-run only the panel chunks.
+:::
+
+```{r chunk01-setup}
+#| cache: false
+knitr::opts_chunk$set(collapse = TRUE, message = FALSE, warning = FALSE,
+                      comment = "#>", out.width = "100%",
+                      dev = "ragg_png")   # Unicode-safe device (renders the µ in "µmol/L")
+set.seed(1041)
+
+library(dplyr)
+library(ggplot2)
+library(stringr)
+library(patchwork)   # composite figure assembly
+library(mirai)       # parallel processing (picked up automatically by mrmhub)
+library(mrmhub)
+
+mirai::daemons(8)
+
+base_font_size  <- 6
+example_species <- c("PC 38:6 \\(a\\)")   # representative feature for the run-scatter panel
+
+# dark-teal facet-strip styling used across the QC panels
+strip_teal <- theme(
+  strip.background = element_rect(fill = "#1b6779", colour = NA),
+  strip.text       = element_text(colour = "white", face = "bold", size = base_font_size))
+panel_title <- function(t)
+  list(labs(title = t),
+       theme(plot.title = element_text(size = base_font_size + 2, face = "bold", hjust = 0.5)))
+
+dir.create("output", showWarnings = FALSE, recursive = TRUE)
+```
+
+# 1 · Reproduce the Dataset 1 pipeline
+
+The steps below mirror `Dataset1.qmd` and bring `mexp` to its final state (normalized,
+quantified, drift/batch-corrected). `mexp_final` is the QC-feature-filtered object used by
+the reporting panels. See `Dataset1.qmd` for the full narrative.
+
+```{r chunk02-import}
+mexp <- MRMhubExperiment()
+mexp <- import_data_mrmhub(mexp, "./data/dataset-1/Dataset1_MRMhub-INTEGRATOR_Final.csv")
+mexp <- import_metadata_msorganiser(mexp, "./data/dataset-1/Dataset1_Metadata.xlsx",
+                                    ignore_warnings = TRUE)
+
+# Exclude the known technical-outlier analysis. Done AFTER metadata import because the
+# import rebuilds the analysis annotation and would otherwise reset the exclusion. This is
+# the sample that otherwise dominates PC1 in the Global-analysis-QC PCA.
+mexp <- exclude_analyses(mexp, analyses = "Longit_batch6_51", clear_existing = TRUE)
+```
+
+```{r chunk03-normalize-quantify}
+mexp <- normalize_by_istd(mexp)
+mexp <- quantify_by_istd(mexp)
+```
+
+```{r chunk04-drift-batch-correction}
+mexp <- correct_drift_gaussiankernel(
+  mexp, variable = "conc", ref_qc_types = "SPL", batch_wise = TRUE,
+  kernel_size = 20, outlier_filter = TRUE, outlier_ksd = 3,
+  recalc_trend_after = TRUE, show_progress = FALSE)
+mexp <- correct_batch_centering(mexp, ref_qc_types = "SPL", variable = "conc")
+```
+
+```{r chunk05-qc-filter}
+mexp <- calc_qc_metrics(mexp, use_robust_cv = FALSE, use_batch_medians = TRUE)
+
+mexp_final <- filter_features_qc(
+  data = mexp, recalc_metrics = TRUE, clear_existing = TRUE,
+  use_batch_medians = TRUE, include_qualifier = FALSE, include_istd = FALSE,
+  response.curves.selection = c(1, 2), response.curves.summary = "mean",
+  min.rsquare.response = 0.8, min.slope.response = 0.5, max.yintercept.response = 0.5,
+  min.signalblank.median.spl.pblk = 10, min.intensity.median.spl = 100,
+  max.cv.conc.bqc = 25, max.dratio.sd.conc.bqc = 0.75, max.prop.missing.conc.spl = 100,
+  features.to.keep = c("CE 20:4", "CE 22:5", "CE 22:6", "CE 16:0", "CE 18:0"))
+```
+
+`mexp` carries, per sample, the raw `intensity`, the pre-correction `conc_raw`, and the
+final corrected `conc`; `mexp_final` additionally carries the QC-filter result.
+
+# 2 · Panel c — QC diagnostics
+
+```{r chunk06-panelC-global, fig.width = 4.5, fig.height = 4}
+# c-left · Global analysis QC — PCA of QC and study samples
+pC1 <- plot_pca(
+  data = mexp, variable = "intensity", filter_data = FALSE, pca_dims = c(1, 2),
+  qc_types = c("SPL", "BQC", "TQC"), ellipse_variable = "qc_type",
+  log_transform = TRUE, include_istd = FALSE, show_labels = FALSE,
+  point_size = 1, point_alpha = 0.7, font_base_size = base_font_size, ellipse_alpha = 0.3) +
+  panel_title("Global analysis QC") +
+  theme(legend.title = element_blank(),
+        legend.position = "inside", legend.position.inside = c(0.88, 0.85),
+        legend.text = element_text(size = base_font_size * 0.8),
+        legend.key.size = unit(base_font_size * 0.8, "pt"))
+pC1
+```
+
+```{r chunk07-panelC-annotation, fig.width = 5, fig.height = 4}
+# c-middle · Peak annotation QC — retention time vs carbon number, PC class
+mexp_pc <- mexp
+mexp_pc@dataset <- mexp@dataset |> filter(str_detect(feature_id, "^PC \\d"))
+pC2 <- plot_rt_vs_chain(mexp_pc, qc_types = "SPL", x_var = "total_c",
+                        base_font_size = base_font_size) +
+  panel_title("Peak annotation QC") + strip_teal +
+  labs(x = "Total carbon number", y = "Median retention time (min)",
+       # colour and fill both encode double-bond count; share a title so the two
+       # legends merge into one instead of showing a redundant "total_db" legend
+       colour = "Double bonds", fill = "Double bonds", shape = "Possible outlier") +
+  theme(legend.position = "right",
+        legend.text = element_text(size = base_font_size * 0.8),
+        legend.title = element_text(size = base_font_size * 0.8),
+        legend.key.size = unit(base_font_size * 0.8, "pt"))
+pC2
+```
+
+```{r chunk08-panelC-runscatter, fig.width = 5, fig.height = 4}
+# c-right · Analyte and sample-level QC — run-scatter of a representative feature
+pC3 <- plot_runscatter(
+  mexp, variable = "conc_raw", include_feature_filter = example_species,
+  qc_types = c("SPL", "BQC", "TQC", "LTR"),
+  show_reference_lines = TRUE, ref_qc_types = "SPL",
+  reference_fill_color = "#b83c3cff", reference_line_color = "#37c2f0ff",
+  reference_k_sd = NA, show_trend = TRUE, point_size = 1,
+  base_font_size = base_font_size, cols_page = 1, rows_page = 1,
+  cap_outliers = FALSE, reference_sd_shade = FALSE, show_progress = FALSE,
+  output_pdf = FALSE, return_plot = TRUE)[[1]] +
+  panel_title("Analyte and sample-level QC") + strip_teal +
+  labs(y = "Raw concentration (µmol/L)") +
+  theme(legend.position = "inside", legend.position.inside = c(0.72, 0.12),
+        legend.direction = "horizontal",
+        legend.text = element_text(size = base_font_size * 0.8),
+        legend.title = element_text(size = base_font_size * 0.8),
+        legend.key.size = unit(base_font_size * 0.8, "pt"))
+pC3
+```
+
+# 3 · Panel d — Reporting
+
+```{r chunk09-panelD-postqc, fig.width = 5, fig.height = 5}
+# d-left · Post-QC report — feature QC outcome per lipid class
+pD1 <- plot_qc_summary_byclass(mexp_final) +
+  panel_title("Post-QC report") +
+  theme(strip.text = element_text(size = 5), axis.text = element_text(size = 4),
+        axis.title = element_text(size = base_font_size),
+        legend.position = "inside", legend.position.inside = c(0.75, 0.28),
+        legend.direction = "vertical", legend.title = element_blank(),
+        legend.text = element_text(size = base_font_size * 0.7),
+        legend.key.size = unit(base_font_size * 0.7, "pt"))
+pD1
+```
+
+```{r chunk10-panelD-concsummary, fig.width = 5, fig.height = 5}
+# d-right · Concentration summary — per-class concentration distribution
+pD2 <- plot_abundanceprofile(
+  data = mexp_final, log_scale = TRUE, variable = "conc", filter_data = TRUE,
+  qc_types = "SPL", x_label = NA, font_base_size = base_font_size,
+  feature_map = "lipidomics") +
+  panel_title("Concentration summary") +
+  labs(x = "Concentration (µmol/L, plasma)")
+pD2
+```
+
+# 4 · Assemble and export
+
+Panel c (three QC plots) over panel d (two reporting plots). The composed PDF is the
+vector ingredient assembled with the schematic panels (a, b) and the benchmark panel (e)
+in a vector editor for the final manuscript figure.
+
+```{r chunk11-assemble, fig.width = 7.1, fig.height = 8.5}
+fig_c <- (pC1 | pC2 | pC3) + plot_layout(widths = c(1, 1, 1.1))
+fig_d <- (pD1 | pD2) + plot_layout(widths = c(1, 1.1))
+
+figCD <- (fig_c / fig_d) +
+  plot_layout(heights = c(1, 1.2)) +
+  plot_annotation(tag_levels = list(c("c", "", "", "d", ""))) &
+  theme(plot.tag = element_text(size = 12, face = "bold"), strip.placement = "inside")
+
+# cairo_pdf / ragg render Unicode (e.g. the µ in "µmol/L")
+ggsave("output/ManuscriptFigure_panelsCD.png", figCD,
+       width = 180, height = 215, units = "mm", dpi = 300, device = ragg::agg_png)
+ggsave("output/ManuscriptFigure_panelsCD.pdf", figCD,
+       width = 180, height = 215, units = "mm", dpi = 300, device = cairo_pdf)
+
+figCD
+```
+
+::: callout-note
+**Panels a, b and e are added manually.** Panels a (workflow banner) and b (peak-integration
+schematic) are conceptual artwork, and panel e (the SPERFECT-vs-DYNAMO timing / memory
+benchmark) is a measured-performance diagram. These are drawn in a vector editor and combined
+with the QC/reporting panels exported here.
+
+**Tuning.** The representative run-scatter feature (`example_species`), the PC-class filter for
+the peak-annotation panel, the legend positions, and the patchwork `widths`/`heights` are the
+main layout knobs. Iterate interactively after the pipeline has run once.
+:::
