@@ -4,10 +4,15 @@ subtitle: "Reproducing the manuscript-figure QC panels (Dataset 1 · SPERFECT)"
 author:
   - name: "Bo Burla"
     affiliation: "National University of Singapore"
+  - name: "Guo Shou Teo"
+    affiliation: "National University of Singapore"
+  - name: "Hyungwon Choi"
+    affiliation: "National University of Singapore"
 date: "`r Sys.Date()`"
 format:
   html:
     code-tools: true
+    self-contained: true
     code-overflow: wrap
     toc: true
     fig-align: center
@@ -52,7 +57,7 @@ library(mrmhub)
 
 mirai::daemons(8)
 
-base_font_size  <- 6
+base_font_size  <- 9   # ~50% larger than the 180 mm-print value (6) for on-screen readability
 example_species <- c("PC 38:6 \\(a\\)")   # representative feature for the run-scatter panel
 
 # dark-teal facet-strip styling used across the QC panels
@@ -175,7 +180,7 @@ pC3
 # d-left · Post-QC report — feature QC outcome per lipid class
 pD1 <- plot_qc_summary_byclass(mexp_final) +
   panel_title("Post-QC report") +
-  theme(strip.text = element_text(size = 5), axis.text = element_text(size = 4),
+  theme(strip.text = element_text(size = 8), axis.text = element_text(size = 6),
         axis.title = element_text(size = base_font_size),
         legend.position = "inside", legend.position.inside = c(0.75, 0.28),
         legend.direction = "vertical", legend.title = element_blank(),
