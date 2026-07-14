@@ -90,7 +90,7 @@ throughout this document.
 ```{r chunk2-integrator-examples}
 #| fig-width: 8
 #| fig-height: 3.2
-#| fig-cap: "Example MRMhub-INTEGRATOR chromatograms (Panel 1 quantifier transitions, high QC sample). The shaded region is the integrated peak."
+#| fig-cap: "*In-page illustration (not a manuscript figure).* Example MRMhub-INTEGRATOR chromatograms (Panel 1 quantifier transitions, high QC sample); the shaded region is the integrated peak."
 #| fig.alt: "Two example integrated chromatograms for Cortisol and Testosterone."
 # Chromatograms are pre-cropped from the INTEGRATOR by_transition PDFs by
 # figures/dataset4/dataset4-chromatograms.R and embedded here as static PNGs, so
@@ -176,7 +176,7 @@ The fitted curves and their metrics are inspected before quantification.
 ```{r chunk6-calibration-curves}
 #| fig-width: 9
 #| fig-height: 7
-#| fig-cap: "External calibration curves (quantifier transitions, quadratic / 1/x)."
+#| fig-cap: "*In-page illustration (not a manuscript figure).* External calibration curves for the 15 steroid analytes (quantifier transitions; quadratic, 1/x-weighted)."
 #| fig.alt: "Calibration curves for the 15 steroid analytes."
 plot_calibrationcurves(
   mexp, fit_overwrite = FALSE, fit_model = "quadratic", fit_weighting = "1/x",
@@ -343,6 +343,7 @@ samples span four orders of magnitude; agreement is essentially exact.
 ```{r chunk14-fig1-panelA}
 #| fig-width: 4.6
 #| fig-height: 4.2
+#| fig-cap: "*In-page panel — component of Figure 1A (not a standalone manuscript figure).* Peak-area agreement: MRMhub vs MassHunter peak areas (log–log) against the 1:1 line; Pearson *r* on log10 values, across CAL / QC / SST samples."
 smp_lv    <- c("CAL", "HQC", "LQC", "SST")
 smp_cols4 <- c(CAL = "#0072B2", HQC = "#D55E00", LQC = "#E69F00", SST = "#009E73")
 ft_shapes <- c(Quantifier = 16, ISTD = 17)
@@ -377,6 +378,7 @@ two methods deliver equivalent precision (points on the 1:1 line).
 ```{r chunk15-fig1-panelB}
 #| fig-width: 4.6
 #| fig-height: 4.2
+#| fig-cap: "*In-page panel — component of Figure 1B (not a standalone manuscript figure).* Precision (%CV) equivalence: per-feature %CV over the ten replicate SST injections, MRMhub vs MassHunter (points on the 1:1 line indicate equal precision)."
 sst_cv <- d_peakcmp_reint |>
   filter(subset == "SST") |>
   group_by(feature_type, feature_id) |>
@@ -404,6 +406,7 @@ largest real-sample differences and their chromatograms are shown below.
 ```{r chunk16-fig1-panelC}
 #| fig-width: 7
 #| fig-height: 3.4
+#| fig-cap: "*In-page panel — component of Figure 1C (not a standalone manuscript figure).* Bland–Altman: percent difference (MassHunter − MRMhub) against the mean peak area (excl. SST; mean area ≥ 10³). The three analytes with the largest real-sample differences are highlighted."
 highlight_analytes <- c("21-deoxycortisol", "11-deoxycortisol", "Aldosterone")
 hl_cols <- setNames(c("#D81B60", "#1E88E5", "#8E44AD"), highlight_analytes)
 
@@ -463,6 +466,7 @@ chrom_candidates
 ```{r chunk18-fig1-chrom-panel}
 #| fig-width: 8
 #| fig-height: 3
+#| fig-cap: "*In-page panel — component of Figure 1D (not a standalone manuscript figure).* Example MRMhub chromatograms for the three highlighted analytes, where the integration boundaries — and hence the areas — legitimately differ between the two integrators."
 # Panel-D chromatograms are the pre-generated crops (see the INTEGRATOR section);
 # subtitles carry the data-derived area difference for each example.
 chrom_examples <- tibble::tribble(
@@ -481,14 +485,15 @@ p_chrom <- wrap_elements(full = wrap_plots(chrom_plots, nrow = 1))
 p_chrom
 ```
 
-## Assembled figure for the manuscript
+## Figure 1 — manuscript figure
 
-The panels above are composed into the publication figure and saved as a vector
-PDF and a 300-dpi PNG (Nature 180 mm width).
+The four panels above are composed into the publication figure (**Figure 1**) and
+saved as a vector PDF and a 300-dpi PNG (Nature 180 mm width).
 
 ```{r chunk19-fig1-assemble}
 #| fig-width: 7.1
 #| fig-height: 9.06
+#| fig-cap: "**Figure 1 — manuscript figure.** MRMhub vs MassHunter at the peak-integration (INTEGRATOR) stage. **(A)** Peak-area agreement, **(B)** precision (%CV) equivalence, **(C)** Bland–Altman of real-sample differences, **(D)** example chromatograms for the highlighted analytes. Exported to `output/fig1_integration_correspondence.{pdf,png}` (180 mm)."
 row_ab <- (p_corr + p_cv) + plot_layout(guides = "collect") &
   theme(legend.position = "bottom")
 fig1 <- row_ab / p_ba / p_chrom +
@@ -538,6 +543,7 @@ Calibration R² per analyte: MassHunter's own fit vs the MRMhub full-pipeline fi
 ```{r chunk21-fig2-panelA}
 #| fig-width: 6
 #| fig-height: 4.5
+#| fig-cap: "*In-page panel — component of Figure 2A (not a standalone manuscript figure).* Calibration-curve fit comparison: R² per analyte, MassHunter's own fit vs the MRMhub full-pipeline fit."
 mh_own_r2 <- read_csv(file.path(d4, "Dataset4_MassHunter-CalibrationFits.csv"),
                       show_col_types = FALSE) |>
   transmute(analyte_id, r2_mh_own = r2)
@@ -595,6 +601,7 @@ equivalent.
 ```{r chunk22-fig2-panelB}
 #| fig-width: 4.6
 #| fig-height: 4.4
+#| fig-cap: "*In-page panel — component of Figure 2B (not a standalone manuscript figure).* Concentration equivalence on identical areas: MassHunter areas run through the MRMhub pipeline vs MassHunter end-to-end (isolates post-processing from integration)."
 tmp_conc <- tempfile(fileext = ".csv")
 save_dataset_csv(mexp_mh, path = tmp_conc, variable = "conc", add_qctype = TRUE)
 d_qonly <- read_csv(tmp_conc, show_col_types = FALSE) |>
@@ -636,6 +643,7 @@ calibration) for the LQC, HQC and SPL samples.
 ```{r chunk23-fig2-panelC}
 #| fig-width: 4.6
 #| fig-height: 4.4
+#| fig-cap: "*In-page panel — component of Figure 2C (not a standalone manuscript figure).* Full end-to-end concentration agreement (each method's own integration and calibration) for the LQC, HQC and SPL samples."
 d_full <- d_conc_raw |>
   filter(qc_type %in% c("LQC", "HQC", "SPL")) |>
   pivot_longer(!c("analysis_id", "qc_type"), names_to = "analyte_id", values_to = "conc") |>
@@ -677,6 +685,7 @@ the rest of the metadata), keyed by sample and analyte. DHEA and DHEAS are exclu
 ```{r chunk24-fig2-panelD}
 #| fig-width: 7
 #| fig-height: 4.5
+#| fig-cap: "*In-page panel — component of Figure 2D (not a standalone manuscript figure).* EQA accuracy: per-analyte percent bias against the SKML reference concentrations (±15 % dashed), MRMhub vs MassHunter, one point per EQA sample per method (DHEA and DHEAS excluded)."
 # EQA target concentrations come from the metadata's `QC Concentrations` sheet
 # (imported above), keyed by `sample_id` + `analyte_id`. They surface via the
 # `annot_qcconcentrations` slot; DHEAS is already stored in nmol/L there.
@@ -725,11 +734,14 @@ p_eqa <- d_eqa |>
 p_eqa
 ```
 
-## Assembled figure for the manuscript
+## Figure 2 — manuscript figure
+
+The four panels above are composed into the publication figure (**Figure 2**).
 
 ```{r chunk25-fig2-assemble}
 #| fig-width: 7.1
 #| fig-height: 8.66
+#| fig-cap: "**Figure 2 — manuscript figure.** MRMhub vs MassHunter at the quantification (QUANT) stage. **(A)** Calibration-fit comparison, **(B)** concentration equivalence on identical areas, **(C)** full end-to-end concentration agreement, **(D)** EQA accuracy against SKML reference values. Exported to `output/fig2_quantification_comparison.{pdf,png}` (180 mm)."
 fig2 <- p_r2 / (p_qonly + p_full) / p_eqa +
   plot_layout(heights = c(0.68, 0.95, 1.2)) +
   plot_annotation(tag_levels = "A")
