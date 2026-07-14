@@ -6,7 +6,7 @@ pipeline on real datasets. Each workflow is a Quarto notebook combining narrativ
 executable R and outputs, provided as Supplementary Materials for the MRMhub
 manuscript (in preparation).
 
-Rendered site: **[slinghub.github.io/mrmhub-workflows](https://slinghub.github.io/mrmhub-workflows)**.
+Rendered site: **[slinghub.github.io/MRMhub-workflows](https://slinghub.github.io/MRMhub-workflows)**.
 
 ## Workflows
 

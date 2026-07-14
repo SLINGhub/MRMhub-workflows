@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this is
 
-A **Quarto website** (not an application or library) of reproducible R workflows that demonstrate the [MRMhub](https://github.com/SLINGhub/MRMhub) targeted-lipidomics data-processing pipeline. The deliverable is the rendered HTML/PDF in `docs/`, which is published as Supplementary Materials for a manuscript and served via GitHub Pages at `slinghub.github.io/mrmhub-workflows`.
+A **Quarto website** (not an application or library) of reproducible R workflows that demonstrate the [MRMhub](https://github.com/SLINGhub/MRMhub) targeted-lipidomics data-processing pipeline. The deliverable is the rendered HTML/PDF in `docs/`, which is published as Supplementary Materials for a manuscript and served via GitHub Pages at `slinghub.github.io/MRMhub-workflows`.
 
 Each `.qmd` is a self-contained analysis notebook combining narrative, executable R, and outputs. There is no application code to "run" — work happens by editing notebooks and re-rendering.
 

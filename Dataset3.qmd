@@ -54,7 +54,7 @@ All datasets used and generated within this workflow have been deposited in the 
 
 # Raw Data Processing: Peak Picking and Integration
 
-This section describes key aspects of raw data processing workflow used for this dataset. For more a detailed description on the workflow, see [Workflow for Dataset 1](https://slinghub.github.io/mrmhub-workflows/Dataset1.html) and the [INTEGRATOR Manual](#0).
+This section describes key aspects of raw data processing workflow used for this dataset. For more a detailed description on the workflow, see [Workflow for Dataset 1](https://slinghub.github.io/MRMhub-workflows/Dataset1.html) and the [INTEGRATOR Manual](#0).
 
 ## Conversion of vendor raw files to mzML
 

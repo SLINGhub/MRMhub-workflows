@@ -24,7 +24,7 @@ website:
         href: ManuscriptFigure.html
     right:
       - icon: github
-        href: https://github.com/SLINGhub/mrmhub-workflows
+        href: https://github.com/SLINGhub/MRMhub-workflows
         aria-label: GitHub
 
 format:

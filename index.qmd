@@ -94,7 +94,7 @@ These notebooks reproduce the [**MRMhub**](https://slinghub.github.io/MRMhub) pi
 
 <small>
 **Citation:** Provided as Supplementary Materials for the MRMhub manuscript (in preparation). &nbsp;|&nbsp;
-**Source:** [github.com/SLINGhub/mrmhub-workflows](https://github.com/SLINGhub/mrmhub-workflows)
+**Source:** [github.com/SLINGhub/MRMhub-workflows](https://github.com/SLINGhub/MRMhub-workflows)
 </small>
 
 :::
@@ -105,7 +105,7 @@ These notebooks reproduce the [**MRMhub**](https://slinghub.github.io/MRMhub) pi
 
 - [MRMhub documentation](https://slinghub.github.io/MRMhub)
 - [MRMhub source code](https://github.com/SLINGhub/MRMhub)
-- [Workflows repository](https://github.com/SLINGhub/mrmhub-workflows)
+- [Workflows repository](https://github.com/SLINGhub/MRMhub-workflows)
 
 ### Data
 

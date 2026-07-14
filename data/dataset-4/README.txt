@@ -21,14 +21,14 @@ Dataset4_SKML-EQA-expected-conc.xlsx - SKML ring-trial reference concentrations.
 Usage
 -----
 These files are the input for the Dataset4.qmd analysis notebook.
-1. Get the workflow code: git clone https://github.com/SLINGhub/mrmhub-workflows
+1. Get the workflow code: git clone https://github.com/SLINGhub/MRMhub-workflows
 2. Unzip this archive at the repository root; the files land in data/dataset-4/
 3. Render: quarto render Dataset4.qmd
 The repository gitignores the datasets (size), so they are distributed here.
 
 Source & citation
 -----------------
-Code: https://github.com/SLINGhub/mrmhub-workflows
+Code: https://github.com/SLINGhub/MRMhub-workflows
 Data: Zenodo record "MRMhub-data" — https://zenodo.org/records/15370294 (Dataset 4 files pending upload)
 Cite: MRMhub manuscript (in preparation).
 License: CC BY 4.0 (data). 
