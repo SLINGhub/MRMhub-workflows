@@ -50,8 +50,9 @@ example_species <- c("PC 38:6 \\(a\\)")
 example_species_all <- c(example_species, example_species_istd)
 base_font_size = 7
 
-# Set number of cores for parallel processing
-if(mirai::status()$daemons == 0)  mirai::daemons(8)
+# Set number of cores for parallel processing (all-but-one, so the system stays responsive)
+n_cores <- { n <- parallel::detectCores(); if (is.na(n)) n <- 4L; max(1L, n - 1L) }
+if(mirai::status()$daemons == 0)  mirai::daemons(n_cores)
 ```
 
 # Overview Dataset
@@ -1267,6 +1268,7 @@ plot_runscatter(mexp,
   reference_sd_shade = FALSE,
   #batch_zebra_stripe = TRUE, 
   show_progress = FALSE,
+  multithreading = TRUE,   # parallelise PDF page generation across the mirai daemons
   output_pdf = TRUE,
   path = "output/suppl-fig1_runscatter_area.pdf", return_plot = FALSE)
 
@@ -1285,7 +1287,8 @@ plot_runscatter(mexp,
   cap_outliers = TRUE,
   reference_sd_shade = FALSE,
   #batch_zebra_stripe = TRUE,
-  show_progress = FALSE, 
+  show_progress = FALSE,
+  multithreading = TRUE,   # parallelise PDF page generation across the mirai daemons
   output_pdf = TRUE,
   path = "output/suppl-fig2_runscatter_conc-raw.pdf", return_plot = FALSE)
 
@@ -1305,6 +1308,7 @@ plot_runscatter(mexp,
   reference_sd_shade = FALSE,
   #batch_zebra_stripe = TRUE, 
   show_progress = FALSE,
+  multithreading = TRUE,   # parallelise PDF page generation across the mirai daemons
   output_pdf = TRUE,
   path = "output/suppl-fig3_runscatter_conc-final.pdf", return_plot = FALSE)
 ```

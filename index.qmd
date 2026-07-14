@@ -107,6 +107,14 @@ These notebooks reproduce the [**MRMhub**](https://slinghub.github.io/MRMhub) pi
 - [MRMhub source code](https://github.com/SLINGhub/MRMhub)
 - [Workflows repository](https://github.com/SLINGhub/MRMhub-workflows)
 
+### Authors
+
+MRMhub is developed by:
+
+- Bo Burla ([ORCID](https://orcid.org/0000-0002-5918-3249))
+- Guo Shou Teo ([ORCID](https://orcid.org/0000-0003-3891-1494))
+- Hyungwon Choi ([ORCID](https://orcid.org/0000-0002-6687-3088))
+
 ### Data
 
 Source data are available from [Zenodo](https://zenodo.org/records/15370294) (record **MRMhub-data**).

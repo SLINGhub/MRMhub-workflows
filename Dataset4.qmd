@@ -130,6 +130,11 @@ no drift/batch correction or feature filtering, which do not apply to a
 ```{r chunk3-loadpkg}
 #| cache: false
 library(mrmhub)
+library(mirai)  # parallel processing (picked up automatically by mrmhub)
+
+# Set number of cores for parallel processing (all-but-one, so the system stays responsive)
+n_cores <- { n <- parallel::detectCores(); if (is.na(n)) n <- 4L; max(1L, n - 1L) }
+if (mirai::status()$daemons == 0) mirai::daemons(n_cores)
 ```
 
 ## Import INTEGRATOR results and metadata

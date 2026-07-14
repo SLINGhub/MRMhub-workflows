@@ -21,18 +21,20 @@ format:
 # About this notebook
 
 This notebook is a **worked example of how to produce publication-ready QC panels with
-`{mrmhub}`**. It reproduces the data-driven panels of the manuscript's main workflow
-figure — panel **c** (*Global analysis QC*, *Peak annotation QC*, *Analyte and
-sample-level QC*) and panel **d** (*Post-QC report*, *Concentration summary*) — using the
-**Dataset 1 (SPERFECT)** pipeline, and composes them with `{patchwork}`.
+`{mrmhub}`**. It reproduces the lower half of the manuscript's main workflow figure — panel
+**c** (*Global analysis QC*, *Peak annotation QC*, *Analyte and sample-level QC*), panel **d**
+(*Post-QC report*, *Concentration summary*), and panel **e** (the SPERFECT-vs-DYNAMO runtime /
+memory benchmark) — using the **Dataset 1 (SPERFECT)** pipeline, on a uniform 3 × 2 grid
+composed with `{patchwork}`.
 
-Each panel is a standard `{mrmhub}` plot (`plot_pca`, `plot_rt_vs_chain`,
-`plot_runscatter`, `plot_qc_summary_byclass`, `plot_abundanceprofile`) built from a single
-`MRMhubExperiment` object, following the same pipeline as `Dataset1.qmd` (see that notebook
-for the full narrative). The composed figure is written to
-`output/ManuscriptFigure_panelsCD.{png,pdf}`; the vector PDF is the ingredient that is
-combined with the hand-drawn schematic panels (a, b) and the timing/memory benchmark
-(panel e) in a vector editor (Illustrator) for the final manuscript figure.
+Panels c and d are standard `{mrmhub}` plots (`plot_pca`, `plot_rt_vs_chain`, `plot_runscatter`,
+`plot_qc_summary_byclass`, `plot_abundanceprofile`) built from a single `MRMhubExperiment`
+object, following the same pipeline as `Dataset1.qmd` (see that notebook for the full
+narrative). Panel e is drawn here from the measured runtimes written by
+`scripts/benchmark_runtime.R`. The composed figure is written to
+`output/ManuscriptFigure_panelsCDE.{png,pdf}`; the vector PDF is the ingredient combined with
+the hand-drawn schematic panels (a, b) in a vector editor (Illustrator) for the final
+manuscript figure.
 
 ::: callout-important
 Needs the Zenodo data present locally
@@ -55,7 +57,9 @@ library(patchwork)   # composite figure assembly
 library(mirai)       # parallel processing (picked up automatically by mrmhub)
 library(mrmhub)
 
-mirai::daemons(8)
+# Use all-but-one core (leaving one free so the system stays responsive)
+n_cores <- { n <- parallel::detectCores(); if (is.na(n)) n <- 4L; max(1L, n - 1L) }
+if (mirai::status()$daemons == 0) mirai::daemons(n_cores)
 
 base_font_size  <- 9   # ~50% larger than the 180 mm-print value (6) for on-screen readability
 example_species <- c("PC 38:6 \\(a\\)")   # representative feature for the run-scatter panel
@@ -66,7 +70,7 @@ strip_teal <- theme(
   strip.text       = element_text(colour = "white", face = "bold", size = base_font_size))
 panel_title <- function(t)
   list(labs(title = t),
-       theme(plot.title = element_text(size = base_font_size + 2, face = "bold", hjust = 0.5)))
+       theme(plot.title = element_text(size = base_font_size + 1, face = "bold", hjust = 0.5)))
 
 dir.create("output", showWarnings = FALSE, recursive = TRUE)
 ```
@@ -129,9 +133,10 @@ pC1 <- plot_pca(
   point_size = 1, point_alpha = 0.7, font_base_size = base_font_size, ellipse_alpha = 0.3) +
   panel_title("Global analysis QC") +
   theme(legend.title = element_blank(),
-        legend.position = "inside", legend.position.inside = c(0.88, 0.85),
+        legend.position = "inside", legend.position.inside = c(0.13, 0.85),
+        legend.background = element_blank(),
         legend.text = element_text(size = base_font_size * 0.8),
-        legend.key.size = unit(base_font_size * 0.8, "pt"))
+        legend.key.size = unit(base_font_size * 0.9, "pt"))
 pC1
 ```
 
@@ -145,11 +150,19 @@ pC2 <- plot_rt_vs_chain(mexp_pc, qc_types = "SPL", x_var = "total_c",
   labs(x = "Total carbon number", y = "Median retention time (min)",
        # colour and fill both encode double-bond count; share a title so the two
        # legends merge into one instead of showing a redundant "total_db" legend
-       colour = "Double bonds", fill = "Double bonds", shape = "Possible outlier") +
-  theme(legend.position = "right",
-        legend.text = element_text(size = base_font_size * 0.8),
-        legend.title = element_text(size = base_font_size * 0.8),
-        legend.key.size = unit(base_font_size * 0.8, "pt"))
+       colour = "Double bonds", fill = "Double bonds") +
+  # all points are "No" outliers -> drop the uninformative shape legend and tuck the
+  # double-bond legend into the empty top-left corner (data runs on a rising diagonal)
+  guides(colour = guide_legend(ncol = 3, order = 1),
+         fill = guide_legend(ncol = 3, order = 1), shape = "none") +
+  theme(legend.position = "inside", legend.position.inside = c(0.02, 0.98),
+        legend.justification = c(0, 1), legend.box = "horizontal",
+        legend.title.position = "top", legend.background = element_blank(),
+        legend.spacing = unit(1, "pt"), legend.margin = margin(1, 1, 1, 1),
+        legend.box.spacing = unit(0, "pt"),
+        legend.text = element_text(size = base_font_size * 0.6),
+        legend.title = element_text(size = base_font_size * 0.65),
+        legend.key.size = unit(base_font_size * 0.6, "pt"))
 pC2
 ```
 
@@ -166,25 +179,46 @@ pC3 <- plot_runscatter(
   output_pdf = FALSE, return_plot = TRUE)[[1]] +
   panel_title("Analyte and sample-level QC") + strip_teal +
   labs(y = "Raw concentration (µmol/L)") +
-  theme(legend.position = "inside", legend.position.inside = c(0.72, 0.12),
-        legend.direction = "horizontal",
-        legend.text = element_text(size = base_font_size * 0.8),
-        legend.title = element_text(size = base_font_size * 0.8),
-        legend.key.size = unit(base_font_size * 0.8, "pt"))
+  coord_cartesian(clip = "off") +
+  theme(legend.position = "inside", legend.position.inside = c(0.5, 0.06),
+        legend.direction = "horizontal", legend.background = element_blank(),
+        legend.margin = margin(0, 0, 0, 0),
+        plot.margin = margin(t = 2, r = 12, b = 2, l = 2),
+        legend.text = element_text(size = base_font_size * 0.7),
+        legend.title = element_text(size = base_font_size * 0.7),
+        legend.key.size = unit(base_font_size * 0.7, "pt"))
 pC3
 ```
 
 # 3 · Panel d — Reporting
 
 ```{r chunk09-panelD-postqc, fig.width = 5, fig.height = 5}
-# d-left · Post-QC report — feature QC outcome per lipid class
-pD1 <- plot_qc_summary_byclass(mexp_final) +
+# d-left · Post-QC report — feature QC outcome per lipid class.
+# Order the classes by the canonical {mrmhub} lipidomics map (same order the
+# Concentration-summary panel uses) instead of alphabetically, and drop phantom
+# classes made up solely of ISTD/qualifier features (they would otherwise show as
+# empty rows or an NA level — cf. Dataset3.qmd).
+mexp_pd <- mexp_final
+keep_classes <- mexp_pd@metrics_qc |>
+  filter(valid_feature, in_data, pass_istd, pass_qualifier) |>
+  pull(feature_class) |> unique() |> as.character()
+keep_classes <- keep_classes[!is.na(keep_classes)]
+mexp_pd@metrics_qc <- filter(mexp_pd@metrics_qc, feature_class %in% keep_classes)
+
+lipid_map   <- get("pkg.env", envir = getNamespace("mrmhub"))$lipid_class_annotations$lipid_class_map
+class_order <- c(names(lipid_map)[names(lipid_map) %in% keep_classes],
+                 setdiff(keep_classes, names(lipid_map)))
+mexp_pd@metrics_qc$feature_class <- factor(as.character(mexp_pd@metrics_qc$feature_class),
+                                           levels = class_order)
+
+pD1 <- plot_qc_summary_byclass(mexp_pd) +
   panel_title("Post-QC report") +
-  theme(strip.text = element_text(size = 8), axis.text = element_text(size = 6),
+  theme(strip.text = element_text(size = 7), axis.text = element_text(size = 6),
         axis.title = element_text(size = base_font_size),
-        legend.position = "inside", legend.position.inside = c(0.75, 0.28),
+        legend.position = "inside", legend.position.inside = c(0.74, 0.62),
         legend.direction = "vertical", legend.title = element_blank(),
-        legend.text = element_text(size = base_font_size * 0.7),
+        legend.background = element_blank(), legend.margin = margin(0, 0, 0, 0),
+        legend.text = element_text(size = base_font_size * 0.65),
         legend.key.size = unit(base_font_size * 0.7, "pt"))
 pD1
 ```
@@ -196,41 +230,113 @@ pD2 <- plot_abundanceprofile(
   qc_types = "SPL", x_label = NA, font_base_size = base_font_size,
   feature_map = "lipidomics") +
   panel_title("Concentration summary") +
-  labs(x = "Concentration (µmol/L, plasma)")
+  labs(x = "Concentration (µmol/L, plasma)") +
+  # many class rows share one grid cell -> shrink the class labels so they don't collide
+  theme(axis.text.y = element_text(size = base_font_size * 0.6),
+        axis.text.y.right = element_text(size = base_font_size * 0.6),
+        legend.text = element_text(size = base_font_size * 0.7),
+        legend.key.size = unit(base_font_size * 0.7, "pt"))
 pD2
 ```
 
-# 4 · Assemble and export
+# 4 · Panel e — runtime benchmark
 
-Panel c (three QC plots) over panel d (two reporting plots). The composed PDF is the
-vector ingredient assembled with the schematic panels (a, b) and the benchmark panel (e)
-in a vector editor for the final manuscript figure.
+Panel e is a small flow diagram comparing the two datasets (**SPERFECT** = Dataset 1, n = 937;
+**DYNAMO** = Dataset 3, n = 4591) across the pipeline stages. The **Quantitation and QC** and
+**Reporting** rows and the **max. memory footprint** are *measured on this machine* by
+`scripts/benchmark_runtime.R`, which runs each dataset's QUANT pipeline and its run-scatter /
+response-curve QC report and writes `output/timing_dataset{1,3}.rds`. Run that script once
+before rendering; the LC-MS-acquisition and peak-integration rows are kept as reference
+estimates (acquisition is instrument time, integration runs in the separate INTEGRATOR app).
 
-```{r chunk11-assemble, fig.width = 7.1, fig.height = 8.5}
-fig_c <- (pC1 | pC2 | pC3) + plot_layout(widths = c(1, 1, 1.1))
-fig_d <- (pD1 | pD2) + plot_layout(widths = c(1, 1.1))
+```{r chunk11-panelE-benchmark, fig.width = 2.6, fig.height = 2.8}
+read_timing <- function(path) if (file.exists(path)) readRDS(path) else
+  list(import_sec = NA, quant_qc_sec = NA, reporting_sec = NA, peak_mem_gb = NA)
+t1 <- read_timing("output/timing_dataset1.rds")   # SPERFECT
+t3 <- read_timing("output/timing_dataset3.rds")   # DYNAMO
+if (anyNA(c(t1$quant_qc_sec, t3$quant_qc_sec)))
+  message("Timing files missing — run scripts/benchmark_runtime.R to populate panel e.")
 
-figCD <- (fig_c / fig_d) +
-  plot_layout(heights = c(1, 1.2)) +
-  plot_annotation(tag_levels = list(c("c", "", "", "d", ""))) &
-  theme(plot.tag = element_text(size = 12, face = "bold"), strip.placement = "inside")
+fmt_time <- function(sec) if (is.null(sec) || is.na(sec)) "—" else
+  if (sec < 90) sprintf("%.0f sec", round(sec)) else sprintf("%.1f min", sec / 60)
+fmt_mem  <- function(gb)  if (is.null(gb) || is.na(gb)) "—" else
+  if (gb < 1) "<1 Gb" else sprintf("%.1f Gb", gb)
+
+# measured rows (Quantitation and QC = import + QUANT compute; Reporting = QC-report PDFs)
+quant1 <- fmt_time(t1$import_sec + t1$quant_qc_sec); quant3 <- fmt_time(t3$import_sec + t3$quant_qc_sec)
+rep1   <- fmt_time(t1$reporting_sec);                rep3   <- fmt_time(t3$reporting_sec)
+mem1   <- fmt_mem(t1$peak_mem_gb);                   mem3   <- fmt_mem(t3$peak_mem_gb)
+
+e_font <- 7.6
+boxes <- data.frame(
+  stage = c("LC-MS\nData Acquisition", "Peak\nIntegration", "Quantitation\nand QC", "Reporting"),
+  y     = c(4, 3, 2, 1),
+  fill  = c("#fdf5c9", "#d9e8f4", "#f7dadb", "#e6f0da"),
+  col   = c("#d8bd3f", "#5b95c4", "#cf7071", "#5aa246"))
+bx0 <- 0.3; bx1 <- 4.3; bh <- 0.72; xc_s <- 5.8; xc_d <- 9.2; arrow_col <- "#b98a2e"
+
+pE <- ggplot() +
+  geom_rect(data = boxes, aes(xmin = bx0, xmax = bx1, ymin = y - bh/2, ymax = y + bh/2),
+            fill = boxes$fill, colour = boxes$col, linewidth = 0.7) +
+  geom_text(data = boxes, aes(x = (bx0+bx1)/2, y = y, label = stage),
+            size = e_font*0.92/.pt, lineheight = 0.9) +
+  annotate("segment", x = (bx0+bx1)/2, xend = (bx0+bx1)/2, y = c(4,3,2) - bh/2,
+           yend = c(3,2,1) + bh/2, colour = arrow_col, linewidth = 2.4,
+           arrow = arrow(type = "closed", length = unit(5, "pt"))) +
+  annotate("text", x = xc_s, y = 4.92, label = "SPERFECT", fontface = "bold.italic", size = e_font*0.75/.pt) +
+  annotate("text", x = xc_d, y = 4.92, label = "DYNAMO",   fontface = "bold.italic", size = e_font*0.75/.pt) +
+  annotate("text", x = xc_s, y = 4.6,  label = "(n=937)",  fontface = "italic", size = e_font*0.7/.pt) +
+  annotate("text", x = xc_d, y = 4.6,  label = "(n=4591)", fontface = "italic", size = e_font*0.7/.pt) +
+  annotate("text", x = xc_s, y = 4, label = "2 weeks", size = e_font/.pt) +
+  annotate("text", x = xc_d, y = 4, label = "8 weeks", size = e_font/.pt) +
+  annotate("text", x = xc_s, y = 3, label = "8 sec",   size = e_font/.pt) +
+  annotate("text", x = xc_d, y = 3, label = "42 sec",  size = e_font/.pt) +
+  annotate("text", x = xc_s, y = 2, label = quant1, size = e_font/.pt, fontface = "bold") +
+  annotate("text", x = xc_d, y = 2, label = quant3, size = e_font/.pt, fontface = "bold") +
+  annotate("text", x = xc_s, y = 1, label = rep1,   size = e_font/.pt, fontface = "bold") +
+  annotate("text", x = xc_d, y = 1, label = rep3,   size = e_font/.pt, fontface = "bold") +
+  annotate("text", x = bx1,  y = 0.28, label = "Max. memory footprint", hjust = 1,
+           fontface = "italic", size = e_font*0.9/.pt) +
+  annotate("text", x = xc_s, y = 0.28, label = mem1, size = e_font/.pt, fontface = "bold") +
+  annotate("text", x = xc_d, y = 0.28, label = mem3, size = e_font/.pt, fontface = "bold") +
+  annotate("text", x = (bx0+xc_d)/2, y = -0.2, label = "Apple MacBook Pro, M2 Pro, 32 Gb RAM",
+           colour = "#c0392b", fontface = "italic", size = e_font*0.72/.pt) +
+  scale_x_continuous(limits = c(-1.7, xc_d + 1.5)) +
+  scale_y_continuous(limits = c(-0.45, 5.25)) +
+  coord_cartesian(clip = "off") + theme_void() + theme(plot.margin = margin(4, 8, 4, 4))
+pE
+```
+
+# 5 · Assemble and export
+
+The lower half of the manuscript figure: panel **c** (three QC plots) over panel **d** (two
+reporting plots) and panel **e** (the runtime benchmark), on a uniform 3 × 2 grid. Panels **a**
+and **b** (the hand-drawn workflow banner and peak-integration schematic) are added on top in a
+vector editor to complete the figure.
+
+```{r chunk12-assemble, fig.width = 7.2, fig.height = 5.5}
+figCDE <- (pC1 | pC2 | pC3) / (pD1 | pD2 | pE) +
+  plot_layout(widths = c(1, 1, 1), heights = c(1, 1)) +
+  plot_annotation(tag_levels = list(c("c", "", "", "d", "", "e"))) &
+  theme(plot.tag = element_text(size = 12, face = "bold"),
+        plot.margin = margin(2, 3, 2, 2))
 
 # cairo_pdf / ragg render Unicode (e.g. the µ in "µmol/L")
-ggsave("output/ManuscriptFigure_panelsCD.png", figCD,
-       width = 180, height = 215, units = "mm", dpi = 300, device = ragg::agg_png)
-ggsave("output/ManuscriptFigure_panelsCD.pdf", figCD,
-       width = 180, height = 215, units = "mm", dpi = 300, device = cairo_pdf)
+ggsave("output/ManuscriptFigure_panelsCDE.png", figCDE,
+       width = 182, height = 140, units = "mm", dpi = 300, device = ragg::agg_png)
+ggsave("output/ManuscriptFigure_panelsCDE.pdf", figCDE,
+       width = 182, height = 140, units = "mm", dpi = 300, device = cairo_pdf)
 
-figCD
+figCDE
 ```
 
 ::: callout-note
-**Panels a, b and e are added manually.** Panels a (workflow banner) and b (peak-integration
-schematic) are conceptual artwork, and panel e (the SPERFECT-vs-DYNAMO timing / memory
-benchmark) is a measured-performance diagram. These are drawn in a vector editor and combined
-with the QC/reporting panels exported here.
+**Panels a and b are added manually.** Panels a (workflow banner) and b (peak-integration
+schematic) are conceptual artwork drawn in a vector editor and combined with the QC / reporting /
+benchmark panels (c, d, e) exported here.
 
 **Tuning.** The representative run-scatter feature (`example_species`), the PC-class filter for
 the peak-annotation panel, the legend positions, and the patchwork `widths`/`heights` are the
-main layout knobs. Iterate interactively after the pipeline has run once.
+main layout knobs. Panel e reads measured timings from `output/timing_dataset{1,3}.rds` — run
+`scripts/benchmark_runtime.R` to refresh them.
 :::

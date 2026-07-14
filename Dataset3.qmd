@@ -118,6 +118,10 @@ To improve performance multi-threading was used for some of the calculations and
 #| cache: false
 library(mrmhub)
 library(mirai)  # Used for parallel processing
+
+# Set number of cores for parallel processing (all-but-one, so the system stays responsive)
+n_cores <- { n <- parallel::detectCores(); if (is.na(n)) n <- 4L; max(1L, n - 1L) }
+if (mirai::status()$daemons == 0) mirai::daemons(n_cores)
 ```
 
 ### Import the MRMhub-INTEGRATOR results
@@ -645,7 +649,8 @@ plot_runscatter(mexp, variable = "conc_raw",
                 cap_outliers = FALSE,
                 reference_sd_shade = FALSE,
                 show_progress = FALSE,
-                #batch_zebra_stripe = TRUE, 
+                #batch_zebra_stripe = TRUE,
+                multithreading = TRUE,   # parallelise PDF page generation across the mirai daemons
                 output_pdf = TRUE,
                 path = "./output/Dataset3_runscatter_rawConc_all.pdf")
 
@@ -668,7 +673,8 @@ plot_runscatter(mexp, variable = "conc",
                 cap_outliers = FALSE,
                 show_progress = FALSE,
                 reference_sd_shade = FALSE,
-                #batch_zebra_stripe = TRUE, 
+                #batch_zebra_stripe = TRUE,
+                multithreading = TRUE,   # parallelise PDF page generation across the mirai daemons
                 output_pdf = TRUE,
                 path = "./output/Dataset3_runscatter_FinalConc_all.pdf")
 ```
