@@ -13,7 +13,7 @@ bibliography: references.bib
 # MRMhub Workflow Examples
 
 ::: {.lead}
-Reproducible, worked examples of the MRMhub targeted LC-MS data-processing pipeline
+Reproducible example reports of the MRMhub targeted LC-MS data-processing pipeline
 :::
 
 ::: {.title-sep}
@@ -109,7 +109,7 @@ These notebooks reproduce the [**MRMhub**](https://slinghub.github.io/MRMhub) pi
 
 ### Data
 
-Datasets and notebooks are archived on [Zenodo](https://zenodo.org/records/15370294) (record **MRMhub-data**). The repository does not include the datasets due to their size. *(Dataset 4 data will be added to the same record.)*
+Source data are available from [Zenodo](https://zenodo.org/records/15370294) (record **MRMhub-data**).
 
 ### Citation
 
@@ -117,7 +117,7 @@ Datasets and notebooks are archived on [Zenodo](https://zenodo.org/records/15370
 
 ### Contact
 
-For questions, feedback or reproducibility inquiries, contact [bo.burla\@nus.edu.sg](mailto:bo.burla@nus.edu.sg) and [hyung_won_choi\@nus.edu.sg](mailto:hyung_won_choi@nus.edu.sg).
+For questions or feedback, contact [bo.burla\@nus.edu.sg](mailto:bo.burla@nus.edu.sg) and [hyung_won_choi\@nus.edu.sg](mailto:hyung_won_choi@nus.edu.sg).
 
 :::
 
