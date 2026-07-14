@@ -24,7 +24,7 @@ This notebook is a **worked example of how to produce publication-ready QC panel
 `{mrmhub}`**. It reproduces the lower half of the manuscript's main workflow figure — panel
 **c** (*Global analysis QC*, *Peak annotation QC*, *Analyte and sample-level QC*), panel **d**
 (*Post-QC report*, *Concentration summary*), and panel **e** (the SPERFECT-vs-DYNAMO runtime /
-memory benchmark) — using the **Dataset 1 (SPERFECT)** pipeline, on a uniform 3 × 2 grid
+memory benchmark) — using the **Dataset 1 (SPERFECT)** pipeline, on a 3 × 2 grid
 composed with `{patchwork}`.
 
 Panels c and d are standard `{mrmhub}` plots (`plot_pca`, `plot_rt_vs_chain`, `plot_runscatter`,
@@ -213,8 +213,10 @@ mexp_pd@metrics_qc$feature_class <- factor(as.character(mexp_pd@metrics_qc$featu
 
 pD1 <- plot_qc_summary_byclass(mexp_pd) +
   panel_title("Post-QC report") +
+  labs(x = "Analyte class", y = "Number of analytes") +   # manuscript wording
   theme(strip.text = element_text(size = 7), axis.text = element_text(size = 6),
         axis.title = element_text(size = base_font_size),
+        axis.title.y.right = element_blank(), axis.title.x.top = element_blank(),
         legend.position = "inside", legend.position.inside = c(0.74, 0.62),
         legend.direction = "vertical", legend.title = element_blank(),
         legend.background = element_blank(), legend.margin = margin(0, 0, 0, 0),
@@ -228,12 +230,12 @@ pD1
 pD2 <- plot_abundanceprofile(
   data = mexp_final, log_scale = TRUE, variable = "conc", filter_data = TRUE,
   qc_types = "SPL", x_label = NA, font_base_size = base_font_size,
-  feature_map = "lipidomics") +
+  feature_map = "lipidomics",
+  y_axis_position = "left") +   # class labels on the LEFT so they don't squeeze panel e
   panel_title("Concentration summary") +
-  labs(x = "Concentration (µmol/L, plasma)") +
+  labs(x = "µmol/L plasma") +   # manuscript wording
   # many class rows share one grid cell -> shrink the class labels so they don't collide
   theme(axis.text.y = element_text(size = base_font_size * 0.6),
-        axis.text.y.right = element_text(size = base_font_size * 0.6),
         legend.text = element_text(size = base_font_size * 0.7),
         legend.key.size = unit(base_font_size * 0.7, "pt"))
 pD2
@@ -246,8 +248,9 @@ Panel e is a small flow diagram comparing the two datasets (**SPERFECT** = Datas
 **Reporting** rows and the **max. memory footprint** are *measured on this machine* by
 `scripts/benchmark_runtime.R`, which runs each dataset's QUANT pipeline and its run-scatter /
 response-curve QC report and writes `output/timing_dataset{1,3}.rds`. Run that script once
-before rendering; the LC-MS-acquisition and peak-integration rows are kept as reference
-estimates (acquisition is instrument time, integration runs in the separate INTEGRATOR app).
+before rendering. The LC-MS-acquisition row is the instrument time (a reference estimate) and
+the **Peak Integration** row is shown as `XX`/`YY` placeholders to be filled in by hand
+(integration runs in the separate INTEGRATOR desktop app, not timed here).
 
 ```{r chunk11-panelE-benchmark, fig.width = 2.6, fig.height = 2.8}
 read_timing <- function(path) if (file.exists(path)) readRDS(path) else
@@ -267,65 +270,69 @@ quant1 <- fmt_time(t1$import_sec + t1$quant_qc_sec); quant3 <- fmt_time(t3$impor
 rep1   <- fmt_time(t1$reporting_sec);                rep3   <- fmt_time(t3$reporting_sec)
 mem1   <- fmt_mem(t1$peak_mem_gb);                   mem3   <- fmt_mem(t3$peak_mem_gb)
 
-e_font <- 7.6
+e_font <- 9   # same text size as the QC panels (as in the manuscript)
 boxes <- data.frame(
   stage = c("LC-MS\nData Acquisition", "Peak\nIntegration", "Quantitation\nand QC", "Reporting"),
   y     = c(4, 3, 2, 1),
   fill  = c("#fdf5c9", "#d9e8f4", "#f7dadb", "#e6f0da"),
   col   = c("#d8bd3f", "#5b95c4", "#cf7071", "#5aa246"))
-bx0 <- 0.3; bx1 <- 4.3; bh <- 0.72; xc_s <- 5.8; xc_d <- 9.2; arrow_col <- "#b98a2e"
+bx0 <- 0.4; bx1 <- 4.4; bh <- 0.54; bxc <- (bx0 + bx1) / 2
+xc_s <- 6.4; xc_d <- 9.6; arrow_col <- "#b98a2e"
 
 pE <- ggplot() +
   geom_rect(data = boxes, aes(xmin = bx0, xmax = bx1, ymin = y - bh/2, ymax = y + bh/2),
             fill = boxes$fill, colour = boxes$col, linewidth = 0.7) +
-  geom_text(data = boxes, aes(x = (bx0+bx1)/2, y = y, label = stage),
+  geom_text(data = boxes, aes(x = bxc, y = y, label = stage),
             size = e_font*0.92/.pt, lineheight = 0.9) +
-  annotate("segment", x = (bx0+bx1)/2, xend = (bx0+bx1)/2, y = c(4,3,2) - bh/2,
-           yend = c(3,2,1) + bh/2, colour = arrow_col, linewidth = 2.4,
-           arrow = arrow(type = "closed", length = unit(5, "pt"))) +
-  annotate("text", x = xc_s, y = 4.92, label = "SPERFECT", fontface = "bold.italic", size = e_font*0.75/.pt) +
-  annotate("text", x = xc_d, y = 4.92, label = "DYNAMO",   fontface = "bold.italic", size = e_font*0.75/.pt) +
-  annotate("text", x = xc_s, y = 4.6,  label = "(n=937)",  fontface = "italic", size = e_font*0.7/.pt) +
-  annotate("text", x = xc_d, y = 4.6,  label = "(n=4591)", fontface = "italic", size = e_font*0.7/.pt) +
+  # small arrows sitting in the gaps between boxes
+  annotate("segment", x = bxc, xend = bxc, y = c(4,3,2) - bh/2 - 0.06,
+           yend = c(3,2,1) + bh/2 + 0.06, colour = arrow_col, linewidth = 1.1,
+           arrow = arrow(type = "closed", length = unit(3, "pt"))) +
+  annotate("text", x = xc_s, y = 4.95, label = "SPERFECT", fontface = "bold.italic", size = e_font*0.82/.pt) +
+  annotate("text", x = xc_d, y = 4.95, label = "DYNAMO",   fontface = "bold.italic", size = e_font*0.82/.pt) +
+  annotate("text", x = xc_s, y = 4.6,  label = "(n=937)",  fontface = "italic", size = e_font*0.72/.pt) +
+  annotate("text", x = xc_d, y = 4.6,  label = "(n=4591)", fontface = "italic", size = e_font*0.72/.pt) +
   annotate("text", x = xc_s, y = 4, label = "2 weeks", size = e_font/.pt) +
   annotate("text", x = xc_d, y = 4, label = "8 weeks", size = e_font/.pt) +
-  annotate("text", x = xc_s, y = 3, label = "8 sec",   size = e_font/.pt) +
-  annotate("text", x = xc_d, y = 3, label = "42 sec",  size = e_font/.pt) +
+  annotate("text", x = xc_s, y = 3, label = "XX", size = e_font/.pt) +   # INTEGRATOR time — to be added
+  annotate("text", x = xc_d, y = 3, label = "YY", size = e_font/.pt) +   # INTEGRATOR time — to be added
   annotate("text", x = xc_s, y = 2, label = quant1, size = e_font/.pt, fontface = "bold") +
   annotate("text", x = xc_d, y = 2, label = quant3, size = e_font/.pt, fontface = "bold") +
   annotate("text", x = xc_s, y = 1, label = rep1,   size = e_font/.pt, fontface = "bold") +
   annotate("text", x = xc_d, y = 1, label = rep3,   size = e_font/.pt, fontface = "bold") +
-  annotate("text", x = bx1,  y = 0.28, label = "Max. memory footprint", hjust = 1,
-           fontface = "italic", size = e_font*0.9/.pt) +
-  annotate("text", x = xc_s, y = 0.28, label = mem1, size = e_font/.pt, fontface = "bold") +
-  annotate("text", x = xc_d, y = 0.28, label = mem3, size = e_font/.pt, fontface = "bold") +
-  annotate("text", x = (bx0+xc_d)/2, y = -0.2, label = "Apple MacBook Pro, M2 Pro, 32 Gb RAM",
-           colour = "#c0392b", fontface = "italic", size = e_font*0.72/.pt) +
-  scale_x_continuous(limits = c(-1.7, xc_d + 1.5)) +
-  scale_y_continuous(limits = c(-0.45, 5.25)) +
-  coord_cartesian(clip = "off") + theme_void() + theme(plot.margin = margin(4, 8, 4, 4))
+  annotate("text", x = xc_s - 1.5, y = 0.25, label = "Max. memory footprint", hjust = 1,
+           fontface = "italic", size = e_font*0.82/.pt) +
+  annotate("text", x = xc_s, y = 0.25, label = mem1, size = e_font/.pt, fontface = "bold") +
+  annotate("text", x = xc_d, y = 0.25, label = mem3, size = e_font/.pt, fontface = "bold") +
+  annotate("text", x = (xc_s+xc_d)/2, y = -0.32, label = "Apple MacBook Pro, M2 Pro, 32 Gb RAM",
+           colour = "#c0392b", fontface = "italic", size = e_font*0.6/.pt) +
+  scale_x_continuous(limits = c(-0.5, xc_d + 2.0)) +
+  scale_y_continuous(limits = c(-0.55, 5.4)) +
+  coord_cartesian(clip = "off") + theme_void() + theme(plot.margin = margin(4, 6, 4, 4))
 pE
 ```
 
 # 5 · Assemble and export
 
 The lower half of the manuscript figure: panel **c** (three QC plots) over panel **d** (two
-reporting plots) and panel **e** (the runtime benchmark), on a uniform 3 × 2 grid. Panels **a**
+reporting plots) and panel **e** (the runtime benchmark), on a 3 × 2 grid whose third column is
+widened so the run-scatter (c) and the benchmark (e) get more horizontal room. Panels **a**
 and **b** (the hand-drawn workflow banner and peak-integration schematic) are added on top in a
 vector editor to complete the figure.
 
-```{r chunk12-assemble, fig.width = 7.2, fig.height = 5.5}
+```{r chunk12-assemble, fig.width = 8.1, fig.height = 5.0}
+# column 3 is wider so the run-scatter (c) and the benchmark (e) get more horizontal room
 figCDE <- (pC1 | pC2 | pC3) / (pD1 | pD2 | pE) +
-  plot_layout(widths = c(1, 1, 1), heights = c(1, 1)) +
+  plot_layout(widths = c(1, 1, 1.7), heights = c(1, 1)) +
   plot_annotation(tag_levels = list(c("c", "", "", "d", "", "e"))) &
   theme(plot.tag = element_text(size = 12, face = "bold"),
         plot.margin = margin(2, 3, 2, 2))
 
 # cairo_pdf / ragg render Unicode (e.g. the µ in "µmol/L")
 ggsave("output/ManuscriptFigure_panelsCDE.png", figCDE,
-       width = 182, height = 140, units = "mm", dpi = 300, device = ragg::agg_png)
+       width = 205, height = 128, units = "mm", dpi = 300, device = ragg::agg_png)
 ggsave("output/ManuscriptFigure_panelsCDE.pdf", figCDE,
-       width = 182, height = 140, units = "mm", dpi = 300, device = cairo_pdf)
+       width = 205, height = 128, units = "mm", dpi = 300, device = cairo_pdf)
 
 figCDE
 ```
