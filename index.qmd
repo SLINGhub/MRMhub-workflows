@@ -21,6 +21,16 @@ Reproducible, worked examples of the MRMhub targeted LC-MS data-processing pipel
 
 These notebooks reproduce the [**MRMhub**](https://slinghub.github.io/MRMhub) pipeline end-to-end on real targeted LC-MS datasets — from INTEGRATOR peak-integration results through QUANT normalization, quantification, quality control and reporting. Each is a self-contained Quarto notebook combining narrative, executable R and outputs, provided as Supplementary Materials for the MRMhub manuscript.
 
+## Workflows
+
+::: {.arrow-list}
+- **[Dataset 1 ↗](Dataset1.html)** — targeted plasma lipidomics, Tan *et al.* [@tan2022]; 503 features across 937 samples. ISTD normalization, quantification, drift/batch correction and QC filtering.
+- **[Dataset 3 ↗](Dataset3.html)** — targeted lipidomics, Chen *et al.* [@chen2025]; 829 features across 4,591 samples. The same pipeline at population scale.
+- **[Dataset 4 ↗](Dataset4.html)** — fully quantitative steroid assay (Panel 1, 15 analytes) with external calibration, low/high QC and EQA samples [@jansen2014]. Validates MRMhub against Agilent MassHunter across the INTEGRATOR (peak areas) and QUANT (concentrations) modules.
+:::
+
+## The MRMhub pipeline
+
 ::: {.hero-fig}
 
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1120 250" style="max-width: 1000px; width: 100%; height: auto; font-family: 'Source Sans Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;" role="img" aria-label="MRMhub processing overview: four pipeline stages — Peak Integration, Quantitation, Quality Control and Reporting. Peak Integration is performed by MRMhub-INTEGRATOR; the remaining three stages by MRMhub-QUANT.">
@@ -77,14 +87,6 @@ These notebooks reproduce the [**MRMhub**](https://slinghub.github.io/MRMhub) pi
   <text class="ov-item" x="839" y="180">FAIR data sharing</text>
 </svg>
 
-:::
-
-## Workflows
-
-::: {.arrow-list}
-- **[Dataset 1 ↗](Dataset1.html)** — targeted plasma lipidomics, Tan *et al.* [@tan2022]; 503 features across 937 samples. ISTD normalization, quantification, drift/batch correction and QC filtering.
-- **[Dataset 3 ↗](Dataset3.html)** — targeted lipidomics, Chen *et al.* [@chen2025]; 829 features across 4,591 samples. The same pipeline at population scale.
-- **[Dataset 4 ↗](Dataset4.html)** — fully quantitative steroid assay (Panel 1, 15 analytes) with external calibration, low/high QC and EQA samples [@jansen2014]. Validates MRMhub against Agilent MassHunter across the INTEGRATOR (peak areas) and QUANT (concentrations) modules.
 :::
 
 ---
