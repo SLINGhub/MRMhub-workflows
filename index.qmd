@@ -30,6 +30,7 @@ These notebooks reproduce the [**MRMhub**](https://slinghub.github.io/MRMhub) pi
 - **[Manuscript Figure ↗](ManuscriptFigure.html)** — worked example of assembling publication-ready QC panels with MRMhub, reproducing the manuscript workflow figure's data panels from the Dataset 1 pipeline.
 :::
 
+<!--
 ## The MRMhub pipeline
 
 ::: {.hero-fig}
@@ -89,6 +90,7 @@ These notebooks reproduce the [**MRMhub**](https://slinghub.github.io/MRMhub) pi
 </svg>
 
 :::
+-->
 
 ---
 
