@@ -102,9 +102,19 @@ A [Quarto](https://quarto.org/) notebook was created in [RStudio](https://posit.
 
 ```{r chunk2-installpkg, include = TRUE, eval = FALSE}
 if (!require("remotes")) install.packages("remotes")
-#remotes::install_github("SLINGhub/MRMhub", subdir = "quant")
-#install.packages("here") # Used for parallel processing
+# This site was rendered with mrmhub 0.9.3 (the QUANT module of MRMhub). This
+# version's API currently lives on the `development` branch — the package is at
+# the repository root there, so no `subdir` is needed.
+remotes::install_github("SLINGhub/MRMhub", ref = "development")
 ```
+
+::: callout-note
+## mrmhub version
+These notebooks were rendered with **mrmhub 0.9.3** (QUANT module of
+[MRMhub](https://github.com/SLINGhub/MRMhub)). This API is currently on the
+`development` branch; install with
+`remotes::install_github("SLINGhub/MRMhub", ref = "development")`.
+:::
 
 The Quarto notebook code generated in this example workflow is available from <https://github.com/SLINGhub/MRMhub-workflows> (file Dataset3.qmd). In the subsequent section, the data postprocessing is encoded and documented step-by-step into the notebook as individual code chunks using {mrmhub} functions. Certain code chunks include additional R code to showcase specific examples for illustrative purposes. In real-world applications, this supplementary may not be necessary.
 

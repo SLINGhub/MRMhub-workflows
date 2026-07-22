@@ -75,6 +75,14 @@ panel_title <- function(t)
 dir.create("output", showWarnings = FALSE, recursive = TRUE)
 ```
 
+::: callout-note
+## mrmhub version
+This notebook was rendered with **mrmhub 0.9.3** (QUANT module of
+[MRMhub](https://github.com/SLINGhub/MRMhub)). This API is currently on the
+`development` branch; install with
+`remotes::install_github("SLINGhub/MRMhub", ref = "development")`.
+:::
+
 # 1 · Reproduce the Dataset 1 pipeline
 
 The steps below mirror `Dataset1.qmd` and bring `mexp` to its final state (normalized,

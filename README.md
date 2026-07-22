@@ -33,6 +33,24 @@ To obtain the data for a notebook:
 Each `data/dataset-<n>/` folder carries a `README.txt` describing its files.
 *(Dataset 4's data is pending upload to the same record.)*
 
+## Software environment
+
+The rendered site was produced with **[mrmhub](https://github.com/SLINGhub/MRMhub)
+0.9.3** (the QUANT module) on **R 4.5** and **Quarto**. PDF output additionally
+requires a LuaLaTeX engine (TinyTeX/TeX Live).
+
+At the time of writing, the mrmhub 0.9.3 API used by these notebooks is on the
+`development` branch (the package sits at the repository root there, so no
+`subdir` is needed):
+
+```r
+remotes::install_github("SLINGhub/MRMhub", ref = "development")
+```
+
+> **Reproducibility note.** For an exact, immutable pin, install from a specific
+> commit or release tag once a version carrying this API is published, e.g.
+> `remotes::install_github("SLINGhub/MRMhub", ref = "<tag-or-sha>")`.
+
 ## Contact
 
 bo.burla@nus.edu.sg and hyung_won_choi@nus.edu.sg

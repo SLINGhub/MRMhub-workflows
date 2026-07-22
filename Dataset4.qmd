@@ -127,6 +127,14 @@ calibration curves, and quantify. This is a shorter pipeline than Datasets 1/3 â
 no drift/batch correction or feature filtering, which do not apply to a
 15-analyte, single-batch panel.
 
+::: callout-note
+## mrmhub version
+This notebook was rendered with **mrmhub 0.9.3** (QUANT module of
+[MRMhub](https://github.com/SLINGhub/MRMhub)). This API is currently on the
+`development` branch; install with
+`remotes::install_github("SLINGhub/MRMhub", ref = "development")`.
+:::
+
 ```{r chunk3-loadpkg}
 #| cache: false
 library(mrmhub)
