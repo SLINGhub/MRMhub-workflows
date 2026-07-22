@@ -158,7 +158,7 @@ plot_runsequence(
   mexp, 
   show_batches = TRUE, 
   qc_types = c("SPL", "BQC", "TQC", "PBLK", "UBLK", "RQC", "SBLK", "LTR", "NIST"),
-  batch_zebra_stripe = TRUE, base_font_size = 6,
+  batch_zebra_stripe = TRUE, font_base_size = 6,
   batch_fill_color = "#fffbdb", 
   segment_linewidth = 0.25,
   show_timestamp = FALSE) +
@@ -247,8 +247,8 @@ plot_runscatter(mexp, variable = "intensity",
                 #plot_range = c(0, 910),
                 point_size = .2,
                 point_border_width = 0.1,
-                point_transparency = .7,
-                base_font_size = 4,
+                point_alpha = .7,
+                font_base_size = 4,
                 cols_page = 3,
                 rows_page = 11,
                 show_progress = FALSE,
@@ -334,8 +334,8 @@ plot_runscatter(mexp, variable = "intensity",
                 #plot_range = c(0, 910),
                 point_size = .2,
                 point_border_width = 0.1,
-                point_transparency = .7,
-                base_font_size = 4,
+                point_alpha = .7,
+                font_base_size = 4,
                 cols_page = 3,
                 rows_page = 11,
                 show_progress = FALSE,
@@ -353,7 +353,7 @@ plot_rt_vs_chain(
   mexp, 
   qc_types = "SPL", 
   x_var = "total_c", outlier_residual_min = 0.3,
-  base_font_size = 6, 
+  font_base_size = 6, 
   cols_page = 4,
   point_size = 1) +
   theme( 
@@ -385,7 +385,7 @@ plot_feature_correlations(
   cor_min = 0.98,
   point_stroke = 0.1,
   sort_by_corr = TRUE, 
-  return_plot = TRUE,
+  return_plots = TRUE,
   show_progress = FALSE,
   log_scale = TRUE, 
   cols_page = 5, 
@@ -404,7 +404,7 @@ mexp <- exclude_features(mexp, features = "PC(O-36:1)", clear_existing = TRUE)
 Highly correlating feature pairs from above analysis were found to consist of numerous lysophospholipid (lyso-PL) sn-1/sn-2 isomers and diacylglycerol (DG) isomer peaks. This is an expected observation, as spontaneous positional isomerization, or acyl migration, is known to occur in vitro during sample preparation and storage (Okudaira et al., J Lipid Research, 2014 [@okudaira2014]). Therefore, lyso-PL and DG isomer pairs were summed into a single feature before subsequent processing.
 
 ```{r chunk16-isomer-sum}
-mexp <- data_sum_features(mexp, feature_classes = c("LPC", "LPE", "LPG", "LPI", "LPS", "DG"))
+mexp <- data_sum_features(mexp)
 ```
 
 ## PCA to check for potential technical outliers
@@ -468,7 +468,7 @@ plot_pca_loading(
 To assess potential matrix effects arising from differences between individual samples, the signal distributions of the internal standards (ISTDs) were plotted for each sample type. The signals correspond to the median of batch-wise normalized signals. Cholesterol and the triglyceride (TG) ISTDs exhibited considerably higher matrix effects relative to other ISTDs, as indicated by the wider distributions of their normalized intensities. On average, the Technical QC (TQC) samples displayed lower ISTD signals compared to the Batch QC (BQC) and study samples.
 
 ```{r chunk19-matrixeffects}
-plot_qc_matrixeffects(
+plot_matrixeffects(
   mexp, 
   variable = "intensity",
   batchwise_normalization = TRUE,
@@ -492,8 +492,8 @@ The corresponding QC plot shows that relevant interference is present for PC 26:
 
 ```{r chunk20-isotope-correction}
 #| cache: false
-mexp <- correct_interferences(mexp)
-plot_qc_interferences(mexp, y_lim = c(-10, 110), qc_types = c("LTR", "NIST", "SPL", "TQC", "BQC"))
+mexp <- correct_custom_interferences(mexp)
+plot_interference_correction(mexp, y_lim = c(-10, 110), qc_types = c("LTR", "NIST", "SPL", "TQC", "BQC"))
 ```
 
 ## Normalization and Quantification
@@ -559,7 +559,7 @@ plot_runscatter(mexp,
     reference_k_sd = 3,
     point_size = 0.5,
     point_border_width = 0.1,
-    base_font_size = 6,
+    font_base_size = 6,
     cols_page = 2,
     rows_page = 6,
     cap_outliers = TRUE,
@@ -612,7 +612,7 @@ plot_runscatter(mexp, variable = "conc",
     reference_k_sd = 3,
     point_size = 0.5,
     point_border_width = 0.1,
-    base_font_size = 6,
+    font_base_size = 6,
     cols_page = 2,
     rows_page = 6,
     cap_outliers = TRUE,
@@ -643,7 +643,7 @@ plot_runscatter(mexp, variable = "conc_raw",
                 reference_k_sd = 3,
                 show_trend = TRUE,
                 point_size = 1,
-                base_font_size = 6,
+                font_base_size = 6,
                 cols_page = 2,
                 rows_page = 3,
                 cap_outliers = FALSE,
@@ -667,7 +667,7 @@ plot_runscatter(mexp, variable = "conc",
                 reference_k_sd = 3,
                 show_trend = TRUE,
                 point_size = 1,
-                base_font_size = 6,
+                font_base_size = 6,
                 cols_page = 2,
                 rows_page = 3,
                 cap_outliers = FALSE,

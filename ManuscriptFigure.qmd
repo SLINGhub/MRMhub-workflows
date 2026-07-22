@@ -145,7 +145,7 @@ pC1
 mexp_pc <- mexp
 mexp_pc@dataset <- mexp@dataset |> filter(str_detect(feature_id, "^PC \\d"))
 pC2 <- plot_rt_vs_chain(mexp_pc, qc_types = "SPL", x_var = "total_c",
-                        base_font_size = base_font_size) +
+                        font_base_size = base_font_size) +
   panel_title("Peak annotation QC") + strip_teal +
   labs(x = "Total carbon number", y = "Median retention time (min)",
        # colour and fill both encode double-bond count; share a title so the two
@@ -174,9 +174,9 @@ pC3 <- plot_runscatter(
   show_reference_lines = TRUE, ref_qc_types = "SPL",
   reference_fill_color = "#b83c3cff", reference_line_color = "#37c2f0ff",
   reference_k_sd = NA, show_trend = TRUE, point_size = 1,
-  base_font_size = base_font_size, cols_page = 1, rows_page = 1,
+  font_base_size = base_font_size, cols_page = 1, rows_page = 1,
   cap_outliers = FALSE, reference_sd_shade = FALSE, show_progress = FALSE,
-  output_pdf = FALSE, return_plot = TRUE)[[1]] +
+  output_pdf = FALSE, return_plots = TRUE)[[1]] +
   panel_title("Analyte and sample-level QC") + strip_teal +
   labs(y = "Raw concentration (µmol/L)") +
   coord_cartesian(clip = "off") +

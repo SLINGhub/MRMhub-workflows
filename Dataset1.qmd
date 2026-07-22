@@ -157,7 +157,7 @@ fig4a <- plot_runsequence(
   show_batches = TRUE, 
   qc_types = c("SPL", "BQC", "TQC", "PBLK", "UBLK", "RQC", "SBLK", "LTR"),
   batch_zebra_stripe = TRUE, 
-  base_font_size = 6,
+  font_base_size = 6,
   batch_fill_color = "#fffbdb", 
   segment_linewidth = 0.5,
   show_timestamp = FALSE) +
@@ -187,7 +187,7 @@ plot_rla_boxplot(
   show_timestamp = FALSE,
   outlier_method = "iqr",
   outlier_k = 1.5,
-  base_font_size = 6,
+  font_base_size = 6,
   outlier_exclude = FALSE, 
   x_gridlines = FALSE,
   batch_zebra_stripe = FALSE,
@@ -230,7 +230,7 @@ res <- plot_rla_boxplot(
   outlier_exclude = FALSE, 
   x_gridlines = FALSE,
   batch_zebra_stripe = FALSE,
-  base_font_size = 6,
+  font_base_size = 6,
   show_plot = FALSE, 
   linewidth = 0.1
 )
@@ -262,7 +262,7 @@ extfig2b <- plot_rla_boxplot(
   x_gridlines = FALSE,
   batch_zebra_stripe = FALSE,
   show_plot = FALSE,
-  base_font_size = 8,
+  font_base_size = 8,
   linewidth = 0.2
 )$plot
 
@@ -295,7 +295,7 @@ extfig2c <- plot_rla_boxplot(
   outlier_exclude = FALSE, 
   x_gridlines = FALSE,
   batch_zebra_stripe = FALSE,
-  base_font_size = 6,
+  font_base_size = 6,
   show_plot = FALSE,
   linewidth = 0.2)$plot +
     theme(
@@ -337,7 +337,7 @@ extfig2d <- plot_rla_boxplot(
   outlier_exclude = FALSE, 
   x_gridlines = FALSE,
   batch_zebra_stripe = FALSE,
-  base_font_size = 8,
+  font_base_size = 8,
   show_plot = FALSE,
   linewidth = 0.2)$plot +
     theme(
@@ -372,7 +372,7 @@ fig4c <- plot_rt_vs_chain(
   mexp_temp, 
   qc_types = "SPL", 
   x_var = "total_c", 
-  base_font_size = 6) +
+  font_base_size = 6) +
   theme( 
       legend.position = "right",
       legend.direction = "vertical", 
@@ -404,7 +404,7 @@ fig4d <- plot_feature_correlations(
   include_feature_filter = c(
     "Cer d18:1/24:0", "Cer d18:0/24:1"),
   qc_types = c("SPL", "BQC", "TQC"), 
-  cor_min = 0.1,sort_by_corr = TRUE, return_plot = TRUE,show_progress = F,
+  cor_min = 0.1,sort_by_corr = TRUE, return_plots = TRUE,show_progress = F,
   log_scale = FALSE, cols_page = 1, rows_page = 1, 
   font_base_size = 6)[[1]] + 
   theme(
@@ -436,7 +436,7 @@ mexp <- import_data_mrmhub(
 We also directly plot the RT against chain lengths again, which confirms that the peak picking errors seems to have been corrected.
 
 ```{r chunk13-rt-vs-chain-v2}
-extfig3a <- plot_rt_vs_chain(mexp_initial, qc_types = "SPL", x_var = "total_c", base_font_size = 6)+
+extfig3a <- plot_rt_vs_chain(mexp_initial, qc_types = "SPL", x_var = "total_c", font_base_size = 6)+
   theme( 
       legend.position = "right",
       legend.direction = "vertical", 
@@ -446,7 +446,7 @@ extfig3a <- plot_rt_vs_chain(mexp_initial, qc_types = "SPL", x_var = "total_c", 
       legend.position.inside = c(0.1, 0.7))
 extfig3a  
 
-extfig3b <- plot_rt_vs_chain(mexp, qc_types = "SPL", x_var = "total_c", base_font_size = 6)+
+extfig3b <- plot_rt_vs_chain(mexp, qc_types = "SPL", x_var = "total_c", font_base_size = 6)+
   theme( 
       legend.position = "right",
       legend.direction = "vertical", 
@@ -560,7 +560,7 @@ fig4f <- plot_runscatter(mexp, variable = "intensity",
                 reference_fill_color = "#111111",
                 reference_k_sd = NA,
                 point_size = 1,
-                base_font_size = 6,
+                font_base_size = 6,
                 cols_page = 1,
                 rows_page = 1,
                 cap_outliers = TRUE,
@@ -591,8 +591,8 @@ extfig5 <- plot_runscatter(mexp, variable = "intensity",
                 reference_k_sd = NA,
                 point_size = .7,
                 point_border_width = 0.2,
-                point_transparency = .7,
-                base_font_size = 6,
+                point_alpha = .7,
+                font_base_size = 6,
                 cols_page = 4,
                 rows_page = 5,
                 cap_outliers = TRUE,
@@ -611,7 +611,7 @@ To check for potential matrix effects, we plot the peak areas (`intensity`) of a
 mexp_temp <- mexp
 mexp_temp@dataset <- mexp_temp@dataset |> filter(!str_detect(feature_id, "DG 15:0\\_18:1 d7 \\(ISTD\\) \\[\\-15:0\\]"))
 
-fig4g <- plot_qc_matrixeffects(
+fig4g <- plot_matrixeffects(
   mexp_temp, 
   variable = "intensity",
   y_lim = c(0,250), 
@@ -671,7 +671,7 @@ fig5c <- plot_runscatter(mexp, variable = "conc_raw",
                 reference_k_sd = NA,
                 show_trend = TRUE,
                 point_size = 1,
-                base_font_size = 6,
+                font_base_size = 6,
                 cols_page = 1,
                 rows_page = 1,
                 cap_outliers = FALSE,
@@ -679,7 +679,7 @@ fig5c <- plot_runscatter(mexp, variable = "conc_raw",
                 #batch_zebra_stripe = TRUE, 
                 show_progress = FALSE,
                 output_pdf = FALSE,
-                path = "rt_all.pdf", return_plot = TRUE)[[1]]+
+                path = "rt_all.pdf", return_plots = TRUE)[[1]]+
   theme(
     legend.position = "inside",
     legend.direction = "horizontal", 
@@ -704,7 +704,7 @@ fig5d <- plot_runscatter(mexp, variable = "conc",
                 reference_k_sd =  NA,
                 show_trend = TRUE,
                 point_size = 1,
-                base_font_size = 6,
+                font_base_size = 6,
                 cols_page = 1,
                 rows_page = 1,
                 cap_outliers = FALSE,
@@ -712,7 +712,7 @@ fig5d <- plot_runscatter(mexp, variable = "conc",
                 #batch_zebra_stripe = TRUE, 
                 show_progress = FALSE,
                 output_pdf = FALSE,
-                path = "rt_all.pdf", return_plot = TRUE)[[1]]+
+                path = "rt_all.pdf", return_plots = TRUE)[[1]]+
   theme(
     legend.position = "inside",
     legend.direction = "horizontal", 
@@ -1261,7 +1261,7 @@ plot_runscatter(mexp,
   reference_k_sd = 3,
   show_trend = FALSE,
   point_size = 1.2,
-  base_font_size = 6,
+  font_base_size = 6,
   cols_page = 3,
   rows_page = 3,
   cap_outliers = TRUE,
@@ -1270,7 +1270,7 @@ plot_runscatter(mexp,
   show_progress = FALSE,
   multithreading = TRUE,   # parallelise PDF page generation across the mirai daemons
   output_pdf = TRUE,
-  path = "output/suppl-fig1_runscatter_area.pdf", return_plot = FALSE)
+  path = "output/suppl-fig1_runscatter_area.pdf", return_plots = FALSE)
 
 plot_runscatter(mexp, 
   variable = "conc_raw", 
@@ -1281,7 +1281,7 @@ plot_runscatter(mexp,
   reference_k_sd = 3,
   show_trend = TRUE,
   point_size = 1.2,
-  base_font_size = 6,
+  font_base_size = 6,
   cols_page = 3,
   rows_page = 3,
   cap_outliers = TRUE,
@@ -1290,7 +1290,7 @@ plot_runscatter(mexp,
   show_progress = FALSE,
   multithreading = TRUE,   # parallelise PDF page generation across the mirai daemons
   output_pdf = TRUE,
-  path = "output/suppl-fig2_runscatter_conc-raw.pdf", return_plot = FALSE)
+  path = "output/suppl-fig2_runscatter_conc-raw.pdf", return_plots = FALSE)
 
 plot_runscatter(mexp, 
   variable = "conc", 
@@ -1301,7 +1301,7 @@ plot_runscatter(mexp,
   reference_k_sd = 3,
   show_trend = TRUE,
   point_size = 1.2,
-  base_font_size = 6,
+  font_base_size = 6,
   cols_page = 3,
   rows_page = 3,
   cap_outliers = TRUE,
@@ -1310,7 +1310,7 @@ plot_runscatter(mexp,
   show_progress = FALSE,
   multithreading = TRUE,   # parallelise PDF page generation across the mirai daemons
   output_pdf = TRUE,
-  path = "output/suppl-fig3_runscatter_conc-final.pdf", return_plot = FALSE)
+  path = "output/suppl-fig3_runscatter_conc-final.pdf", return_plots = FALSE)
 ```
 
 # References
