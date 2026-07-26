@@ -2,6 +2,22 @@
    right-hand info panel. Typography is inherited from cosmo + _brand.yml
    (steel-blue #5B8FA8 primary, navy #2C3E50); no new fonts are introduced. */
 
+/* Wrap mrmhub's cli status output (stderr) so long ✔/ℹ/warning lines reflow
+   instead of scrolling horizontally. Quarto's `code-overflow: wrap` covers
+   source code blocks but not `.cell-output-stderr`, which cli emits as
+   single, unwrapped lines. */
+.cell-output-stderr pre code {
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+}
+
+/* cli emits each ✔/ℹ/warning line as its own `.cell-output-stderr` block; the
+   default `<pre>` margin puts a blank line between consecutive ones. Zero the
+   margin so the status lines read as one contiguous block. */
+.cell-output-stderr pre {
+  margin: 0;
+}
+
 /* Tighter spacing for R-output code blocks in the dataset notebooks. */
 pre.r-output, pre.r-output code {
   font-family: monospace;
