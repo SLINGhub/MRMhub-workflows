@@ -40,7 +40,8 @@ bibliography: references.bib
 knitr::opts_chunk$set(
   cache = FALSE,
   collapse = TRUE, results = TRUE, message = TRUE, warning = TRUE,
-  comment = "#>", out.width = "100%")
+  comment = "#>", out.width = "100%"
+)
 set.seed(1041)
 options(dplyr.print_max = 15)
 
@@ -107,10 +108,12 @@ throughout this document.
 # figures/dataset4/dataset4-chromatograms.R and embedded here as static PNGs, so
 # the notebook render needs neither the PDFs nor magick/ghostscript.
 chrom_dir <- "images/dataset4"
-chrom_grob <- function(name)
+chrom_grob <- function(name) {
   grid::rasterGrob(
     png::readPNG(file.path(chrom_dir, paste0(name, ".png"))),
-    interpolate = TRUE)
+    interpolate = TRUE
+  )
+}
 
 chrom_gg <- function(name, title, subtitle = NULL) {
   ggplot() +
@@ -120,10 +123,13 @@ chrom_gg <- function(name, title, subtitle = NULL) {
     theme(
       plot.title = element_text(
         size = 8,
-        hjust = 0.5, margin = margin(b = 1)),
+        hjust = 0.5, margin = margin(b = 1)
+      ),
       plot.subtitle = element_text(
         size = 6.8,
-        hjust = 0.5, colour = "grey30", margin = margin(b = 2)))
+        hjust = 0.5, colour = "grey30", margin = margin(b = 2)
+      )
+    )
 }
 
 (chrom_gg("top_21-deoxycortisol_HQC", "21-deoxycortisol", "HQC") |
@@ -188,10 +194,12 @@ re-imported later (@fig-d4-fig2) with MassHunter areas substituted in.
 #| cache: false
 sst_long <- read_csv(
   file.path(d4, "Dataset4_MRMhub-INTEGRATOR_SST.csv"),
-  show_col_types = FALSE)
+  show_col_types = FALSE
+)
 assay_long <- read_csv(
   file.path(d4, "Dataset4_MRMhub-INTEGRATOR_ASSAY.csv"),
-  show_col_types = FALSE)
+  show_col_types = FALSE
+)
 long_combined <- bind_rows(sst_long, assay_long)
 
 long_combined_path <- file.path("output", "Dataset4_long_combined.csv")
@@ -200,10 +208,12 @@ write_csv(long_combined, long_combined_path)
 # Analysis ids per subset (import strips the ".mzML" extension).
 sst_analysis_ids <- unique(str_remove(
   sst_long$raw_data_filename,
-  "[.]mzML$"))
+  "[.]mzML$"
+))
 assay_analysis_ids <- unique(str_remove(
   assay_long$raw_data_filename,
-  "[.]mzML$"))
+  "[.]mzML$"
+))
 
 meta_path <- file.path(d4, "Dataset4_Metadata.xlsx")
 
@@ -211,11 +221,13 @@ mexp <- MRMhubExperiment(title = "Dataset 4 — Steroid Assay")
 mexp <- import_data_mrmhub(
   mexp,
   path = long_combined_path,
-  import_metadata = TRUE)
+  import_metadata = TRUE
+)
 mexp <- import_metadata_msorganiser(
   mexp,
   path = meta_path,
-  excl_unmatched_analyses = TRUE, ignore_warnings = TRUE)
+  excl_unmatched_analyses = TRUE, ignore_warnings = TRUE
+)
 ```
 
 ## Normalization and calibration
@@ -230,7 +242,8 @@ mexp <- calc_calibration_results(
   mexp,
   fit_overwrite = TRUE,
   fit_model = "quadratic",
-  fit_weighting = "1/x")
+  fit_weighting = "1/x"
+)
 ```
 
 The fitted curves and their metrics are inspected before quantification.
@@ -248,7 +261,8 @@ plot_calibrationcurves(
   fit_weighting = "1/x",
   include_istd = FALSE,
   include_qualifier = FALSE,
-  show_progress = FALSE)
+  show_progress = FALSE
+)
 ```
 
 ```{r chunk7-calibration-metrics}
@@ -259,7 +273,8 @@ get_calibration_metrics(mexp) |>
   transmute(
     analyte = feature_id,
     fit_model, fit_weighting, r2 = round(r2, 5), lod = signif(lod, 3),
-    loq = signif(loq, 3))
+    loq = signif(loq, 3)
+  )
 ```
 
 ## Quantification
@@ -275,7 +290,8 @@ mexp <- quantify_by_calibration(
   include_qualifier = FALSE,
   ignore_failed_calibration = TRUE,
   fit_model = "quadratic",
-  fit_weighting = "1/x")
+  fit_weighting = "1/x"
+)
 
 # Export + reload the concentration table (wide: analysis_id, qc_type, analytes).
 conc_path <- file.path("output", "Dataset4_quant_results.csv")
@@ -283,7 +299,8 @@ save_dataset_csv(
   mexp,
   path = conc_path,
   variable = "conc",
-  add_qctype = TRUE)
+  add_qctype = TRUE
+)
 d_conc_raw <- read_csv(conc_path, show_col_types = FALSE)
 ```
 
@@ -299,14 +316,17 @@ mh_reint <- import_data_masshunter(
   MRMhubExperiment(title = "MassHunter re-integration"),
   path = file.path(
     d4,
-    "Dataset4_IntegrationResults_MassHunter_IsoSP-22_V3.csv"),
-  import_metadata = TRUE, silent = TRUE)
+    "Dataset4_IntegrationResults_MassHunter_IsoSP-22_V3.csv"
+  ),
+  import_metadata = TRUE, silent = TRUE
+)
 mh_data <- get_analyticaldata(mh_reint, annotated = FALSE) |>
   transmute(
     analysis_id,
     feature_id = str_remove(feature_id, "[ ]*\\(ISTD\\)$"),
     rt_mh = feature_rt, area_mh = feature_area,
-    conc_mh = feature_conc_final, mi_mh = feature_manual_integration)
+    conc_mh = feature_conc_final, mi_mh = feature_manual_integration
+  )
 ```
 
 ## Below-Cal-A exclusion for study samples
@@ -327,7 +347,8 @@ mrm_q_area <- get_analyticaldata(mexp, annotated = TRUE) |>
   filter(is_quantifier, !is_istd) |>
   transmute(
     analysis_id,
-    analyte_id = feature_id, qc_type, area_mrm = feature_area)
+    analyte_id = feature_id, qc_type, area_mrm = feature_area
+  )
 
 cala_mrm <- mrm_q_area |>
   filter(analysis_id == CAL_A_ID) |>
@@ -341,19 +362,21 @@ spl_area_excl <- mrm_q_area |>
   filter(qc_type == "SPL") |>
   left_join(
     select(mh_data, analysis_id, analyte_id = feature_id, area_mh),
-    by = c("analysis_id", "analyte_id")) |>
+    by = c("analysis_id", "analyte_id")
+  ) |>
   left_join(cala_mrm, by = "analyte_id") |>
   left_join(cala_mh, by = "analyte_id") |>
   mutate(
-    excl_mrm = !is.na(area_mrm) &
-      !is.na(cala_area_mrm) &
-      area_mrm < cala_area_mrm, excl_mh = !is.na(area_mh) &
-      !is.na(cala_area_mh) &
-      area_mh < cala_area_mh) |>
+    excl_mrm = !is.na(area_mrm) & !is.na(cala_area_mrm) &
+      area_mrm < cala_area_mrm,
+    excl_mh = !is.na(area_mh) & !is.na(cala_area_mh) &
+      area_mh < cala_area_mh
+  ) |>
   select(
-    analysis_id,
-    analyte_id, area_mrm, area_mh, cala_area_mrm, cala_area_mh, excl_mrm,
-    excl_mh)
+    analysis_id, analyte_id,
+    area_mrm, area_mh, cala_area_mrm, cala_area_mh,
+    excl_mrm, excl_mh
+  )
 ```
 
 ## Low / high QC
@@ -367,7 +390,8 @@ d_conc_raw |>
   filter(qc_type %in% c("LQC", "HQC")) |>
   pivot_longer(
     !c(analysis_id, qc_type),
-    names_to = "analyte", values_to = "conc") |>
+    names_to = "analyte", values_to = "conc"
+  ) |>
   mutate(qc = factor(qc_type, levels = c("LQC", "HQC"))) |>
   select(analyte, qc, conc) |>
   pivot_wider(names_from = qc, values_from = conc) |>
@@ -389,23 +413,30 @@ theme_set(
       panel.grid.minor = element_blank(),
       legend.position = "bottom",
       plot.title = element_text(size = 8, face = "plain"),
-      legend.key.size = unit(3.2, "mm"), legend.margin = margin(1, 1, 1, 1)))
+      legend.key.size = unit(3.2, "mm"), legend.margin = margin(1, 1, 1, 1)
+    )
+)
 
 col_method <- c(MRMhub = "#2C7FB8", MassHunter = "#D95F0E")
 smp_cols <- c(
   CAL = "#0072B2",
   HQC = "#D55E00", LQC = "#E69F00", SPL = "grey30", SST = "#009E73",
-  SBLK = "#CC79A7", PBLK = "#999999")
+  SBLK = "#CC79A7", PBLK = "#999999"
+)
 
 # Save a composite as vector PDF + 300-dpi PNG at a given size (mm) for the manuscript.
 save_fig <- function(plot, stem, height, width = 180) {
   ggsave(
     file.path("output", paste0(stem, ".pdf")),
-    plot, device = cairo_pdf, width = width, height = height, units = "mm")
+    plot,
+    device = cairo_pdf, width = width, height = height, units = "mm"
+  )
   ggsave(
     file.path("output", paste0(stem, ".png")),
-    plot, device = ragg::agg_png, width = width, height = height,
-    units = "mm", dpi = 300)
+    plot,
+    device = ragg::agg_png, width = width, height = height,
+    units = "mm", dpi = 300
+  )
   invisible(plot)
 }
 ```
@@ -418,29 +449,36 @@ mrm_peaks_q <- get_analyticaldata(mexp, annotated = TRUE) |>
     feature_id, qc_type, sample_id,
     feature_type = factor(
       if_else(is_istd, "ISTD", "Quantifier"),
-      levels = c("Quantifier", "ISTD")),
-    rt_mrm = feature_rt, area_mrm = feature_area)
+      levels = c("Quantifier", "ISTD")
+    ),
+    rt_mrm = feature_rt, area_mrm = feature_area
+  )
 
 d_peakcmp_reint <- mrm_peaks_q |>
   inner_join(mh_data, by = c("analysis_id", "feature_id")) |>
   filter(
     !is.na(rt_mrm),
-    !is.na(rt_mh), !is.na(area_mrm), !is.na(area_mh)) |>
+    !is.na(rt_mh), !is.na(area_mrm), !is.na(area_mh)
+  ) |>
   filter(area_mrm >= 100, area_mh >= 100) |>
   filter(!(qc_type == "CAL" & is.na(sample_id) & feature_type != "ISTD")) |>
   left_join(
     select(spl_area_excl, analysis_id, analyte_id, excl_mrm, excl_mh),
-    by = c("analysis_id", "feature_id" = "analyte_id")) |>
+    by = c("analysis_id", "feature_id" = "analyte_id")
+  ) |>
   filter(
     !(qc_type == "SPL" &
-      (coalesce(excl_mrm, FALSE) | coalesce(excl_mh, FALSE)))) |>
+      (coalesce(excl_mrm, FALSE) | coalesce(excl_mh, FALSE)))
+  ) |>
   select(-excl_mrm, -excl_mh) |>
   mutate(
     area_diff_pct = (area_mh - area_mrm) / area_mrm * 100,
     rt_diff = rt_mh - rt_mrm,
     subset = case_when(
       analysis_id %in% sst_analysis_ids ~ "SST",
-      analysis_id %in% assay_analysis_ids ~ "ASSAY", TRUE ~ NA_character_))
+      analysis_id %in% assay_analysis_ids ~ "ASSAY", TRUE ~ NA_character_
+    )
+  )
 ```
 
 ## Peak-area agreement
@@ -456,11 +494,13 @@ samples span four orders of magnitude, and the two integrators agree closely.
 smp_lv <- c("CAL", "HQC", "LQC", "SST")
 smp_cols4 <- c(
   CAL = "#0072B2",
-  HQC = "#D55E00", LQC = "#E69F00", SST = "#009E73")
+  HQC = "#D55E00", LQC = "#E69F00", SST = "#009E73"
+)
 ft_shapes <- c(Quantifier = 16, ISTD = 17)
 scale_smp <- scale_colour_manual(
   values = smp_cols4,
-  limits = smp_lv, drop = FALSE)
+  limits = smp_lv, drop = FALSE
+)
 scale_ft <- scale_shape_manual(values = ft_shapes)
 
 d_cmp <- d_peakcmp_reint |>
@@ -472,27 +512,32 @@ p_corr <- d_cmp |>
   ggplot(aes(area_mrm, area_mh)) +
   geom_abline(
     slope = 1,
-    intercept = 0, linetype = "dashed", colour = "grey40") +
+    intercept = 0, linetype = "dashed", colour = "grey40"
+  ) +
   geom_point(
     aes(colour = qc_type, shape = feature_type),
-    size = 1.1, alpha = 0.7) +
+    size = 1.1, alpha = 0.7
+  ) +
   # Ring the peaks MassHunter integrated manually (MI flag), keeping the
   # sample-type colour / feature shape encoding underneath.
   geom_point(
     data = ~ filter(.x, mi_mh),
     aes(alpha = "Manual integration (MassHunter)"), shape = 1,
-    colour = "grey15", size = 2.3, stroke = 0.5) +
+    colour = "grey15", size = 2.3, stroke = 0.5
+  ) +
   annotate(
     "text",
     x = ax_lims[1], y = ax_lims[2], hjust = 0, vjust = 1, size = 2.4,
-    label = sprintf("Pearson r = %.4f", r_log)) +
+    label = sprintf("Pearson r = %.4f", r_log)
+  ) +
   scale_x_log10(limits = ax_lims) +
   scale_y_log10(limits = ax_lims) +
   scale_smp +
   scale_ft +
   scale_alpha_manual(
     name = NULL,
-    values = c("Manual integration (MassHunter)" = 1)) +
+    values = c("Manual integration (MassHunter)" = 1)
+  ) +
   guides(
     colour = guide_legend(order = 1, nrow = 2),
     shape = guide_legend(order = 2, nrow = 2),
@@ -500,11 +545,15 @@ p_corr <- d_cmp |>
       order = 3,
       override.aes = list(
         shape = 1,
-        colour = "grey15", size = 2.3, stroke = 0.5))) +
+        colour = "grey15", size = 2.3, stroke = 0.5
+      )
+    )
+  ) +
   labs(
     x = "MRMhub peak area",
     y = "MassHunter peak area", colour = "Sample type", shape = "Feature",
-    title = "Peak-area agreement")
+    title = "Peak-area agreement"
+  )
 p_corr
 ```
 
@@ -523,20 +572,23 @@ sst_cv <- d_peakcmp_reint |>
   group_by(feature_type, feature_id) |>
   summarise(
     cv_mrmhub = sd(area_mrm) / mean(area_mrm) * 100,
-    cv_masshunter = sd(area_mh) / mean(area_mh) * 100, .groups = "drop")
+    cv_masshunter = sd(area_mh) / mean(area_mh) * 100, .groups = "drop"
+  )
 cv_lims <- range(c(sst_cv$cv_mrmhub, sst_cv$cv_masshunter)) + c(-0.3, 0.3)
 p_cv <- sst_cv |>
   ggplot(aes(cv_mrmhub, cv_masshunter, shape = feature_type)) +
   geom_abline(
     slope = 1,
-    intercept = 0, linetype = "dashed", colour = "grey60") +
+    intercept = 0, linetype = "dashed", colour = "grey60"
+  ) +
   geom_point(size = 1.6, alpha = 0.85, colour = "#009E73") +
   coord_cartesian(xlim = cv_lims, ylim = cv_lims) +
   scale_ft +
   guides(shape = "none") +
   labs(
     x = "MRMhub %CV (10 SST reps)",
-    y = "MassHunter %CV", title = "Precision (%CV) equivalence")
+    y = "MassHunter %CV", title = "Precision (%CV) equivalence"
+  )
 p_cv
 ```
 
@@ -554,7 +606,8 @@ chromatograms are shown below.
 #| fig-height: 3.4
 highlight_analytes <- c(
   "21-deoxycortisol",
-  "11-deoxycortisol", "Aldosterone")
+  "11-deoxycortisol", "Aldosterone"
+)
 hl_cols <- setNames(c("#D81B60", "#1E88E5", "#8E44AD"), highlight_analytes)
 
 d_ba <- d_peakcmp_reint |>
@@ -565,8 +618,11 @@ d_ba <- d_peakcmp_reint |>
     hl = factor(
       if_else(
         feature_id %in% highlight_analytes,
-        feature_id, NA_character_),
-      levels = highlight_analytes)) |>
+        feature_id, NA_character_
+      ),
+      levels = highlight_analytes
+    )
+  ) |>
   filter(mean_area >= 1e3)
 ba_bias <- mean(d_ba$pct_diff)
 ba_loa <- ba_bias + c(-1.96, 1.96) * sd(d_ba$pct_diff)
@@ -578,33 +634,41 @@ p_ba <- d_ba |>
   geom_hline(yintercept = ba_loa, linetype = "dashed", colour = "grey50") +
   geom_point(
     data = ~ filter(.x, is.na(hl)),
-    colour = "grey80", size = 0.9, alpha = 0.6) +
+    colour = "grey80", size = 0.9, alpha = 0.6
+  ) +
   geom_point(
     data = ~ filter(.x, !is.na(hl)),
-    aes(colour = hl), size = 1.7, alpha = 0.9) +
+    aes(colour = hl), size = 1.7, alpha = 0.9
+  ) +
   # Ring the peaks MassHunter integrated manually (MI flag).
   geom_point(
     data = ~ filter(.x, mi_mh),
     aes(alpha = "Manual integration (MassHunter)"), shape = 1,
-    colour = "grey15", size = 2.0, stroke = 0.5) +
+    colour = "grey15", size = 2.0, stroke = 0.5
+  ) +
   annotate(
     "text",
     x = ba_xr, y = ba_bias, hjust = 1, vjust = -0.6, size = 2.1,
-    colour = "grey20", label = sprintf("mean bias %.1f%%", ba_bias)) +
+    colour = "grey20", label = sprintf("mean bias %.1f%%", ba_bias)
+  ) +
   annotate(
     "text",
     x = ba_xr, y = ba_loa[2], hjust = 1, vjust = 1.4, size = 2,
-    colour = "grey45", label = "+95% LoA") +
+    colour = "grey45", label = "+95% LoA"
+  ) +
   annotate(
     "text",
     x = ba_xr, y = ba_loa[1], hjust = 1, vjust = -0.7, size = 2,
-    colour = "grey45", label = "-95% LoA") +
+    colour = "grey45", label = "-95% LoA"
+  ) +
   scale_colour_manual(
     values = hl_cols,
-    name = "Highlighted analyte", na.translate = FALSE) +
+    name = "Highlighted analyte", na.translate = FALSE
+  ) +
   scale_alpha_manual(
     name = NULL,
-    values = c("Manual integration (MassHunter)" = 1)) +
+    values = c("Manual integration (MassHunter)" = 1)
+  ) +
   scale_x_log10(limits = c(1e3, NA)) +
   coord_cartesian(ylim = c(-20, 20)) +
   guides(
@@ -612,13 +676,18 @@ p_ba <- d_ba |>
       order = 2,
       override.aes = list(
         shape = 1,
-        colour = "grey15", size = 2.0, stroke = 0.5))) +
+        colour = "grey15", size = 2.0, stroke = 0.5
+      )
+    )
+  ) +
   labs(
     x = "Mean peak area of the two methods (>= 10^3)",
     y = "Percent difference (MH - MRMhub) %",
     title = sprintf(
       "Bland-Altman (excl. SST, area >= 10^3): mean bias %.1f%%, 95%% LoA [%.0f, %.0f]%%",
-      ba_bias, ba_loa[1], ba_loa[2]))
+      ba_bias, ba_loa[1], ba_loa[2]
+    )
+  )
 p_ba
 ```
 
@@ -636,12 +705,15 @@ highlighted analyte) from the MRMhub `by_transition` chromatograms.
 chrom_candidates <- d_peakcmp_reint |>
   filter(
     feature_type == "Quantifier",
-    qc_type %in% c("CAL", "HQC", "LQC", "SPL", "SST"), area_mrm >= 20000) |>
+    qc_type %in% c("CAL", "HQC", "LQC", "SPL", "SST"), area_mrm >= 20000
+  ) |>
   arrange(desc(abs(area_diff_pct))) |>
   transmute(
     feature_id,
-    analysis_id, qc_type, area_mrm = round(area_mrm),
-    area_mh = round(area_mh), area_diff_pct = round(area_diff_pct, 1)) |>
+    analysis_id, qc_type,
+    area_mrm = round(area_mrm),
+    area_mh = round(area_mh), area_diff_pct = round(area_diff_pct, 1)
+  ) |>
   head(10)
 chrom_candidates
 ```
@@ -657,19 +729,24 @@ chrom_examples <- tibble::tribble(
   ~name,
   ~feature_id, ~analysis_id, "fig1d_21-deoxycortisol", "21-deoxycortisol",
   "SKML2025_6B_P1", "fig1d_11-deoxycortisol", "11-deoxycortisol",
-  "SKML2026_2B_P1", "fig1d_Aldosterone", "Aldosterone", "SKML2026_2A_P1")
+  "SKML2026_2B_P1", "fig1d_Aldosterone", "Aldosterone", "SKML2026_2A_P1"
+)
 
 chrom_meta <- chrom_examples |>
   left_join(
     distinct(d_peakcmp_reint, feature_id, analysis_id, area_diff_pct),
-    by = c("feature_id", "analysis_id")) |>
+    by = c("feature_id", "analysis_id")
+  ) |>
   mutate(
     subtitle = sprintf(
       "%s  (dArea %+.1f%%)",
-      str_remove(analysis_id, "_P1$"), area_diff_pct))
+      str_remove(analysis_id, "_P1$"), area_diff_pct
+    )
+  )
 chrom_plots <- Map(
   chrom_gg,
-  chrom_meta$name, chrom_meta$feature_id, chrom_meta$subtitle)
+  chrom_meta$name, chrom_meta$feature_id, chrom_meta$subtitle
+)
 p_chrom <- wrap_elements(full = wrap_plots(chrom_plots, nrow = 1))
 p_chrom
 ```
@@ -721,24 +798,28 @@ mexp_mh <- MRMhubExperiment(title = "MassHunter areas via MRMhub pipeline")
 mexp_mh <- import_data_mrmhub(
   mexp_mh,
   path = tmp_long,
-  import_metadata = TRUE)
+  import_metadata = TRUE
+)
 mexp_mh <- import_metadata_msorganiser(
   mexp_mh,
   path = meta_path,
-  excl_unmatched_analyses = TRUE, ignore_warnings = TRUE)
+  excl_unmatched_analyses = TRUE, ignore_warnings = TRUE
+)
 mexp_mh <- normalize_by_istd(mexp_mh)
 mexp_mh <- calc_calibration_results(
   mexp_mh,
   fit_overwrite = TRUE,
   fit_model = "quadratic",
-  fit_weighting = "1/x")
+  fit_weighting = "1/x"
+)
 mexp_mh <- quantify_by_calibration(
   mexp_mh,
   fit_overwrite = FALSE,
   include_qualifier = FALSE,
   ignore_failed_calibration = TRUE,
   fit_model = "quadratic",
-  fit_weighting = "1/x")
+  fit_weighting = "1/x"
+)
 ```
 
 ## Calibration fit comparison
@@ -752,7 +833,8 @@ Calibration R² per analyte: MassHunter's own fit vs the MRMhub full-pipeline fi
 #| fig-height: 4.5
 mh_own_r2 <- read_csv(
   file.path(d4, "Dataset4_MassHunter-CalibrationFits.csv"),
-  show_col_types = FALSE) |>
+  show_col_types = FALSE
+) |>
   transmute(analyte_id, r2_mh_own = r2)
 r2_cmp <- get_calibration_metrics(mexp_mh) |>
   filter(is_quantifier) |>
@@ -762,20 +844,25 @@ r2_cmp <- get_calibration_metrics(mexp_mh) |>
     get_calibration_metrics(mexp) |>
       filter(is_quantifier) |>
       transmute(analyte_id = feature_id, r2_mrmpipe_mrmarea = r2),
-      by = "analyte_id")
+    by = "analyte_id"
+  )
 
 chain_lv <- c("MassHunter", "MRMhub")
 chain_col <- c(MassHunter = "#D95F0E", MRMhub = "#2C7FB8")
-ord_r2 <- r2_cmp |> arrange(r2_mrmpipe_mrmarea) |> pull(analyte_id)
+ord_r2 <- r2_cmp |>
+  arrange(r2_mrmpipe_mrmarea) |>
+  pull(analyte_id)
 
 d_r2_long <- r2_cmp |>
   transmute(
     analyte_id,
-    MassHunter = r2_mh_own, MRMhub = r2_mrmpipe_mrmarea) |>
+    MassHunter = r2_mh_own, MRMhub = r2_mrmpipe_mrmarea
+  ) |>
   pivot_longer(-analyte_id, names_to = "chain", values_to = "r2") |>
   mutate(
     analyte_id = factor(analyte_id, levels = ord_r2),
-    chain = factor(chain, levels = chain_lv))
+    chain = factor(chain, levels = chain_lv)
+  )
 
 # Truncate the x-axis just below the dense 0.996–1.000 cluster; flag off-scale rows.
 R2_FLOOR <- 0.9955
@@ -795,7 +882,8 @@ p_r2 <- ggplot(d_r2_long, aes(r2, analyte_id)) +
   geom_text(
     data = r2_off,
     aes(label = "<"), hjust = 0, nudge_x = 0.00004, size = 2.3,
-    colour = "grey45") +
+    colour = "grey45"
+  ) +
   scale_colour_manual(values = chain_col, name = NULL) +
   scale_x_continuous(breaks = c(0.996, 0.997, 0.998, 0.999, 1.000)) +
   coord_cartesian(xlim = c(R2_FLOOR, 1.0004)) +
@@ -804,7 +892,9 @@ p_r2 <- ggplot(d_r2_long, aes(r2, analyte_id)) +
     y = NULL, title = "Calibration curve fit comparison",
     subtitle = paste0(
       "x-axis truncated at ",
-      R2_FLOOR, "; off scale (<): ", paste(off_txt$t, collapse = ", "))) +
+      R2_FLOOR, "; off scale (<): ", paste(off_txt$t, collapse = ", ")
+    )
+  ) +
   theme(
     plot.subtitle = element_text(size = 6.5, colour = "grey30"),
     plot.margin = margin(4, 10, 4, 4), legend.position = "inside",
@@ -812,8 +902,10 @@ p_r2 <- ggplot(d_r2_long, aes(r2, analyte_id)) +
     legend.justification.inside = c(0, 1),
     legend.background = element_rect(
       fill = alpha("white", 0.7),
-      colour = NA),
-    legend.key.size = unit(3, "mm"))
+      colour = NA
+    ),
+    legend.key.size = unit(3, "mm")
+  )
 p_r2
 ```
 
@@ -830,21 +922,24 @@ post-processing (normalization, weighting, regression) alone.
 library(gt)
 
 # Measured LQC / HQC concentrations (nmol/L) per engine, one column each.
-qc_wide <- function(df)
+qc_wide <- function(df) {
   df |>
     filter(qc_type %in% c("LQC", "HQC")) |>
     pivot_longer(
       !c(analysis_id, qc_type),
-      names_to = "analyte_id", values_to = "conc") |>
+      names_to = "analyte_id", values_to = "conc"
+    ) |>
     select(analyte_id, qc_type, conc) |>
     pivot_wider(names_from = qc_type, values_from = conc)
+}
 
 tmp_mhconc <- tempfile(fileext = ".csv")
 save_dataset_csv(
   mexp_mh,
   path = tmp_mhconc,
   variable = "conc",
-  add_qctype = TRUE)
+  add_qctype = TRUE
+)
 conc_e2e <- qc_wide(d_conc_raw)
 conc_onmh <- qc_wide(read_csv(tmp_mhconc, show_col_types = FALSE))
 conc_mhun <- mh_data |>
@@ -852,41 +947,49 @@ conc_mhun <- mh_data |>
   transmute(
     analyte_id = feature_id,
     qc_type = if_else(analysis_id == "QC_Low1_P1", "LQC", "HQC"),
-    conc = conc_mh) |>
+    conc = conc_mh
+  ) |>
   pivot_wider(names_from = qc_type, values_from = conc)
 
 # mrmhub reports coefficients intercept-first (coef_a = x^0 ... coef_c = x^2);
 # remap to MassHunter's descending order (a = x^2, b = x, c = intercept).
 mh_own <- read_csv(
   file.path(d4, "Dataset4_MassHunter-CalibrationFits.csv"),
-  show_col_types = FALSE) |>
+  show_col_types = FALSE
+) |>
   transmute(
     analyte_id,
-    method = "MassHunter", a = coef_a, b = coef_b, c = coef_c, r2 = r2) |>
+    method = "MassHunter", a = coef_a, b = coef_b, c = coef_c, r2 = r2
+  ) |>
   left_join(conc_mhun, by = "analyte_id")
 mrm_mh <- get_calibration_metrics(mexp_mh) |>
   filter(is_quantifier) |>
   transmute(
     analyte_id = feature_id,
     method = "MRMhub (on MH areas)", a = coef_c, b = coef_b, c = coef_a,
-    r2 = r2) |>
+    r2 = r2
+  ) |>
   left_join(conc_onmh, by = "analyte_id")
 mrm_e2e <- get_calibration_metrics(mexp) |>
   filter(is_quantifier) |>
   transmute(
     analyte_id = feature_id,
     method = "MRMhub (end-to-end)", a = coef_c, b = coef_b, c = coef_a,
-    r2 = r2) |>
+    r2 = r2
+  ) |>
   left_join(conc_e2e, by = "analyte_id")
 
 cal_lv <- c("MassHunter", "MRMhub (on MH areas)", "MRMhub (end-to-end)")
-fmt_conc <- function(x)
+fmt_conc <- function(x) {
   ifelse(
     is.na(x),
     "—",
     formatC(
       signif(x, 4),
-      format = "fg", big.mark = ",", drop0trailing = TRUE))
+      format = "fg", big.mark = ",", drop0trailing = TRUE
+    )
+  )
+}
 cal_coef_tbl <- bind_rows(mh_own, mrm_mh, mrm_e2e) |>
   mutate(method = factor(method, levels = cal_lv)) |>
   arrange(analyte_id, method) |>
@@ -895,20 +998,25 @@ cal_coef_tbl <- bind_rows(mh_own, mrm_mh, mrm_e2e) |>
     Method = as.character(method), `a (x²)` = sprintf("%.4g", a),
     `b (x)` = sprintf("%.4g", b), `c` = sprintf("%.4g", c),
     `R²` = sprintf("%.5f", r2), `LQC Concentration` = fmt_conc(LQC),
-    `HQC Concentration` = fmt_conc(HQC))
+    `HQC Concentration` = fmt_conc(HQC)
+  )
 
 gt(cal_coef_tbl) |>
   cols_align(
     "right",
     columns = c(
       "a (x²)",
-      "b (x)", "c", "R²", "LQC Concentration", "HQC Concentration")) |>
+      "b (x)", "c", "R²", "LQC Concentration", "HQC Concentration"
+    )
+  ) |>
   tab_style(
     cell_fill(color = "#DEEBF7"),
-    cells_body(rows = Method == "MRMhub (on MH areas)")) |>
+    cells_body(rows = Method == "MRMhub (on MH areas)")
+  ) |>
   tab_style(
     list(cell_fill(color = "#2C7FB8"), cell_text(color = "white")),
-    cells_body(rows = Method == "MRMhub (end-to-end)")) |>
+    cells_body(rows = Method == "MRMhub (end-to-end)")
+  ) |>
   tab_options(table.font.size = px(12), data_row.padding = px(2))
 ```
 
@@ -928,14 +1036,17 @@ save_dataset_csv(
   mexp_mh,
   path = tmp_conc,
   variable = "conc",
-  add_qctype = TRUE)
+  add_qctype = TRUE
+)
 d_qonly <- read_csv(tmp_conc, show_col_types = FALSE) |>
   pivot_longer(
     !c(analysis_id, qc_type),
-    names_to = "analyte_id", values_to = "conc_mrmpipe") |>
+    names_to = "analyte_id", values_to = "conc_mrmpipe"
+  ) |>
   left_join(
     mh_data |> select(analysis_id, analyte_id = feature_id, conc_mh),
-    by = c("analysis_id", "analyte_id")) |>
+    by = c("analysis_id", "analyte_id")
+  ) |>
   filter(!is.na(conc_mrmpipe), !is.na(conc_mh)) |>
   filter(!qc_type %in% c("SBLK", "PBLK")) |>
   mutate(qc_type = factor(qc_type, levels = names(smp_cols)))
@@ -946,32 +1057,38 @@ p_qonly <- posq |>
   ggplot(aes(conc_mh, conc_mrmpipe, colour = qc_type)) +
   geom_abline(
     slope = 1,
-    intercept = 0, linetype = "dashed", colour = "grey40") +
+    intercept = 0, linetype = "dashed", colour = "grey40"
+  ) +
   geom_point(size = 1.1, alpha = 0.6) +
   annotate(
     "text",
     x = axq[1], y = axq[2], hjust = 0, vjust = 1, size = 2.4,
-    label = sprintf("Pearson r = %.5f", q_r)) +
+    label = sprintf("Pearson r = %.5f", q_r)
+  ) +
   scale_x_log10(limits = axq) +
   scale_y_log10(limits = axq) +
   scale_colour_manual(
     values = smp_cols,
-    drop = TRUE, name = "Sample type") +
+    drop = TRUE, name = "Sample type"
+  ) +
   coord_equal() +
   labs(
     x = "MassHunter end-to-end (nmol/L)",
     y = "MRMhub-QUANT on MH areas (nmol/L)",
-    title = "Concentration equivalence (same areas)") +
+    title = "Concentration equivalence (same areas)"
+  ) +
   theme(
     legend.position = "inside",
     legend.position.inside = c(0.98, 0.02),
     legend.justification.inside = c(1, 0),
     legend.background = element_rect(
       fill = alpha("white", 0.7),
-      colour = NA),
+      colour = NA
+    ),
     legend.key.size = unit(2.8, "mm"),
     legend.title = element_text(size = 6.5),
-    legend.text = element_text(size = 6))
+    legend.text = element_text(size = 6)
+  )
 p_qonly
 ```
 
@@ -989,16 +1106,20 @@ d_full <- d_conc_raw |>
   filter(qc_type %in% c("LQC", "HQC", "SPL")) |>
   pivot_longer(
     !c("analysis_id", "qc_type"),
-    names_to = "analyte_id", values_to = "conc") |>
+    names_to = "analyte_id", values_to = "conc"
+  ) |>
   left_join(
     mh_data |> select(analysis_id, analyte_id = feature_id, conc_mh),
-    by = c("analysis_id", "analyte_id")) |>
+    by = c("analysis_id", "analyte_id")
+  ) |>
   left_join(
     select(spl_area_excl, analysis_id, analyte_id, excl_mrm, excl_mh),
-    by = c("analysis_id", "analyte_id")) |>
+    by = c("analysis_id", "analyte_id")
+  ) |>
   mutate(
     conc = if_else(coalesce(excl_mrm, FALSE), NA_real_, conc),
-    conc_mh = if_else(coalesce(excl_mh, FALSE), NA_real_, conc_mh)) |>
+    conc_mh = if_else(coalesce(excl_mh, FALSE), NA_real_, conc_mh)
+  ) |>
   select(-excl_mrm, -excl_mh) |>
   filter(!is.na(conc), !is.na(conc_mh), conc > 0, conc_mh > 0) |>
   mutate(qc_type = factor(qc_type, levels = names(smp_cols)))
@@ -1008,22 +1129,26 @@ p_full <- d_full |>
   ggplot(aes(conc_mh, conc, colour = qc_type)) +
   geom_abline(
     slope = 1,
-    intercept = 0, linetype = "dashed", colour = "grey40") +
+    intercept = 0, linetype = "dashed", colour = "grey40"
+  ) +
   geom_point(size = 1.3, alpha = 0.7) +
   annotate(
     "text",
     x = axf[1], y = axf[2], hjust = 0, vjust = 1, size = 2.4,
-    label = sprintf("Pearson r = %.4f", f_r)) +
+    label = sprintf("Pearson r = %.4f", f_r)
+  ) +
   scale_x_log10(limits = axf) +
   scale_y_log10(limits = axf) +
   scale_colour_manual(
     values = smp_cols,
-    drop = TRUE, name = "Sample type") +
+    drop = TRUE, name = "Sample type"
+  ) +
   coord_equal() +
   labs(
     x = "MassHunter end-to-end (nmol/L)",
     y = "MRMhub end-to-end (nmol/L)",
-    title = "Concentration agreement (full pipeline)") +
+    title = "Concentration agreement (full pipeline)"
+  ) +
   theme(legend.position = "none")
 p_full
 ```
@@ -1033,16 +1158,18 @@ p_full
 Per-analyte percent bias against the reference concentrations — the SKML EQA
 reference values and the nominal LQC/HQC target concentrations — one point per
 sample per method (dashed lines: ±15 %; LQC and HQC are grouped to the left of the
-EQA samples). The reference concentrations are read from the metadata workbook's
+EQA samples). EQA points whose quantifier area falls below the lowest calibrator
+(Cal A, i.e. below the limit of quantification) are drawn as open symbols rather
+than excluded. The reference concentrations are read from the metadata workbook's
 `QC Concentrations` sheet (imported above with the rest of the metadata), keyed by
 sample and analyte. DHEA and DHEAS are excluded (large biases that would compress
 the other panels).
 
 ```{r chunk24-fig2-panelD}
 #| label: fig-d4-fig2-panelD
-#| fig-cap: "**Accuracy against reference values.** Per-analyte percent bias against the reference concentrations — SKML EQA values plus the nominal LQC/HQC targets (±15 % dashed) — MRMhub vs MassHunter, one point per sample per method, with LQC/HQC grouped to the left of the EQA samples (DHEA and DHEAS excluded). Panel D of @fig-d4-fig2."
-#| fig-width: 7
-#| fig-height: 4.5
+#| fig-cap: "**Accuracy against reference values.** Per-analyte percent bias against the reference concentrations — SKML EQA values plus the nominal LQC/HQC targets (±15 % dashed) — MRMhub vs MassHunter, one point per sample per method, with LQC/HQC grouped to the left of the EQA samples; open symbols mark EQA values below the lowest calibrator (Cal A, below LOQ) and DHEA and DHEAS are excluded. Panel D of @fig-d4-fig2."
+#| fig-width: 6.5
+#| fig-height: 10
 # Reference (target) concentrations come from the metadata's `QC Concentrations`
 # sheet (imported above), keyed by `sample_id` + `analyte_id`, and surface via the
 # `annot_qcconcentrations` slot (all in nmol/L). Both the SKML EQA reference values
@@ -1057,28 +1184,36 @@ d_acc <- d_conc_raw |>
   filter(qc_type %in% c("LQC", "HQC", "SPL")) |>
   pivot_longer(
     !c("analysis_id", "qc_type"),
-    names_to = "analyte_id", values_to = "conc_mrm") |>
+    names_to = "analyte_id", values_to = "conc_mrm"
+  ) |>
   left_join(
     mh_data |> select(analysis_id, analyte_id = feature_id, conc_mh),
-    by = c("analysis_id", "analyte_id")) |>
+    by = c("analysis_id", "analyte_id")
+  ) |>
   left_join(
     select(spl_area_excl, analysis_id, analyte_id, excl_mrm, excl_mh),
-    by = c("analysis_id", "analyte_id")) |>
-  mutate(
-    conc_mrm = if_else(coalesce(excl_mrm, FALSE), NA_real_, conc_mrm),
-    conc_mh = if_else(coalesce(excl_mh, FALSE), NA_real_, conc_mh)) |>
+    by = c("analysis_id", "analyte_id")
+  ) |>
   left_join(sid_map, by = "analysis_id") |>
   inner_join(acc_target, by = c("sample_id", "analyte_id")) |>
   # Compact axis label: SKML EQA -> 2026.1A; LQC/HQC keep their name.
   mutate(
     sample_lbl = str_replace(
       str_remove(sample_id, "^SKML"),
-      "^([0-9]{4})_", "\\1.")) |>
+      "^([0-9]{4})_", "\\1."
+    )
+  ) |>
+  # Below-Cal-A (below-LOQ) values are kept rather than masked; a per-method flag
+  # (`blo_*`) lets the panel draw them as open symbols. LQC/HQC carry no exclusion
+  # flag (never below-Cal-A here), so they count as quantifiable.
   transmute(
     analyte_id,
     sample_lbl, analysis_id, target, conc_mrm, conc_mh,
     bias_mrmhub = (conc_mrm - target) / target * 100,
-    bias_masshunter = (conc_mh - target) / target * 100) |>
+    bias_masshunter = (conc_mh - target) / target * 100,
+    blo_mrmhub = coalesce(excl_mrm, FALSE),
+    blo_masshunter = coalesce(excl_mh, FALSE)
+  ) |>
   filter(!(is.na(conc_mrm) & is.na(conc_mh)))
 
 # x-axis order: LQC, HQC first, then the EQA samples (sorted by label).
@@ -1086,40 +1221,60 @@ eqa_lbls <- sort(setdiff(unique(d_acc$sample_lbl), c("LQC", "HQC")))
 x_levels <- c("LQC", "HQC", eqa_lbls)
 p_eqa <- d_acc |>
   filter(!analyte_id %in% c("DHEA", "DHEAS")) |>
+  # Reshape bias and the below-LOQ flag together (one row per method).
   pivot_longer(
-    c(bias_mrmhub, bias_masshunter),
-    names_to = "method", values_to = "bias") |>
+    c(bias_mrmhub, bias_masshunter, blo_mrmhub, blo_masshunter),
+    names_to = c(".value", "method"),
+    names_pattern = "(bias|blo)_(mrmhub|masshunter)"
+  ) |>
   filter(!is.na(bias)) |>
   mutate(
-    method = recode(
-      method,
-      bias_mrmhub = "MRMhub", bias_masshunter = "MassHunter"),
+    method = recode(method, mrmhub = "MRMhub", masshunter = "MassHunter"),
     method = factor(method, levels = c("MRMhub", "MassHunter")),
-    sample_lbl = factor(sample_lbl, levels = x_levels)) |>
-  ggplot(aes(sample_lbl, bias, colour = method, shape = method)) +
+    sample_lbl = factor(sample_lbl, levels = x_levels),
+    loq = factor(
+      if_else(blo, "Below LOQ (< Cal A)", "Quantifiable (>= Cal A)"),
+      levels = c("Quantifiable (>= Cal A)", "Below LOQ (< Cal A)")
+    )
+  ) |>
+  ggplot(aes(
+    sample_lbl, bias,
+    colour = method, shape = loq, group = method
+  )) +
   geom_hline(yintercept = 0, colour = "grey40") +
   geom_hline(
     yintercept = c(-15, 15),
-    linetype = "dashed", colour = "grey75") +
+    linetype = "dashed", colour = "grey75"
+  ) +
   # Divider between the LQC/HQC group (left) and the EQA samples (right).
   geom_vline(xintercept = 2.5, colour = "grey85", linewidth = 0.3) +
   geom_point(
     size = 1.5,
-    alpha = 0.85, position = position_dodge(width = 0.4)) +
+    alpha = 0.85, position = position_dodge(width = 0.4)
+  ) +
   scale_colour_manual(values = col_method, name = "Method") +
+  # Open symbols flag EQA values below the lowest calibrator (below LOQ).
   scale_shape_manual(
-    values = c(MRMhub = 16, MassHunter = 17),
-    name = "Method") +
-  facet_wrap(vars(analyte_id), scales = "free_y", ncol = 4) +
+    values = c("Quantifiable (>= Cal A)" = 16, "Below LOQ (< Cal A)" = 1),
+    name = NULL
+  ) +
+  facet_wrap(vars(analyte_id), scales = "free_y", ncol = 3) +
+  guides(
+    colour = guide_legend(override.aes = list(shape = 16)),
+    shape = guide_legend(override.aes = list(colour = "grey30"))
+  ) +
   labs(
     x = NULL,
     y = "Bias vs reference (%)",
-    title = "Accuracy - bias per analyte (QC & EQA; excl. DHEA, DHEAS)") +
+    title = "Accuracy - bias per analyte (QC & EQA; excl. DHEA, DHEAS)"
+  ) +
   theme(
+    aspect.ratio = 1,
     panel.grid.minor = element_blank(),
     strip.text = element_text(size = 6),
     axis.text.x = element_text(angle = 45, hjust = 1, size = 5),
-    axis.text.y = element_text(size = 5.2))
+    axis.text.y = element_text(size = 5.2)
+  )
 p_eqa
 ```
 
@@ -1134,9 +1289,15 @@ The four panels above are composed into the publication figure (**Figure 2**).
 #| fig-height: 9.3
 # Middle row (B, C) uses coord_equal(); give it enough height that the two square
 # panels grow to fill the full width, so their L/R borders align with A and D.
+# The bias panel is a square, 3-column grid as a standalone figure; inside the
+# full-width composite it fills better as a wide 4-column grid without the forced
+# square aspect, so override those two settings for Figure 2 only.
+p_eqa_fig2 <- p_eqa +
+  facet_wrap(vars(analyte_id), scales = "free_y", ncol = 4) +
+  theme(aspect.ratio = NULL)
 fig2 <- p_r2 /
   (p_qonly + p_full) /
-  p_eqa +
+  p_eqa_fig2 +
   plot_layout(heights = c(0.68, 1.3, 1.2)) +
   plot_annotation(tag_levels = "A")
 
