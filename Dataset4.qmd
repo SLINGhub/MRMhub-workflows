@@ -1040,7 +1040,7 @@ the other panels).
 
 ```{r chunk24-fig2-panelD}
 #| label: fig-d4-fig2-panelD
-#| fig-cap: "**EQA accuracy against SKML reference values.** Per-analyte percent bias against the SKML reference concentrations (±15 % dashed), MRMhub vs MassHunter, one point per EQA sample per method (DHEA and DHEAS excluded). Panel D of @fig-d4-fig2."
+#| fig-cap: "**Accuracy against reference values.** Per-analyte percent bias against the reference concentrations — SKML EQA values plus the nominal LQC/HQC targets (±15 % dashed) — MRMhub vs MassHunter, one point per sample per method, with LQC/HQC grouped to the left of the EQA samples (DHEA and DHEAS excluded). Panel D of @fig-d4-fig2."
 #| fig-width: 7
 #| fig-height: 4.5
 # Reference (target) concentrations come from the metadata's `QC Concentrations`
@@ -1129,7 +1129,7 @@ The four panels above are composed into the publication figure (**Figure 2**).
 
 ```{r chunk25-fig2-assemble}
 #| label: fig-d4-fig2
-#| fig-cap: "**MRMhub vs MassHunter — quantification.** Composite of the four panels above; reproduced as the manuscript's **Figure 2**. **(A)** Calibration-fit comparison, **(B)** concentration equivalence on identical areas, **(C)** full end-to-end agreement, **(D)** EQA accuracy. Exported to `output/fig2_quantification_comparison.{pdf,png}` (180 mm)."
+#| fig-cap: "**MRMhub vs MassHunter — quantification.** Composite of the four panels above; reproduced as the manuscript's **Figure 2**. **(A)** Calibration-fit comparison, **(B)** concentration equivalence on identical areas, **(C)** full end-to-end agreement, **(D)** QC and EQA accuracy. Exported to `output/fig2_quantification_comparison.{pdf,png}` (180 mm)."
 #| fig-width: 7.1
 #| fig-height: 9.3
 # Middle row (B, C) uses coord_equal(); give it enough height that the two square
@@ -1154,7 +1154,7 @@ or co-eluting baselines rather than to a systematic bias (@fig-d4-fig1). At the
 **quantification** stage, feeding MassHunter's own areas through the MRMhub pipeline
 reproduces MassHunter's concentrations, isolating the post-processing as effectively
 equivalent; the two independent end-to-end pipelines then show comparable accuracy
-against the SKML EQA reference values (@fig-d4-fig2). Any residual differences are
+against the nominal LQC/HQC targets and the SKML EQA reference values (@fig-d4-fig2). Any residual differences are
 attributable to peak integration rather than to the QUANT post-processing.
 
 # References

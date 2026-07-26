@@ -6,8 +6,15 @@
 % Apply it to all figure captions
 \captionsetup{font=eightpt}
 
-% Make all verbatim/code chunk text smaller
-\usepackage{etoolbox}
-
-% Options: \small, \footnotesize, \scriptsize, \tiny
-\AtBeginEnvironment{verbatim}{\small}
+% Wrap long lines in code chunks and console output so they stay within the
+% page margin, and render both at \small. Source code renders in the
+% `Highlighting` environment, console output in `verbatim`; both are redefined
+% here as fvextra Verbatim environments with line breaking enabled.
+% breaklines   -> wrap at spaces; breakanywhere -> also break unbreakable tokens
+%                 (long paths, chained calls) that have no space to break at.
+% Font options: \small, \footnotesize, \scriptsize, \tiny
+\usepackage{fvextra}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}%
+  {breaklines,breakanywhere,commandchars=\\\{\},fontsize=\small}
+\DefineVerbatimEnvironment{verbatim}{Verbatim}%
+  {breaklines,breakanywhere,fontsize=\small}
