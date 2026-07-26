@@ -13,6 +13,8 @@ website:
   navbar:
     background: "#2d5c80"   # shared MRMhub navy title bar
     foreground: "#ffffff"
+    logo: images/mrmhub-logo.png
+    logo-alt: "MRMhub"
     left:
       - text: "Home"
         href: index.html

@@ -49,9 +49,16 @@ save_crop <- function(pdf, analysis_id, name) {
   message("wrote ", name, ".png")
 }
 
-# INTEGRATOR-section example chromatograms (clean quantifier peaks, high QC).
-save_crop("Cortisol_0029.pdf",     "QC_High1_P1", "integrator_Cortisol")
-save_crop("Testosterone_0060.pdf", "QC_High1_P1", "integrator_Testosterone")
+# Top-of-document example chromatograms: the three highlighted quantifiers at
+# high (HQC) and low (LQC) QC levels.
+for (a in list(c("21-deoxycortisol_0012.pdf",    "21-deoxycortisol"),
+               c("11-deoxycortisol_0004.pdf",    "11-deoxycortisol"),
+               c("Aldosterone_0017.pdf",         "Aldosterone"),
+               c("Cortisol_D4_0030.pdf",         "CortisolD4"),
+               c("Dihydrotestosterone_0051.pdf", "Dihydrotestosterone"))) {
+  save_crop(a[1], "QC_High1_P1", paste0("top_", a[2], "_HQC"))
+  save_crop(a[1], "QC_Low1_P1",  paste0("top_", a[2], "_LQC"))
+}
 
 # Figure 1 Panel D examples (the three highlighted, divergent-area cases).
 save_crop("21-deoxycortisol_0012.pdf", "SKML2025_6B_P1", "fig1d_21-deoxycortisol")
