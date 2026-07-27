@@ -13,6 +13,7 @@ output/
 # Transient render artifacts
 *.rmarkdown
 Rplots.pdf
+figure/
 
 # Quarto default output folder (if you’re not using it)
 _site/
