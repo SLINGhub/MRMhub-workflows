@@ -1,6 +1,6 @@
 ---
 title: "MRMhub Data Processing Workflow for Dataset 4"
-subtitle: "Supplementary Code 3"
+subtitle: "Steroid Assay"
 author:
   - name: "Bo Burla"
     affiliation: "National University of Singapore"
@@ -105,7 +105,7 @@ throughout this document.
 #| fig-height: 4.8
 #| fig.alt: "Integrated chromatograms for 21-deoxycortisol, 11-deoxycortisol, Aldosterone, Cortisol D4 and Dihydrotestosterone at HQC and LQC quality-control levels."
 # Chromatograms are pre-cropped from the INTEGRATOR by_transition PDFs by
-# figures/dataset4/dataset4-chromatograms.R and embedded here as static PNGs, so
+# scripts/dataset4-chromatograms/dataset4-chromatograms.R and embedded here as static PNGs, so
 # the notebook render needs neither the PDFs nor magick/ghostscript.
 chrom_dir <- "images/dataset4"
 # Read one pre-cropped chromatogram PNG as a grid raster grob.
@@ -149,7 +149,7 @@ chrom_gg <- function(name, title, subtitle = NULL) {
 
 ::: {.callout-note}
 The example chromatograms are cropped from the INTEGRATOR `by_transition` PDFs by
-`figures/dataset4/dataset4-chromatograms.R` (run once; requires the `magick` R
+`scripts/dataset4-chromatograms/dataset4-chromatograms.R` (run once; requires the `magick` R
 package and **ghostscript**) and embedded here as static images from
 `images/dataset4/`. The notebook render itself needs neither.
 :::
@@ -176,7 +176,9 @@ library(mrmhub)
 library(mirai) # parallel processing (picked up automatically by mrmhub)
 
 # Colour mrmhub's cli console feedback in the rendered HTML (requires the fansi package)
-mrmhub_enable_cli_color()
+# Colour the mrmhub console output in HTML; disable it for PDF, where the ANSI
+# colour escapes would break LaTeX/lualatex compilation.
+if (knitr::is_latex_output()) options(cli.num_colors = 1, crayon.enabled = FALSE) else mrmhub_enable_cli_color()
 
 # Set number of cores for parallel processing (all-but-one, so the system stays responsive)
 n_cores <- {
@@ -271,13 +273,7 @@ plot_calibrationcurves(
 ```{r}
 #| label: tbl-d4-calibration-metrics
 #| tbl-cap: "**Calibration metrics per analyte.** Fit model, weighting, R², LOD and LOQ for each quantifier."
-get_calibration_metrics(mexp) |>
-  filter(is_quantifier) |>
-  transmute(
-    analyte = feature_id,
-    fit_model, fit_weighting, r2 = round(r2, 5), lod = signif(lod, 3),
-    loq = signif(loq, 3)
-  )
+get_calibration_metrics(mexp, include_qualifier = FALSE, summary_table = TRUE)
 ```
 
 ## Quantification
@@ -851,13 +847,11 @@ mh_own_r2 <- read_csv(
   show_col_types = FALSE
 ) |>
   transmute(analyte_id, r2_mh_own = r2)
-r2_cmp <- get_calibration_metrics(mexp_mh) |>
-  filter(is_quantifier) |>
+r2_cmp <- get_calibration_metrics(mexp_mh, include_qualifier = FALSE) |>
   transmute(analyte_id = feature_id, r2_mrmpipe_mharea = r2) |>
   left_join(mh_own_r2, by = "analyte_id") |>
   left_join(
-    get_calibration_metrics(mexp) |>
-      filter(is_quantifier) |>
+    get_calibration_metrics(mexp, include_qualifier = FALSE) |>
       transmute(analyte_id = feature_id, r2_mrmpipe_mrmarea = r2),
     by = "analyte_id"
   )
@@ -980,8 +974,7 @@ mh_own <- read_csv(
   ) |>
   left_join(conc_mhun, by = "analyte_id")
 # MRMhub pipeline fit on MassHunter's peak areas (isolates post-processing).
-mrm_mh <- get_calibration_metrics(mexp_mh) |>
-  filter(is_quantifier) |>
+mrm_mh <- get_calibration_metrics(mexp_mh, include_qualifier = FALSE) |>
   transmute(
     analyte_id = feature_id,
     method = "MRMhub (on MH areas)", a = coef_c, b = coef_b, c = coef_a,
@@ -989,8 +982,7 @@ mrm_mh <- get_calibration_metrics(mexp_mh) |>
   ) |>
   left_join(conc_onmh, by = "analyte_id")
 # MRMhub end-to-end fit on MRMhub-INTEGRATOR areas.
-mrm_e2e <- get_calibration_metrics(mexp) |>
-  filter(is_quantifier) |>
+mrm_e2e <- get_calibration_metrics(mexp, include_qualifier = FALSE) |>
   transmute(
     analyte_id = feature_id,
     method = "MRMhub (end-to-end)", a = coef_c, b = coef_b, c = coef_a,

@@ -1,15 +1,15 @@
-# Generate the chromatogram illustration images for Dataset4.qmd.
+# Generate the chromatogram illustration images for Dataset4_Comparison.qmd.
 #
 # Crops single-sample cells from the MRMhub-INTEGRATOR `by_transition` PDFs and
-# writes them as static PNGs under images/dataset4/. Dataset4.qmd embeds these
+# writes them as static PNGs under images/dataset4/. Dataset4_Comparison.qmd embeds these
 # pre-generated images, so the notebook render needs neither the PDFs nor magick
 # / ghostscript. Re-run this script only when the example chromatograms change.
 #
 # Requires: magick (+ a ghostscript delegate for reading PDFs).
-# Run from the repository root:  Rscript figures/dataset4/dataset4-chromatograms.R
+# Run from the repository root:  Rscript scripts/dataset4-chromatograms/dataset4-chromatograms.R
 #
 # Inputs (by_transition PDFs + mzML_list.txt) live alongside this script in
-# figures/dataset4/. The PDFs are gitignored (also archived in the full Dataset 4
+# scripts/dataset4-chromatograms/. The PDFs are gitignored (also archived in the full Dataset 4
 # Zenodo upload); the generated PNGs are committed to images/dataset4/.
 
 suppressPackageStartupMessages({
@@ -17,7 +17,7 @@ suppressPackageStartupMessages({
   library(stringr)
 })
 
-fig_dir <- "figures/dataset4"
+fig_dir <- "scripts/dataset4-chromatograms"
 bt_dir  <- file.path(fig_dir, "by_transition")
 out_dir <- "images/dataset4"
 dir.create(out_dir, showWarnings = FALSE, recursive = TRUE)

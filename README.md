@@ -12,7 +12,8 @@ Rendered site: **[slinghub.github.io/MRMhub-workflows](https://slinghub.github.i
 
 - **Dataset 1** — targeted plasma lipidomics (Tan *et al.* 2022); 503 features across 937 samples.
 - **Dataset 3** — targeted lipidomics (Chen *et al.* 2025); 829 features across 4,591 samples.
-- **Dataset 4** — fully quantitative steroid assay (Panel 1, 15 analytes) with external calibration, low/high QC and EQA samples; validates MRMhub against Agilent MassHunter across the INTEGRATOR and QUANT modules.
+- **Dataset 4** — fully quantitative steroid assay (Panel 1, 15 analytes) with external calibration, low/high QC and EQA samples. MRMhub-QUANT postprocessing: ISTD normalization, calibration, quantification and QC bias/variability against reference targets.
+- **Dataset 4 — Comparison** — the same steroid assay, validating MRMhub against Agilent MassHunter across the INTEGRATOR (peak areas) and QUANT (concentrations) modules.
 
 ## Data
 

@@ -1,6 +1,6 @@
 ---
 title: "Building a publication figure with MRMhub"
-subtitle: "Reproducing the manuscript-figure QC panels (Dataset 1 · SPERFECT)"
+subtitle: "SPERFECT"
 author:
   - name: "Bo Burla"
     affiliation: "National University of Singapore"

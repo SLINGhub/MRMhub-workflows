@@ -22,8 +22,10 @@ figure/
 /site_libs/
 /Dataset*.html
 /Dataset*.tex
+/Dataset*.pdf
 /ManuscriptFigure.html
 /ManuscriptFigure.tex
+/ManuscriptFigure.pdf
 /index.html
 
 # LaTeX / lualatex intermediates from PDF rendering
@@ -66,8 +68,8 @@ data/dataset-*/*
 _archive/
 
 # Figure-regeneration inputs: by_transition PDFs are large and archived on Zenodo
-# (see figures/dataset4/by_transition/README.txt). Keep the README + script tracked.
-figures/dataset4/by_transition/*.pdf
+# (see scripts/dataset4-chromatograms/by_transition/README.txt). Keep the README + script tracked.
+scripts/dataset4-chromatograms/by_transition/*.pdf
 
 # Zenodo distribution archives (built on demand, not tracked)
 /dist/
