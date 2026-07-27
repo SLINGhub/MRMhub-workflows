@@ -2,17 +2,23 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.8.24">
+<meta name="generator" content="quarto-1.10.18">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
 <title>MRMhub Workflows</title>
 <style>
-code{white-space: pre-wrap;}
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
 span.smallcaps{font-variant: small-caps;}
-div.columns{display: flex; gap: min(4vw, 1.5em);}
-div.column{flex: auto; overflow-x: auto;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
 div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
 ul.task-list{list-style: none;}
 ul.task-list li input[type="checkbox"] {
@@ -24,7 +30,6 @@ ul.task-list li input[type="checkbox"] {
 div.csl-bib-body { }
 div.csl-entry {
   clear: both;
-  margin-bottom: 0em;
 }
 .hanging-indent div.csl-entry {
   margin-left:2em;
@@ -53,19 +58,18 @@ div.csl-indent {
 <link href="./images/favicon.ico" rel="icon">
 <script src="site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
-<script src="site_libs/quarto-html/axe/axe-check.js" type="module"></script>
 <script src="site_libs/quarto-html/popper.min.js"></script>
 <script src="site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="site_libs/quarto-html/anchor.min.js"></script>
 <link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-dc55a5b9e770e841cd82e46aadbfb9b0.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-dark-b651517ce65839d647a86e2780455cfb.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-dc55a5b9e770e841cd82e46aadbfb9b0.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-dark-b85bc7c33db8c58e0ec93c3465666fed.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-08d73034be6051cfeb272bc89b445842.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
-<link href="site_libs/bootstrap/bootstrap-dark-5c11f1d04538fffc088d894759665d96.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="light">
-<link href="site_libs/bootstrap/bootstrap-08d73034be6051cfeb272bc89b445842.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-bafb3f478197d028412ec73fd4ede0bd.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-dark-8fbcfd0b7b81cdeb52e409e02de0c866.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-bafb3f478197d028412ec73fd4ede0bd.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -180,10 +184,16 @@ div.csl-indent {
 <h2 class="anchored" data-anchor-id="workflows">Workflows</h2>
 <div class="arrow-list">
 <ul>
-<li><strong><a href="Dataset1.html">Dataset 1 ↗</a></strong> — targeted plasma lipidomics, Tan <em>et al.</em> <span class="citation" data-cites="tan2022">(<a href="#ref-tan2022" role="doc-biblioref">Tan et al. 2022</a>)</span>; 482 features (464 transitions), 937 samples. ISTD normalization, quantification, drift/batch correction and QC filtering.</li>
-<li><strong><a href="Dataset3.html">Dataset 3 ↗</a></strong> — targeted lipidomics, Chen <em>et al.</em> <span class="citation" data-cites="chen2025">(<a href="#ref-chen2025" role="doc-biblioref">Chen et al. 2025</a>)</span>; 828 features (748 transitions), 4,591 samples. The same pipeline at population scale.</li>
-<li><strong><a href="Dataset4.html">Dataset 4 ↗</a></strong> — fully quantitative steroid assay (Panel 1, 15 analytes); 64 features (66 transitions), 20 samples. External calibration, low/high QC and EQA samples <span class="citation" data-cites="jansen2014">(<a href="#ref-jansen2014" role="doc-biblioref">Jansen et al. 2014</a>)</span>. Validates MRMhub against Agilent MassHunter across the INTEGRATOR (peak areas) and QUANT (concentrations) modules.</li>
-<li><strong><a href="ManuscriptFigure.html">Manuscript Figure ↗</a></strong> — worked example of assembling publication-ready QC panels with MRMhub, reproducing the manuscript workflow figure’s data panels from the Dataset 1 pipeline.</li>
+<li><strong><a href="Dataset1.html">Dataset 1 ↗</a></strong> — <em>SPERFECT</em> study: serial plasma lipidomics in participants at risk of coronary artery disease, Tan <em>et al.</em> <span class="citation" data-cites="tan2022">(<a href="#ref-tan2022" role="doc-biblioref">Tan et al. 2022</a>)</span>; 482 features (464 transitions), 937 samples. ISTD normalization, quantification, drift/batch correction and QC filtering.</li>
+<li><strong><a href="Dataset3.html">Dataset 3 ↗</a></strong> — <em>DYNAMO</em> study: plasma lipid biomarkers of renal function decline in type 2 diabetes, Chen <em>et al.</em> <span class="citation" data-cites="chen2025">(<a href="#ref-chen2025" role="doc-biblioref">Chen et al. 2025</a>)</span>; 828 features (748 transitions), 4,591 samples. The same pipeline at population scale.</li>
+<li><strong><a href="Dataset4.html">Dataset 4 ↗</a></strong> — <em>Steroid panel</em>: fully quantitative serum steroid assay (Gradient 1, 15 analytes) <span class="citation" data-cites="jansen2014">(<a href="#ref-jansen2014" role="doc-biblioref">Jansen et al. 2014</a>)</span>. MRMhub-QUANT postprocessing: ISTD normalization, external calibration, quantification and QC bias/variability against reference targets, with CSV/XLSX/RDS export.</li>
+</ul>
+</div>
+<p><strong>Related:</strong></p>
+<div class="arrow-list">
+<ul>
+<li><strong><a href="Dataset4_Comparison.html">Dataset 4 · MRMhub vs MassHunter ↗</a></strong> — validates MRMhub against Agilent MassHunter across the INTEGRATOR (peak areas) and QUANT (concentrations) modules for the steroid panel.</li>
+<li><strong><a href="ManuscriptFigure.html">Manuscript figure ↗</a></strong> — worked example of assembling publication-ready QC panels with MRMhub, reproducing the manuscript workflow figure’s data panels from the Dataset 1 (SPERFECT) pipeline.</li>
 </ul>
 </div>
 <!--
@@ -288,15 +298,15 @@ div.csl-indent {
 </div>
 <section id="references" class="level2">
 <h2 class="anchored" data-anchor-id="references">References</h2>
-<div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
+<div id="refs" class="references csl-bib-body hanging-indent" role="list">
 <div id="ref-chen2025" class="csl-entry" role="listitem">
-Chen, Yuqing, Federico Torta, Hiromi W. L. Koh, Peter I. Benke, Resham L. Gurung, Jian-Jun Liu, Keven Ang, et al. 2025. <span>“Metabolomics Profiling in Multi-Ancestral Individuals with Type 2 Diabetes in Singapore Identified Metabolites Associated with Renal Function Decline.”</span> <em>Diabetologia</em> 68 (3): 557–75. <a href="https://doi.org/10.1007/s00125-024-06324-z">https://doi.org/10.1007/s00125-024-06324-z</a>.
+Chen, Yuqing, Federico Torta, Hiromi W. L. Koh, et al. 2025. <span>“Metabolomics Profiling in Multi-Ancestral Individuals with Type 2 Diabetes in Singapore Identified Metabolites Associated with Renal Function Decline.”</span> <em>Diabetologia</em> 68 (3): 557–75. <a href="https://doi.org/10.1007/s00125-024-06324-z">https://doi.org/10.1007/s00125-024-06324-z</a>.
 </div>
 <div id="ref-jansen2014" class="csl-entry" role="listitem">
-Jansen, Rob, Nuthar Jassam, Annette Thomas, Carmen Perich, Pilar Fernandez-Calle, Ana Paula Faria, Helena Correia, et al. 2014. <span>“A Category 1 <span>EQA</span> Scheme for Comparison of Laboratory Performance and Method Performance: An International Pilot Study in the Framework of the Calibration 2000 Project.”</span> <em>Clinica Chimica Acta</em> 432 (May): 90–98. <a href="https://doi.org/10.1016/j.cca.2013.11.003">https://doi.org/10.1016/j.cca.2013.11.003</a>.
+Jansen, Rob, Nuthar Jassam, Annette Thomas, et al. 2014. <span>“A Category 1 <span>EQA</span> Scheme for Comparison of Laboratory Performance and Method Performance: An International Pilot Study in the Framework of the Calibration 2000 Project.”</span> <em>Clinica Chimica Acta</em> 432 (May): 90–98. <a href="https://doi.org/10.1016/j.cca.2013.11.003">https://doi.org/10.1016/j.cca.2013.11.003</a>.
 </div>
 <div id="ref-tan2022" class="csl-entry" role="listitem">
-Tan, Sock Hwee, Hiromi W. L. Koh, Jing Yi Chua, Bo Burla, Ching Ching Ong, Li San Lynette Teo, Xiaoxun Yang, et al. 2022. <span>“Variability of the Plasma Lipidome and Subclinical Coronary Atherosclerosis.”</span> <em>Arteriosclerosis, Thrombosis, and Vascular Biology</em> 42 (1): 100–112. <a href="https://doi.org/10.1161/ATVBAHA.121.316847">https://doi.org/10.1161/ATVBAHA.121.316847</a>.
+Tan, Sock Hwee, Hiromi W. L. Koh, Jing Yi Chua, et al. 2022. <span>“Variability of the Plasma Lipidome and Subclinical Coronary Atherosclerosis.”</span> <em>Arteriosclerosis, Thrombosis, and Vascular Biology</em> 42 (1): 100–112. <a href="https://doi.org/10.1161/ATVBAHA.121.316847">https://doi.org/10.1161/ATVBAHA.121.316847</a>.
 </div>
 </div>
 
