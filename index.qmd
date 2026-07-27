@@ -24,10 +24,16 @@ These notebooks reproduce the [**MRMhub**](https://slinghub.github.io/MRMhub) pi
 ## Workflows
 
 ::: {.arrow-list}
-- **[Dataset 1 ↗](Dataset1.html)** — targeted plasma lipidomics, Tan *et al.* [@tan2022]; 482 features (464 transitions), 937 samples. ISTD normalization, quantification, drift/batch correction and QC filtering.
-- **[Dataset 3 ↗](Dataset3.html)** — targeted lipidomics, Chen *et al.* [@chen2025]; 828 features (748 transitions), 4,591 samples. The same pipeline at population scale.
-- **[Dataset 4 ↗](Dataset4.html)** — fully quantitative steroid assay (Panel 1, 15 analytes); 64 features (66 transitions), 20 samples. External calibration, low/high QC and EQA samples [@jansen2014]. Validates MRMhub against Agilent MassHunter across the INTEGRATOR (peak areas) and QUANT (concentrations) modules.
-- **[Manuscript Figure ↗](ManuscriptFigure.html)** — worked example of assembling publication-ready QC panels with MRMhub, reproducing the manuscript workflow figure's data panels from the Dataset 1 pipeline.
+- **[Dataset 1 ↗](Dataset1.html)** — *SPERFECT* study: serial plasma lipidomics in participants at risk of coronary artery disease, Tan *et al.* [@tan2022]; 482 features (464 transitions), 937 samples. ISTD normalization, quantification, drift/batch correction and QC filtering.
+- **[Dataset 3 ↗](Dataset3.html)** — *DYNAMO* study: plasma lipid biomarkers of renal function decline in type 2 diabetes, Chen *et al.* [@chen2025]; 828 features (748 transitions), 4,591 samples. The same pipeline at population scale.
+- **[Dataset 4 ↗](Dataset4.html)** — *Steroid panel*: fully quantitative serum steroid assay (Gradient 1, 15 analytes) [@jansen2014]. MRMhub-QUANT postprocessing: ISTD normalization, external calibration, quantification and QC bias/variability against reference targets, with CSV/XLSX/RDS export.
+:::
+
+**Related:**
+
+::: {.arrow-list}
+- **[Dataset 4 · MRMhub vs MassHunter ↗](Dataset4_Comparison.html)** — validates MRMhub against Agilent MassHunter across the INTEGRATOR (peak areas) and QUANT (concentrations) modules for the steroid panel.
+- **[Manuscript figure ↗](ManuscriptFigure.html)** — worked example of assembling publication-ready QC panels with MRMhub, reproducing the manuscript workflow figure's data panels from the Dataset 1 (SPERFECT) pipeline.
 :::
 
 <!--

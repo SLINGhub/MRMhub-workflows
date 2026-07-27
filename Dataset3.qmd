@@ -1,6 +1,6 @@
 ---
 title: "MRMhub Data Processing Workflow for Dataset 3"
-subtitle: "Supplementary Code 2"
+subtitle: "DYNAMO"
 author: 
   - name: "Bo Burla"
     affiliation: "National University of Singapore"
@@ -54,7 +54,9 @@ library(tictoc) # Used for timing
 
 # Overview Dataset
 
-This example workflow uses a targeted lipidomics dataset measuring 829 features across 4,591 samples (Chen *et al.* [-@chen2025]) and demonstrates the complete MRMhub data processing pipeline, including peak integration, quantitation, quality control, and reporting. This document covers many elements of the MRMhub workflow for demonstration purposes, some of which may not be applicable or necessary when processing other datasets.
+The data come from a human plasma lipidomics study aimed at identifying plasma lipid biomarkers of rapid renal function decline in patients with type 2 diabetes, part of the Diabetes StudY in Nephropathy And other Microvascular cOmplications (DYNAMO) project (Chen *et al.* [-@chen2025]). The lipidomics analysis followed the method of Huynh *et al.* with minor modifications, using the same QC sample types as Dataset 1. This dataset covers the largest of the study's four patient cohorts: raw MS data for samples collected at the National University Hospital, Singapore, comprising 3,816 plasma samples and 775 blank and QC samples (4,591 in total). In total, 748 MRM transitions were monitored, from which 828 features were integrated. For the biological and clinical conclusions related to these data, we refer readers to the original publication [@chen2025].
+
+This example workflow demonstrates the complete MRMhub data processing pipeline on this dataset — peak integration, quantitation, quality control and reporting. It covers many elements of the MRMhub workflow for demonstration purposes, some of which may not be applicable or necessary when processing other datasets.
 
 ::: callout-important
 All datasets used and generated within this workflow have been deposited in the **Zenodo** repository <https://zenodo.org/records/15370293>. Within this repository, the raw mass spectrometry files and the MRMhub-INTEGRATOR input files required for peak integration are available under the record "**Dataset 3"**. The data and metadata files used and produced by the code in this Quarto notebook can be found under the "**mrmhub-workflows**" record. Please note that due to size limitations, the corresponding GitHub repository does not include any of these datasets.
@@ -110,10 +112,9 @@ A [Quarto](https://quarto.org/) notebook was created in [RStudio](https://posit.
 
 ```{r chunk2-installpkg, include = TRUE, eval = FALSE}
 if (!require("remotes")) install.packages("remotes")
-# This site was rendered with mrmhub 0.9.8 (the QUANT module of MRMhub). This
-# version's API currently lives on the `development` branch — the package is at
-# the repository root there, so no `subdir` is needed.
-remotes::install_github("SLINGhub/MRMhub", ref = "development")
+# This site was rendered with mrmhub 0.9.9 (the QUANT module of MRMhub),
+# installed from the `main` branch.
+remotes::install_github("SLINGhub/MRMhub", ref = "main")
 
 # Parallel processing (mirai) and coloured console output (fansi)
 install.packages(c("mirai", "fansi"))
@@ -121,10 +122,9 @@ install.packages(c("mirai", "fansi"))
 
 ::: callout-note
 ## mrmhub version
-These notebooks were rendered with **mrmhub 0.9.8** (QUANT module of
-[MRMhub](https://github.com/SLINGhub/MRMhub)). This API is currently on the
-`development` branch; install with
-`remotes::install_github("SLINGhub/MRMhub", ref = "development")`.
+These notebooks were rendered with **mrmhub 0.9.9** (QUANT module of
+[MRMhub](https://github.com/SLINGhub/MRMhub), `main` branch); install with
+`remotes::install_github("SLINGhub/MRMhub", ref = "main")`.
 :::
 
 The Quarto notebook code generated in this example workflow is available from <https://github.com/SLINGhub/MRMhub-workflows> (file Dataset3.qmd). In the subsequent section, the data postprocessing is encoded and documented step-by-step into the notebook as individual code chunks using {mrmhub} functions. Certain code chunks include additional R code to showcase specific examples for illustrative purposes. In real-world applications, this supplementary code may not be necessary.
@@ -141,7 +141,9 @@ library(mrmhub)
 library(mirai) # Used for parallel processing
 
 # Colour mrmhub's cli console feedback in the rendered HTML (requires the fansi package)
-mrmhub_enable_cli_color()
+# Colour the mrmhub console output in HTML; disable it for PDF, where the ANSI
+# colour escapes would break LaTeX/lualatex compilation.
+if (knitr::is_latex_output()) options(cli.num_colors = 1, crayon.enabled = FALSE) else mrmhub_enable_cli_color()
 
 # Set number of cores for parallel processing (all-but-one, so the system stays responsive)
 n_cores <- {
@@ -265,6 +267,7 @@ To confirm these potential outliers, the peak areas of all ISTDs in different QC
 
 ```{r chunk8-runscatter-plot-istd-1}
 #| label: fig-ds3-runscatter-istd-before
+#| eval: !expr 'knitr::is_html_output()'
 #| fig-cap: "**ISTD run-scatter (before outlier removal).** Peak areas of all internal standards against injection order, by QC type."
 #| fig-width: 6
 #| fig-height: 7.8
@@ -351,6 +354,7 @@ To check if these identified outliers were removed the ISTDs are plotted again. 
 
 ```{r chunk12-runscatter-plot-istd-2}
 #| label: fig-ds3-runscatter-istd-after
+#| eval: !expr 'knitr::is_html_output()'
 #| fig-cap: "**ISTD run-scatter (after outlier removal).** Internal-standard peak areas against injection order once technical outliers have been excluded."
 plot_runscatter(
   mexp,
@@ -562,6 +566,7 @@ The calculated concentrations of individual features were plotted against the an
 
 ```{r chunk24-runsactter-individual}
 #| label: fig-ds3-runscatter-conc-before
+#| eval: !expr 'knitr::is_html_output()'
 #| fig-cap: "**Concentration run-scatter (before drift/batch correction).** Selected features against injection order, showing residual drift and batch effects."
 plot_runscatter(
   mexp,
@@ -607,6 +612,7 @@ After applying the drift and batch correction, the RunScatter plots for the same
 
 ```{r chunk24b-runsactter-individual}
 #| label: fig-ds3-runscatter-conc-after
+#| eval: !expr 'knitr::is_html_output()'
 #| fig-cap: "**Concentration run-scatter (after drift/batch correction).** The same features after Gaussian-kernel drift correction and batch centering."
 #| fig-width: 6
 #| fig-height: 7
@@ -918,6 +924,12 @@ save_dataset_csv(
   qc_types = "SPL",
   include_qualifier = FALSE,
   filter_data = FALSE)
+```
+
+The complete `MRMhubExperiment` — imported data, metadata and all processing results — is also saved as a single `.rds` with `save_dataset_rds()`. This self-contained object can be shared and reopened in any R session with `read_dataset_rds()`, which verifies an embedded integrity hash, to continue or audit the analysis without re-running the pipeline.
+
+```{r chunk35-save-rds, eval = FALSE}
+save_dataset_rds(mexp, "./output/Dataset3_mexp.rds")
 ```
 
 # References
