@@ -10,7 +10,7 @@ date: "`r Sys.Date()`"
 format:
   html:
     code-tools: true
-    code-fold: show
+    code-fold: false
     self-contained: true
     code-overflow: wrap
     toc: true
