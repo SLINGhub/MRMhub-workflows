@@ -97,7 +97,7 @@ The same raw files were independently re-integrated in Agilent MassHunter
 Quantitative Analysis, providing the reference peak areas and concentrations used
 throughout this document.
 
-```{r chunk2-integrator-examples}
+```{r}
 #| label: fig-d4-chromatograms
 #| fig-cap: "**Example INTEGRATOR chromatograms.** MRMhub-INTEGRATOR chromatograms for 21-deoxycortisol, 11-deoxycortisol, Aldosterone, Cortisol D4 (internal standard) and Dihydrotestosterone at high (HQC) and low (LQC) QC levels; the shaded region is the integrated peak."
 #| echo: false
@@ -108,6 +108,7 @@ throughout this document.
 # figures/dataset4/dataset4-chromatograms.R and embedded here as static PNGs, so
 # the notebook render needs neither the PDFs nor magick/ghostscript.
 chrom_dir <- "images/dataset4"
+# Read one pre-cropped chromatogram PNG as a grid raster grob.
 chrom_grob <- function(name) {
   grid::rasterGrob(
     png::readPNG(file.path(chrom_dir, paste0(name, ".png"))),
@@ -115,6 +116,8 @@ chrom_grob <- function(name) {
   )
 }
 
+# Wrap a chromatogram raster in a titled, borderless ggplot panel so the crops
+# compose with patchwork like any other panel.
 chrom_gg <- function(name, title, subtitle = NULL) {
   ggplot() +
     annotation_custom(chrom_grob(name)) +
@@ -248,7 +251,7 @@ mexp <- calc_calibration_results(
 
 The fitted curves and their metrics are inspected before quantification.
 
-```{r chunk6-calibration-curves}
+```{r}
 #| label: fig-d4-calibration-curves
 #| fig-cap: "**External calibration curves.** Quadratic, 1/x-weighted curves for the 15 steroid analytes (quantifier transitions)."
 #| fig-width: 9
@@ -265,7 +268,7 @@ plot_calibrationcurves(
 )
 ```
 
-```{r chunk7-calibration-metrics}
+```{r}
 #| label: tbl-d4-calibration-metrics
 #| tbl-cap: "**Calibration metrics per analyte.** Fit model, weighting, R², LOD and LOQ for each quantifier."
 get_calibration_metrics(mexp) |>
@@ -383,7 +386,7 @@ spl_area_excl <- mrm_q_area |>
 
 Quantified concentrations of the low and high QC samples, one row per analyte.
 
-```{r chunk11-qc-highlow}
+```{r}
 #| label: tbl-d4-qc-conc
 #| tbl-cap: "**Low/high QC concentrations.** Quantified concentrations of the low and high QC samples, one row per analyte."
 d_conc_raw |>
@@ -454,18 +457,24 @@ mrm_peaks_q <- get_analyticaldata(mexp, annotated = TRUE) |>
     rt_mrm = feature_rt, area_mrm = feature_area
   )
 
+# Peak-level MRMhub↔MassHunter comparison table, built up by a filter cascade so
+# only well-integrated, comparable peaks survive.
 d_peakcmp_reint <- mrm_peaks_q |>
+  # Keep only peaks both integrators reported for the same analysis + feature.
   inner_join(mh_data, by = c("analysis_id", "feature_id")) |>
   filter(
     !is.na(rt_mrm),
     !is.na(rt_mh), !is.na(area_mrm), !is.na(area_mh)
   ) |>
+  # Drop near-noise peaks (either method below area 100).
   filter(area_mrm >= 100, area_mh >= 100) |>
+  # Drop empty (unassigned) calibrator rows; ISTDs are always kept.
   filter(!(qc_type == "CAL" & is.na(sample_id) & feature_type != "ISTD")) |>
   left_join(
     select(spl_area_excl, analysis_id, analyte_id, excl_mrm, excl_mh),
     by = c("analysis_id", "feature_id" = "analyte_id")
   ) |>
+  # Drop below-Cal-A (below-LOQ) study samples flagged by either method.
   filter(
     !(qc_type == "SPL" &
       (coalesce(excl_mrm, FALSE) | coalesce(excl_mh, FALSE)))
@@ -474,6 +483,7 @@ d_peakcmp_reint <- mrm_peaks_q |>
   mutate(
     area_diff_pct = (area_mh - area_mrm) / area_mrm * 100,
     rt_diff = rt_mh - rt_mrm,
+    # Tag each analysis as an SST (system-suitability) or ASSAY run.
     subset = case_when(
       analysis_id %in% sst_analysis_ids ~ "SST",
       analysis_id %in% assay_analysis_ids ~ "ASSAY", TRUE ~ NA_character_
@@ -486,7 +496,7 @@ d_peakcmp_reint <- mrm_peaks_q |>
 Log–log peak areas against the 1:1 line (Pearson *r* on log10 values). CAL/QC/SST
 samples span four orders of magnitude, and the two integrators agree closely.
 
-```{r chunk14-fig1-panelA}
+```{r}
 #| label: fig-d4-fig1-panelA
 #| fig-cap: "**Peak-area agreement.** MRMhub vs MassHunter peak areas (log–log) against the 1:1 line; Pearson *r* on log10 values across CAL/QC/SST samples. Open grey rings mark peaks MassHunter integrated manually. Panel A of @fig-d4-fig1."
 #| fig-width: 4.6
@@ -562,7 +572,7 @@ p_corr
 Per-feature %CV over the ten replicate SST injections, MRMhub vs MassHunter. The
 two methods show comparable precision, with points scattering around the 1:1 line.
 
-```{r chunk15-fig1-panelB}
+```{r}
 #| label: fig-d4-fig1-panelB
 #| fig-cap: "**Precision (%CV) equivalence.** Per-feature %CV over the ten replicate SST injections, MRMhub vs MassHunter; points on the 1:1 line indicate equal precision. Panel B of @fig-d4-fig1."
 #| fig-width: 4.6
@@ -586,7 +596,7 @@ p_cv <- sst_cv |>
   scale_ft +
   guides(shape = "none") +
   labs(
-    x = "MRMhub %CV (10 SST reps)",
+    x = "MRMhub %CV (10 SST)",
     y = "MassHunter %CV", title = "Precision (%CV) equivalence"
   )
 p_cv
@@ -599,7 +609,7 @@ near-noise peaks (mean area < 10³). The three highlighted analytes are among th
 with the largest real-sample differences (see @tbl-d4-chrom-candidates); their
 chromatograms are shown below.
 
-```{r chunk16-fig1-panelC}
+```{r}
 #| label: fig-d4-fig1-panelC
 #| fig-cap: "**Bland–Altman of real-sample differences.** Percent difference (MassHunter − MRMhub) against the mean peak area (excl. SST; mean area ≥ 10³); the three largest-difference analytes are highlighted and open grey rings mark manual MassHunter integrations. Panel C of @fig-d4-fig1."
 #| fig-width: 7
@@ -699,7 +709,7 @@ hence the areas — legitimately differ between the two integrators. The candida
 table ranks these cases; the panel crops the three chosen examples (one per
 highlighted analyte) from the MRMhub `by_transition` chromatograms.
 
-```{r chunk17-fig1-chrom-candidates}
+```{r}
 #| label: tbl-d4-chrom-candidates
 #| tbl-cap: "**Largest area-difference candidates.** Peaks ranked by absolute MRMhub–MassHunter area difference, from which the example chromatograms are chosen."
 chrom_candidates <- d_peakcmp_reint |>
@@ -718,7 +728,7 @@ chrom_candidates <- d_peakcmp_reint |>
 chrom_candidates
 ```
 
-```{r chunk18-fig1-chrom-panel}
+```{r}
 #| label: fig-d4-fig1-panelD
 #| fig-cap: "**Example chromatograms.** MRMhub chromatograms for the three highlighted analytes, where the integration boundaries — and hence the areas — legitimately differ between the two integrators. Panel D of @fig-d4-fig1."
 #| fig-width: 8
@@ -756,7 +766,7 @@ p_chrom
 The four panels above are composed into the publication figure (**Figure 1**) and
 saved as a vector PDF and a 300-dpi PNG (180 mm double-column width).
 
-```{r chunk19-fig1-assemble}
+```{r}
 #| label: fig-d4-fig1
 #| fig-cap: "**MRMhub vs MassHunter — peak integration.** Composite of the four panels above; reproduced as the manuscript's **Figure 1**. **(A)** Peak-area agreement, **(B)** precision (%CV) equivalence, **(C)** Bland–Altman of real-sample differences, **(D)** example chromatograms. Exported to `output/fig1_integration_correspondence.{pdf,png}` (180 mm)."
 #| fig-width: 7.1
@@ -783,6 +793,10 @@ areas, identical calibration model — so any concentration difference is due to
 post-processing alone.
 
 ```{r chunk20-fig2-mhpipe}
+# Rebuild the INTEGRATOR long table with MassHunter's peak areas swapped in for
+# MRMhub's (matched on analysis + feature). Running the identical pipeline on this
+# table — same areas, same calibration model — makes any concentration difference
+# vs MassHunter attributable to post-processing alone, not to peak integration.
 mh_area <- mh_data |>
   transmute(analysis_id, feature_name = feature_id, area_mh)
 long_mh <- read_csv(long_combined_path, show_col_types = FALSE) |>
@@ -791,6 +805,7 @@ long_mh <- read_csv(long_combined_path, show_col_types = FALSE) |>
   mutate(area = area_mh) |>
   select(-.aid, -area_mh)
 
+# The pipeline reads from disk, so write the area-substituted table to a temp file.
 tmp_long <- tempfile(fileext = ".csv")
 write_csv(long_mh, tmp_long)
 
@@ -826,7 +841,7 @@ mexp_mh <- quantify_by_calibration(
 
 Calibration R² per analyte: MassHunter's own fit vs the MRMhub full-pipeline fit.
 
-```{r chunk21-fig2-panelA}
+```{r}
 #| label: fig-d4-fig2-panelA
 #| fig-cap: "**Calibration-fit comparison.** R² per analyte, MassHunter's own fit vs the MRMhub full-pipeline fit. Panel A of @fig-d4-fig2."
 #| fig-width: 6
@@ -916,7 +931,7 @@ peak areas**. The gap between the two MRMhub rows is the peak-integration effect
 the distance between *MRMhub (on MH areas)* and *MassHunter* isolates the
 post-processing (normalization, weighting, regression) alone.
 
-```{r chunk21b-calfit-coef-table}
+```{r}
 #| label: tbl-d4-calfit-coef
 #| tbl-cap: "**Calibration fit per analyte.** Coefficients of y = a·x² + b·x + c, R², and measured LQC/HQC concentrations (nmol/L) for three fits — MassHunter's own, MRMhub on MassHunter areas, and MRMhub end-to-end (blue text). The two MRMhub rows differ only by peak integration; MRMhub-on-MH-areas vs MassHunter isolates post-processing."
 library(gt)
@@ -951,8 +966,10 @@ conc_mhun <- mh_data |>
   ) |>
   pivot_wider(names_from = qc_type, values_from = conc)
 
-# mrmhub reports coefficients intercept-first (coef_a = x^0 ... coef_c = x^2);
-# remap to MassHunter's descending order (a = x^2, b = x, c = intercept).
+# Assemble one row per analyte for each of the three fits. mrmhub reports
+# coefficients intercept-first (coef_a = x^0 … coef_c = x^2), so the two MRMhub
+# blocks remap to MassHunter's descending order (a = x^2, b = x, c = intercept);
+# MassHunter's export is already in that order.
 mh_own <- read_csv(
   file.path(d4, "Dataset4_MassHunter-CalibrationFits.csv"),
   show_col_types = FALSE
@@ -962,6 +979,7 @@ mh_own <- read_csv(
     method = "MassHunter", a = coef_a, b = coef_b, c = coef_c, r2 = r2
   ) |>
   left_join(conc_mhun, by = "analyte_id")
+# MRMhub pipeline fit on MassHunter's peak areas (isolates post-processing).
 mrm_mh <- get_calibration_metrics(mexp_mh) |>
   filter(is_quantifier) |>
   transmute(
@@ -970,6 +988,7 @@ mrm_mh <- get_calibration_metrics(mexp_mh) |>
     r2 = r2
   ) |>
   left_join(conc_onmh, by = "analyte_id")
+# MRMhub end-to-end fit on MRMhub-INTEGRATOR areas.
 mrm_e2e <- get_calibration_metrics(mexp) |>
   filter(is_quantifier) |>
   transmute(
@@ -993,7 +1012,10 @@ fmt_conc <- function(x) {
 cal_coef_tbl <- bind_rows(mh_own, mrm_mh, mrm_e2e) |>
   mutate(method = factor(method, levels = cal_lv)) |>
   arrange(analyte_id, method) |>
+  # Stripe by analyte group (3 rows each), not by row.
+  mutate(.grp = match(analyte_id, unique(analyte_id))) |>
   transmute(
+    .grp,
     Analyte = if_else(as.character(method) == cal_lv[1], analyte_id, ""),
     Method = as.character(method), `a (x²)` = sprintf("%.4g", a),
     `b (x)` = sprintf("%.4g", b), `c` = sprintf("%.4g", c),
@@ -1002,6 +1024,7 @@ cal_coef_tbl <- bind_rows(mh_own, mrm_mh, mrm_e2e) |>
   )
 
 gt(cal_coef_tbl) |>
+  cols_hide(".grp") |>
   cols_align(
     "right",
     columns = c(
@@ -1009,12 +1032,21 @@ gt(cal_coef_tbl) |>
       "b (x)", "c", "R²", "LQC Concentration", "HQC Concentration"
     )
   ) |>
+  # Zebra shading applied per analyte, so each analyte's three method rows
+  # share one stripe and alternate against the next analyte. Both parities get
+  # an explicit inline fill (odd = white) so Quarto's per-row table striping
+  # can't leak through the unfilled groups.
   tab_style(
-    cell_fill(color = "#DEEBF7"),
-    cells_body(rows = Method == "MRMhub (on MH areas)")
+    cell_fill(color = "#FFFFFF"),
+    cells_body(rows = .grp %% 2 == 1)
   ) |>
   tab_style(
-    list(cell_fill(color = "#2C7FB8"), cell_text(color = "white")),
+    cell_fill(color = "#F2F2F2"),
+    cells_body(rows = .grp %% 2 == 0)
+  ) |>
+  # MRMhub end-to-end fit distinguished by blue text (see caption).
+  tab_style(
+    cell_text(color = "#2C7FB8"),
     cells_body(rows = Method == "MRMhub (end-to-end)")
   ) |>
   tab_options(table.font.size = px(12), data_row.padding = px(2))
@@ -1026,7 +1058,7 @@ Feeding MassHunter areas through the MRMhub pipeline reproduces MassHunter's
 end-to-end concentrations closely, indicating that the post-processing steps are
 effectively equivalent.
 
-```{r chunk22-fig2-panelB}
+```{r}
 #| label: fig-d4-fig2-panelB
 #| fig-cap: "**Concentration equivalence on identical areas.** MassHunter areas run through the MRMhub pipeline vs MassHunter end-to-end, isolating post-processing from integration. Panel B of @fig-d4-fig2."
 #| fig-width: 4.6
@@ -1097,7 +1129,7 @@ p_qonly
 Independent end-to-end concentrations (each method's own integration and
 calibration) for the LQC, HQC and SPL samples.
 
-```{r chunk23-fig2-panelC}
+```{r}
 #| label: fig-d4-fig2-panelC
 #| fig-cap: "**Full end-to-end concentration agreement.** Each method's own integration and calibration, for the LQC, HQC and SPL samples. Panel C of @fig-d4-fig2."
 #| fig-width: 4.6
@@ -1165,7 +1197,7 @@ than excluded. The reference concentrations are read from the metadata workbook'
 sample and analyte. DHEA and DHEAS are excluded (large biases that would compress
 the other panels).
 
-```{r chunk24-fig2-panelD}
+```{r}
 #| label: fig-d4-fig2-panelD
 #| fig-cap: "**Accuracy against reference values.** Per-analyte percent bias against the reference concentrations — SKML EQA values plus the nominal LQC/HQC targets (±15 % dashed) — MRMhub vs MassHunter, one point per sample per method, with LQC/HQC grouped to the left of the EQA samples; open symbols mark EQA values below the lowest calibrator (Cal A, below LOQ) and DHEA and DHEAS are excluded. Panel D of @fig-d4-fig2."
 #| fig-width: 6.5
@@ -1177,9 +1209,11 @@ the other panels).
 acc_target <- mexp@annot_qcconcentrations |>
   filter(str_starts(sample_id, "SKML") | sample_id %in% c("LQC", "HQC")) |>
   transmute(sample_id, analyte_id, target = concentration)
+
 # analysis_id -> sample_id map (groups the `…b` replicates onto one EQA sample).
 sid_map <- get_analyticaldata(mexp, annotated = TRUE) |>
   distinct(analysis_id, sample_id)
+
 d_acc <- d_conc_raw |>
   filter(qc_type %in% c("LQC", "HQC", "SPL")) |>
   pivot_longer(
@@ -1219,6 +1253,7 @@ d_acc <- d_conc_raw |>
 # x-axis order: LQC, HQC first, then the EQA samples (sorted by label).
 eqa_lbls <- sort(setdiff(unique(d_acc$sample_lbl), c("LQC", "HQC")))
 x_levels <- c("LQC", "HQC", eqa_lbls)
+
 p_eqa <- d_acc |>
   filter(!analyte_id %in% c("DHEA", "DHEAS")) |>
   # Reshape bias and the below-LOQ flag together (one row per method).
@@ -1282,7 +1317,7 @@ p_eqa
 
 The four panels above are composed into the publication figure (**Figure 2**).
 
-```{r chunk25-fig2-assemble}
+```{r}
 #| label: fig-d4-fig2
 #| fig-cap: "**MRMhub vs MassHunter — quantification.** Composite of the four panels above; reproduced as the manuscript's **Figure 2**. **(A)** Calibration-fit comparison, **(B)** concentration equivalence on identical areas, **(C)** full end-to-end agreement, **(D)** QC and EQA accuracy. Exported to `output/fig2_quantification_comparison.{pdf,png}` (180 mm)."
 #| fig-width: 7.1
