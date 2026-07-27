@@ -38,4 +38,8 @@ format:
     theme:
       - cosmo
       - brand
+    # `arrow` is the tidyverse-book / RStudio-editor palette (Quarto's default,
+    # as used by R for Data Science 2e). It is pastel by design; styles.css
+    # deepens the token colours slightly so they don't read as faint.
+    highlight-style: arrow
     css: styles.css

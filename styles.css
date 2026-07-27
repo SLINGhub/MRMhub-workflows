@@ -2,6 +2,15 @@
    right-hand info panel. Typography is inherited from cosmo + _brand.yml
    (steel-blue #5B8FA8 primary, navy #2C3E50); no new fonts are introduced. */
 
+/* The `arrow` highlight-style (tidyverse-book / RStudio palette, set in
+   _quarto.yml) is intentionally pastel and reads a little faint on white.
+   Deepen and saturate every syntax token — hues are preserved, so it still
+   matches the tidyverse-book look — without touching the code-block background
+   or the plain R-output blocks (which aren't `.sourceCode`). */
+pre.sourceCode code span {
+  filter: saturate(1.35) brightness(0.85);
+}
+
 /* Wrap mrmhub's cli status output (stderr) so long ✔/ℹ/warning lines reflow
    instead of scrolling horizontally. Quarto's `code-overflow: wrap` covers
    source code blocks but not `.cell-output-stderr`, which cli emits as
