@@ -111,20 +111,20 @@ The peak integration results were inspected for all features across samples usin
 A [Quarto](https://quarto.org/) notebook was created in [RStudio](https://posit.co/download/rstudio-desktop/). The {mrmhub} R package was installed by running the following code in the R console, together with the `mirai` (parallel processing) and `fansi` (coloured console output) packages used in this workflow.
 
 ```{r chunk2-installpkg, include = TRUE, eval = FALSE}
-if (!require("remotes")) install.packages("remotes")
+if (!requireNamespace("pak", quietly = TRUE)) install.packages("pak")
 # This site was rendered with mrmhub 0.9.9 (the QUANT module of MRMhub),
 # installed from the `main` branch.
-remotes::install_github("SLINGhub/MRMhub", ref = "main")
+pak::pak("SLINGhub/MRMhub@main")
 
 # Parallel processing (mirai) and coloured console output (fansi)
-install.packages(c("mirai", "fansi"))
+pak::pak(c("mirai", "fansi"))
 ```
 
 ::: callout-note
 ## mrmhub version
 These notebooks were rendered with **mrmhub 0.9.9** (QUANT module of
 [MRMhub](https://github.com/SLINGhub/MRMhub), `main` branch); install with
-`remotes::install_github("SLINGhub/MRMhub", ref = "main")`.
+`pak::pak("SLINGhub/MRMhub@main")`.
 :::
 
 The Quarto notebook code generated in this example workflow is available from <https://github.com/SLINGhub/MRMhub-workflows> (file Dataset3.qmd). In the subsequent section, the data postprocessing is encoded and documented step-by-step into the notebook as individual code chunks using {mrmhub} functions. Certain code chunks include additional R code to showcase specific examples for illustrative purposes. In real-world applications, this supplementary code may not be necessary.

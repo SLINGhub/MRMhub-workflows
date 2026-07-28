@@ -163,11 +163,10 @@ internal standards, fits external calibration curves, and quantifies.
 
 ::: callout-note
 ## mrmhub version
-This notebook was rendered with **mrmhub 0.9.8** (QUANT module of
-[MRMhub](https://github.com/SLINGhub/MRMhub)). This API is currently on the
-`development` branch; install with
-`remotes::install_github("SLINGhub/MRMhub", ref = "development")`. The coloured
-console output additionally uses the `fansi` package (`install.packages("fansi")`).
+This notebook was rendered with **mrmhub 0.9.9** (QUANT module of
+[MRMhub](https://github.com/SLINGhub/MRMhub)); install with
+`pak::pak("SLINGhub/MRMhub@main")`. The coloured
+console output additionally uses the `fansi` package (`pak::pak("fansi")`).
 :::
 
 ```{r chunk3-loadpkg}
@@ -423,21 +422,9 @@ smp_cols <- c(
   SBLK = "#CC79A7", PBLK = "#999999"
 )
 
-# Save a composite as vector PDF + 300-dpi PNG at a given size (mm) for the manuscript.
-save_fig <- function(plot, stem, height, width = 180) {
-  ggsave(
-    file.path("output", paste0(stem, ".pdf")),
-    plot,
-    device = cairo_pdf, width = width, height = height, units = "mm"
-  )
-  ggsave(
-    file.path("output", paste0(stem, ".png")),
-    plot,
-    device = ragg::agg_png, width = width, height = height,
-    units = "mm", dpi = 300
-  )
-  invisible(plot)
-}
+# Manuscript composites are saved as vector PDF + 300-dpi PNG at 180 mm width
+# with `save_plot()`, which selects the cairo and ragg devices (both render the
+# Unicode in axis labels such as "µmol/L").
 ```
 
 ```{r chunk13-fig1-data}
@@ -776,8 +763,9 @@ fig1 <- row_ab /
   plot_layout(heights = c(1, 0.72, 0.58)) +
   plot_annotation(tag_levels = "A")
 
-save_fig(fig1, "fig1_integration_correspondence", height = 230)
-fig1
+save_plot(
+  fig1, "output/fig1_integration_correspondence", format = c("pdf", "png"),
+  width = 180, height = 230)
 ```
 
 # MRMhub vs MassHunter — Quantification
@@ -1328,8 +1316,9 @@ fig2 <- p_r2 /
   plot_layout(heights = c(0.68, 1.3, 1.2)) +
   plot_annotation(tag_levels = "A")
 
-save_fig(fig2, "fig2_quantification_comparison", height = 236)
-fig2
+save_plot(
+  fig2, "output/fig2_quantification_comparison", format = c("pdf", "png"),
+  width = 180, height = 236)
 ```
 
 # Summary

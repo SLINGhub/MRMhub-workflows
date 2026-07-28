@@ -32,7 +32,7 @@ This report follows the MRMhub [external-calibration + QC recipe](https://slingh
 ::: callout-note
 ## mrmhub version
 
-Rendered with **mrmhub 0.9.9** (QUANT module of [MRMhub](https://github.com/SLINGhub/MRMhub), `main` branch): `remotes::install_github("SLINGhub/MRMhub", ref = "main")`.
+Rendered with **mrmhub 0.9.9** (QUANT module of [MRMhub](https://github.com/SLINGhub/MRMhub), `main` branch): `pak::pak("SLINGhub/MRMhub@main")`.
 :::
 
 ## Setup

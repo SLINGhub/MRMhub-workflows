@@ -129,20 +129,20 @@ The postprocessing (Quantification, Quality Control and Reporting) of the data o
 A [Quarto](https://quarto.org/) notebook was created in [RStudio](https://posit.co/download/rstudio-desktop/). The {mrmhub} R package was installed by running the following code in the R console, together with the `mirai` (parallel processing) and `fansi` (coloured console output) packages used in this workflow.
 
 ```{r chunk2-installpkg, include = TRUE, eval = FALSE}
-if (!require("remotes")) install.packages("remotes")
+if (!requireNamespace("pak", quietly = TRUE)) install.packages("pak")
 # This site was rendered with mrmhub 0.9.9 (the QUANT module of MRMhub),
 # installed from the `main` branch.
-remotes::install_github("SLINGhub/MRMhub", ref = "main")
+pak::pak("SLINGhub/MRMhub@main")
 
 # Parallel processing (mirai) and coloured console output (fansi)
-install.packages(c("mirai", "fansi"))
+pak::pak(c("mirai", "fansi"))
 ```
 
 ::: callout-note
 ## mrmhub version
 These notebooks were rendered with **mrmhub 0.9.9** (QUANT module of
 [MRMhub](https://github.com/SLINGhub/MRMhub), `main` branch); install with
-`remotes::install_github("SLINGhub/MRMhub", ref = "main")`.
+`pak::pak("SLINGhub/MRMhub@main")`.
 :::
 
 The Quarto notebook code generated in this example workflow is available from <https://github.com/SLINGhub/MRMhub-workflows> (file Dataset1.qmd). In the subsequent section, the data postprocessing is encoded and documented step-by-step into the notebook as individual code chunks using {mrmhub} functions. Certain code chunks include additional R code to showcase specific examples for illustrative purposes. In real-world applications, this supplementary code may not be necessary.
@@ -1020,12 +1020,9 @@ fig4 <- ((fig4a | fig4b) /
     plot.tag = element_text(size = 12, face = "bold"),
     strip.placement = 'inside')
 
-ggsave(
-  "output/fig4.png",
-  fig4, width = 180, height = 200, units = "mm", dpi = 300)
-ggsave(
-  "output/fig4.pdf",
-  fig4, width = 180, height = 200, units = "mm", dpi = 300)
+save_plot(
+  fig4, "output/fig4", format = c("pdf", "png"),
+  width = 180, height = 200, show_plot = FALSE)
 ```
 
 ## Assembling Figure 5
@@ -1053,14 +1050,9 @@ fig5 <- (fig5a | fig5b) /
   theme(
     plot.tag = element_text(size = 10, face = "bold"),
     strip.placement = 'inside')
-fig5
-
-ggsave(
-  "output/fig5.png",
-  fig5, width = 180, height = 240, units = "mm", dpi = 300)
-ggsave(
-  "output/fig5.pdf",
-  fig5, width = 180, height = 240, units = "mm", dpi = 300)
+save_plot(
+  fig5, "output/fig5", format = c("pdf", "png"),
+  width = 180, height = 240)
 ```
 
 ## Assembling Extended Figure 4
@@ -1078,11 +1070,9 @@ extfig2 <- (extfig2a / extfig2b / extfig2c / extfig2d) +
     plot.tag = element_text(size = 19, face = "bold"),
     strip.placement = 'inside')
 
-ggsave(
-  extfig2,
-  filename = "output/ExtendedFig-4_RLAs.pdf",
-  width = 180, height = 250, units = "mm", dpi = 300)
-extfig2
+save_plot(
+  extfig2, "output/ExtendedFig-4_RLAs.pdf",
+  width = 180, height = 250)
 ```
 
 ## Assembling Extended Figure 5
@@ -1097,11 +1087,9 @@ extfig3 <- extfig3a /
     plot.tag = element_text(size = 12, face = "bold"),
     strip.placement = 'inside')
 
-ggsave(
-  extfig3,
-  filename = "output/ExtendedFig-5.png",
-  width = 180, height = 250, units = "mm", dpi = 300)
-extfig3
+save_plot(
+  extfig3, "output/ExtendedFig-5.png",
+  width = 180, height = 250)
 ```
 
 ## Assembling Extended Figure 6
@@ -1117,24 +1105,17 @@ extfig4 <- extfig4a /
     plot.tag = element_text(size = 12, face = "bold"),
     strip.placement = 'inside')
 
-ggsave(
-  extfig4,
-  filename = "output/ExtendedFig-6_PCAloading.png",
-  width = 180, height = 250, units = "mm", dpi = 300)
-ggsave(
-  extfig4,
-  filename = "output/ExtendedFig-6_PCAloading.pdf",
-  width = 180, height = 250, units = "mm", dpi = 300)
-extfig4
+save_plot(
+  extfig4, "output/ExtendedFig-6_PCAloading", format = c("pdf", "png"),
+  width = 180, height = 250)
 ```
 
 ## Saving Extended Figure 7
 
 ```{r chunk37-save-extfig5}
-ggsave(
-  extfig5[[1]],
-  filename = "output/ExtendedData_Fig7_ISTDtrends.png",
-  width = 180, height = 180, units = "mm", dpi = 300)
+save_plot(
+  extfig5[[1]], "output/ExtendedData_Fig7_ISTDtrends.png",
+  width = 180, height = 180, show_plot = FALSE)
 ```
 
 ## Assembling Extended Figure 8
@@ -1150,11 +1131,9 @@ extfig6 <- extfig6a /
   theme(
     plot.tag = element_text(size = 12, face = "bold"),
     strip.placement = 'inside')
-ggsave(
-  extfig6,
-  filename = "output/ExtendedData_Fig8_CVnormbeforeafter.pdf",
-  width = 160, height = 270, units = "mm", dpi = 600)
-extfig6
+save_plot(
+  extfig6, "output/ExtendedData_Fig8_CVnormbeforeafter.pdf",
+  width = 160, height = 270)
 ```
 
 # Supplementary Figures of Manuscript

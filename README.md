@@ -1,6 +1,6 @@
 # MRMhub Workflow Examples
 
-Reproducible data-analysis notebooks demonstrating the
+Reproducible data analysis notebooks demonstrating the
 [**MRMhub**](https://github.com/SLINGhub/MRMhub) targeted LC-MS data-processing
 pipeline on real datasets. Each workflow is a Quarto notebook combining narrative,
 executable R and outputs, provided as Supplementary Materials for the MRMhub
@@ -17,8 +17,7 @@ Rendered site: **[slinghub.github.io/MRMhub-workflows](https://slinghub.github.i
 
 ## Data
 
-The datasets are **not** included in this repository due to their size; they are
-gitignored and archived on [Zenodo](https://zenodo.org/records/15370294) (record
+The datasets are **not** included in this repository due to their size; they are archived on [Zenodo](https://zenodo.org/records/15370294) (record
 **MRMhub-data**). Each dataset is a separate archive that unzips into
 `data/dataset-<n>/`.
 
@@ -37,21 +36,21 @@ Each `data/dataset-<n>/` folder carries a `README.txt` describing its files.
 ## Software environment
 
 The rendered site was produced with **[mrmhub](https://github.com/SLINGhub/MRMhub)
-0.9.3** (the QUANT module) on **R 4.5** and **Quarto**. PDF output additionally
-requires a LuaLaTeX engine (TinyTeX/TeX Live).
+0.9.9** (the QUANT module) on **R 4.5** and **Quarto**.
 
-At the time of writing, the mrmhub 0.9.3 API used by these notebooks is on the
-`development` branch (the package sits at the repository root there, so no
-`subdir` is needed):
+The notebooks render to HTML with no further setup. The PDF versions are typeset
+with LuaLaTeX, which needs a TeX distribution installed — `quarto install tinytex`
+provides a minimal one. Without it, render HTML only, e.g.
+`quarto render Dataset1.qmd --to html`.
 
 ```r
-remotes::install_github("SLINGhub/MRMhub", ref = "development")
+if (!requireNamespace("pak", quietly = TRUE)) install.packages("pak")
+pak::pak("SLINGhub/MRMhub")
 ```
 
-> **Reproducibility note.** For an exact, immutable pin, install from a specific
+> **Reproducibility note.** To install a fixed version, install from a specific
 > commit or release tag once a version carrying this API is published, e.g.
-> `remotes::install_github("SLINGhub/MRMhub", ref = "<tag-or-sha>")`.
+> `pak::pak("SLINGhub/MRMhub@<tag-or-sha>")`.
 
 ## Contact
-
-bo.burla@nus.edu.sg and hyung_won_choi@nus.edu.sg
+Bo Burla (bo.burla@nus.edu.sg) and Hyungwon Choi (hyung_won_choi@nus.edu.sg)

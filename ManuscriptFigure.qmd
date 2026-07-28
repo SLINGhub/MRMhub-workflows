@@ -86,10 +86,9 @@ dir.create("output", showWarnings = FALSE, recursive = TRUE)
 
 ::: callout-note
 ## mrmhub version
-This notebook was rendered with **mrmhub 0.9.3** (QUANT module of
-[MRMhub](https://github.com/SLINGhub/MRMhub)). This API is currently on the
-`development` branch; install with
-`remotes::install_github("SLINGhub/MRMhub", ref = "development")`.
+This notebook was rendered with **mrmhub 0.9.9** (QUANT module of
+[MRMhub](https://github.com/SLINGhub/MRMhub)); install with
+`pak::pak("SLINGhub/MRMhub@main")`.
 :::
 
 # 1 · Reproduce the Dataset 1 pipeline
@@ -475,17 +474,11 @@ figCDE <- (pC1 | pC2 | pC3) /
     plot.tag = element_text(size = 12, face = "bold"),
     plot.margin = margin(2, 3, 2, 2))
 
-# cairo_pdf / ragg render Unicode (e.g. the µ in "µmol/L")
-ggsave(
-  "output/ManuscriptFigure_panelsCDE.png",
-  figCDE, width = 205, height = 128, units = "mm", dpi = 300,
-  device = ragg::agg_png)
-ggsave(
-  "output/ManuscriptFigure_panelsCDE.pdf",
-  figCDE, width = 205, height = 128, units = "mm", dpi = 300,
-  device = cairo_pdf)
-
-figCDE
+# save_plot() picks the cairo PDF and ragg PNG devices, which render Unicode
+# (e.g. the µ in "µmol/L"), and returns the plot so it is also shown here.
+save_plot(
+  figCDE, "output/ManuscriptFigure_panelsCDE", format = c("pdf", "png"),
+  width = 205, height = 128)
 ```
 
 ::: callout-note

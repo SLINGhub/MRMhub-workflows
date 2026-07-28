@@ -73,3 +73,6 @@ scripts/dataset4-chromatograms/by_transition/*.pdf
 
 # Zenodo distribution archives (built on demand, not tracked)
 /dist/
+
+# Local agent instructions
+CLAUDE.md
