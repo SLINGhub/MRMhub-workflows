@@ -4,7 +4,7 @@ Reproducible data analysis notebooks demonstrating the
 [**MRMhub**](https://github.com/SLINGhub/MRMhub) targeted LC-MS data-processing
 pipeline on real datasets. Each workflow is a Quarto notebook combining narrative,
 executable R and outputs, provided as Supplementary Materials for the MRMhub
-manuscript (in preparation).
+manuscript (Burla *et al.*, [10.64898/2025.12.20.695370](https://doi.org/10.64898/2025.12.20.695370)).
 
 Rendered site: **[slinghub.github.io/MRMhub-workflows](https://slinghub.github.io/MRMhub-workflows)**.
 
@@ -17,8 +17,10 @@ Rendered site: **[slinghub.github.io/MRMhub-workflows](https://slinghub.github.i
 
 ## Data and how to run
 
-All code and data are deposited in a single Zenodo record,
-[**10.5281/zenodo.15370293**](https://doi.org/10.5281/zenodo.15370293) (*MRMhub-data*).
+The datasets and the full code used to generate this resource are deposited together in
+the Zenodo record [**10.5281/zenodo.15370293**](https://doi.org/10.5281/zenodo.15370293)
+(*MRMhub-workflows*). This GitHub repository does not contain the Dataset 1 and 3 data
+due to their sizes — only the Zenodo bundle is complete.
 
 **`mrmhub-workflows.zip`** — this complete repository *including* all data under
 `data/`. Unzip it, open the project and run `quarto render`; nothing else is needed.
@@ -39,8 +41,7 @@ produces, which is already included under `data/`. The record also holds
 
 ### Running from a git clone
 
-The Datasets 1 and 3 data exceed GitHub's file-size limit and are therefore **not** in
-this git repository. A clone renders **Dataset 4 only**:
+Without the Datasets 1 and 3 data, a clone renders **Dataset 4 only**:
 
 ```bash
 git clone https://github.com/SLINGhub/MRMhub-workflows
@@ -64,7 +65,7 @@ provides a minimal one. Without it, render HTML only, e.g.
 `quarto render Dataset1.qmd --to html`.
 
 ```r
-if (!requireNamespace("pak", quietly = TRUE)) install.packages("pak")
+if (!require("pak")) install.packages("pak")
 pak::pak("SLINGhub/MRMhub")
 ```
 
@@ -80,7 +81,8 @@ CC BY 4.0. See [LICENSE](LICENSE).
 ## Citation
 
 Cite the Zenodo deposit, [10.5281/zenodo.15370293](https://doi.org/10.5281/zenodo.15370293)
-— see [CITATION.cff](CITATION.cff) — together with the MRMhub manuscript (in preparation).
+— see [CITATION.cff](CITATION.cff) — together with the MRMhub preprint, Burla *et al.*,
+*bioRxiv* 2025, [10.64898/2025.12.20.695370](https://doi.org/10.64898/2025.12.20.695370).
 
 ## Contact
 Bo Burla (bo.burla@nus.edu.sg) and Hyungwon Choi (hyung_won_choi@nus.edu.sg)

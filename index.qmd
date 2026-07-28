@@ -4,80 +4,70 @@ page-layout: full
 bibliography: references.bib
 ---
 
-::: {.grid .landing-grid}
-
-::: {.g-col-12 .g-col-lg-9}
-
-<img src="images/logo.svg" class="hex-logo" alt="MRMhub hex logo" />
+::::::::: {.grid .landing-grid}
+::::::: {.g-col-12 .g-col-lg-9}
+<img src="images/logo.svg" alt="MRMhub hex logo" class="hex-logo"/>
 
 # MRMhub Workflow Examples
 
-::: {.lead}
-Reproducible example reports of the MRMhub targeted LC-MS data-processing pipeline
+::: lead
+Reproducible example reports of the MRMhub targeted LC-MS data-processing platform
 :::
 
-::: {.title-sep}
+::: title-sep
 :::
 
-These notebooks reproduce the [**MRMhub**](https://slinghub.github.io/MRMhub) pipeline end-to-end on real targeted LC-MS datasets — from INTEGRATOR peak-integration results through QUANT normalization, quantification, quality control and reporting. Each is a self-contained Quarto notebook combining narrative, executable R and outputs, provided as Supplementary Materials for the MRMhub manuscript.
+These notebooks reproduce the [**MRMhub**](https://slinghub.github.io/MRMhub)-based data processing pipeline end-to-end on real targeted LC-MS datasets, from INTEGRATOR peak-integration results through normalization, quantification, quality control and reporting. Each dataset is processed in a self-contained Quarto notebook combining descriptions, executable R scripts and outputs.
 
 ## Workflows
 
-::: {.arrow-list}
-- **[Dataset 1 ↗](Dataset1.html)** — *SPERFECT* study: serial plasma lipidomics in participants at risk of coronary artery disease, Tan *et al.* [@tan2022]; 482 features (464 transitions), 937 samples. ISTD normalization, quantification, drift/batch correction and QC filtering.
-- **[Dataset 3 ↗](Dataset3.html)** — *DYNAMO* study: plasma lipid biomarkers of renal function decline in type 2 diabetes, Chen *et al.* [@chen2025]; 828 features (748 transitions), 4,591 samples. The same pipeline at population scale.
-- **[Dataset 4 ↗](Dataset4.html)** — *Steroid panel*: fully quantitative serum steroid assay (Gradient 1, 15 analytes) [@jansen2014]. MRMhub-QUANT postprocessing: ISTD normalization, external calibration, quantification and QC bias/variability against reference targets, with CSV/XLSX/RDS export.
+::: arrow-list
+- [**Dataset 1 ↗**](Dataset1.html) — *SPERFECT* study: longitudinal LC-MRM-MS-based plasma lipidomics in participants at risk of coronary artery disease, Tan *et al.* [@tan2022]; 482 features (464 transitions), 937 samples. Feature annotation QC, normalization and quantification, drift and batch correction, detailed QC plots, feature filtering and data export.
+- [**Dataset 3 ↗**](Dataset3.html) — *DYNAMO* study: LC-MRM-MS-based plasma lipidomics study on biomarkers of renal function decline in type 2 diabetes, Chen *et al.* [@chen2025]; 828 features (748 transitions), 4,591 samples. The same overall workflow as Dataset 1, but with detailed outlier detection and additional QC plots.
+- [**Dataset 4 ↗**](Dataset4.html) — *Steroid panel*: fully quantitative LC-MRM-MS-based serum steroid assay with 15 analytes [@jansen2014]. External calibration curves, quantification, assay variability and bias calculation.
 :::
 
 **Related:**
 
-::: {.arrow-list}
-- **[Dataset 4 · MRMhub vs MassHunter ↗](Dataset4_Comparison.html)** — validates MRMhub against Agilent MassHunter across the INTEGRATOR (peak areas) and QUANT (concentrations) modules for the steroid panel.
-- **[Manuscript figure ↗](ManuscriptFigure.html)** — worked example of assembling publication-ready QC panels with MRMhub, reproducing the manuscript workflow figure's data panels from the Dataset 1 (SPERFECT) pipeline.
+::: arrow-list
+- [**Dataset 4 · MRMhub vs MassHunter ↗**](Dataset4_Comparison.html) — validates the end-to-end processing (peak integration and postprocessing) of MRMhub against Agilent MassHunter for the Dataset 4 steroid panel data.
+- [**Manuscript figure ↗**](ManuscriptFigure.html) — assembly of a multipanel figure with QC plots from the Dataset 1 pipeline notebook, used in the Supplementary Notes of the publication (Burla *et al.*, 2026).
 :::
 
----
+------------------------------------------------------------------------
 
-<small>
-**Citation:** Provided as Supplementary Materials for the MRMhub manuscript (in preparation). &nbsp;|&nbsp;
-**Source:** [github.com/SLINGhub/MRMhub-workflows](https://github.com/SLINGhub/MRMhub-workflows) &nbsp;|&nbsp;
-**Code & data:** [10.5281/zenodo.15370293](https://doi.org/10.5281/zenodo.15370293)
-</small>
-
-:::
+<small> **Source:** [github.com/SLINGhub/MRMhub-workflows](https://github.com/SLINGhub/MRMhub-workflows)  \|  **Code & data:** [10.5281/zenodo.15370293](https://doi.org/10.5281/zenodo.15370293) </small>
+:::::::
 
 ::: {.g-col-12 .g-col-lg-3 .info-panel}
-
 ### Links
 
 - [MRMhub documentation](https://slinghub.github.io/MRMhub)
 - [MRMhub source code](https://github.com/SLINGhub/MRMhub)
 - [Workflows repository](https://github.com/SLINGhub/MRMhub-workflows)
 
+
+
 ### Authors
 
-MRMhub is developed by:
-
-- Bo Burla ([ORCID](https://orcid.org/0000-0002-5918-3249))
-- Guo Shou Teo ([ORCID](https://orcid.org/0000-0003-3891-1494))
-- Hyungwon Choi ([ORCID](https://orcid.org/0000-0002-6687-3088))
+- Bo Burla <a href="https://orcid.org/0000-0002-5918-3249" aria-label="Bo Burla's ORCID iD"><img src="images/orcid.svg" alt="ORCID iD" class="orcid-icon"/></a>
+- Guo Shou Teo <a href="https://orcid.org/0000-0003-3891-1494" aria-label="Guo Shou Teo's ORCID iD"><img src="images/orcid.svg" alt="ORCID iD" class="orcid-icon"/></a>
+- Hyungwon Choi <a href="https://orcid.org/0000-0002-6687-3088" aria-label="Hyungwon Choi's ORCID iD"><img src="images/orcid.svg" alt="ORCID iD" class="orcid-icon"/></a>
 
 ### Data
 
-Code and data are deposited together in the Zenodo record [10.5281/zenodo.15370293](https://doi.org/10.5281/zenodo.15370293) (**MRMhub-data**). Its `mrmhub-workflows.zip` is this complete repository with all data included — unzip and run `quarto render`.
+The datasets and the full code used to generate this resource are deposited together in the Zenodo record [10.5281/zenodo.15370293](https://doi.org/10.5281/zenodo.15370293) (**MRMhub-workflows**). The GitHub repository does not contain the Dataset 1 and 3 data due to their sizes.
 
 ### Citation
 
-- MRMhub manuscript (in preparation)
+- Preprint: Burla *et al.* [@burla2025], [10.64898/2025.12.20.695370](https://doi.org/10.64898/2025.12.20.695370)
 - Deposit: [10.5281/zenodo.15370293](https://doi.org/10.5281/zenodo.15370293)
 
 ### Contact
 
 For questions or feedback, contact [bo.burla\@nus.edu.sg](mailto:bo.burla@nus.edu.sg) and [hyung_won_choi\@nus.edu.sg](mailto:hyung_won_choi@nus.edu.sg).
-
 :::
-
-:::
+:::::::::
 
 ## References
 

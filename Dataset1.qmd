@@ -10,7 +10,6 @@ date: "`r Sys.Date()`"
 format:
   html:
     code-tools: true
-    code-fold: false
     self-contained: true
     code-overflow: wrap
     toc: true
@@ -20,21 +19,11 @@ format:
     fig-align: center
     fig-format: retina
     fig-dpi: 200
-  pdf:
-    pdf-engine: lualatex
-    mainfont: "Latin Modern Sans"
-    fig-format: pdf
-    toc: true
-    fig-dpi: 300
-    number-sections: true
-    keep-tex: false
-    include-in-header: caption-font.tex
-
 bibliography: references.bib
 ---
 
 ```{r chunk01-setup-notebook, include = FALSE, echo = FALSE}
-# Specific options to for rendering this document
+# Options specific to rendering this document
 knitr::opts_chunk$set(
   cache = FALSE,
   collapse = TRUE, strip.white = TRUE, results = TRUE, message = TRUE,
@@ -42,7 +31,7 @@ knitr::opts_chunk$set(
 set.seed(1041)
 options(dplyr.print_max = 10)
 
-# Packages used to prepare the publication figues
+# Packages used to prepare the publication figures
 library(here)
 library(mirai) # Use for parallel processing
 
@@ -66,29 +55,23 @@ n_cores <- {
 if (mirai::status()$daemons == 0) mirai::daemons(n_cores)
 ```
 
-\newpage
-
 # Overview Dataset
 
-The data come from the SPERFECT study (*SPhingolipids as sErial biomaRkers oF disease progression in acutE myoCardial infarcTion*; Tan *et al.* [-@tan2022]), a targeted lipidomics analysis of plasma from 84 participants at risk of coronary artery disease. Participants contributed to a longitudinal arm with blood collection at up to five follow-up time points (378 samples), and a subset to a diurnal rhythm study (299 samples). Including QC samples, the dataset comprises 937 injections acquired by LC-MRM in six analytical batches; 464 MRM transitions were monitored, from which 482 features were integrated (a transition can yield multiple features, e.g. for isomers or isobars). The QC samples are solvent blanks (SBLK), process blanks (PBLK, containing the ISTD mix), technical QC (TQC, pooled aliquots of extracted study samples), batch QC (BQC, aliquots of pooled plasma extracted alongside the study samples) and response-curve QC (RQC, the TQC injected at different volumes). PBLKs and BQCs were co-extracted; PBLK, TQC and BQC samples were measured at regular intervals throughout the analysis to monitor background signal, instrument performance and overall process performance, respectively.
+The data come from the SPERFECT study (*SPhingolipids as sErial biomaRkers oF disease progression in acutE myoCardial infarcTion*; Tan *et al.* [-@tan2022]), a targeted lipidomics analysis of plasma from 84 participants at risk of coronary artery disease. Participants contributed to a longitudinal arm with blood collection at up to five follow-up time points (378 samples), and a subset to a diurnal rhythm study (299 samples). Including QC samples, the dataset comprises 937 injections acquired by LC-MRM in six analytical batches; 464 MRM transitions were monitored, from which 482 features were integrated (a transition can yield multiple features, e.g. for isomers or isobars). The QC samples are solvent blanks (SBLK), process blanks (PBLK, containing the ISTD mix), technical QC (TQC, pooled aliquots of extracted study samples), batch QC (BQC, aliquots of pooled plasma extracted alongside the study samples), response-curve QC (RQC, the TQC injected at different volumes) and long-term reference (LTR) samples. PBLKs and BQCs were co-extracted; PBLK, TQC and BQC samples were measured at regular intervals throughout the analysis to monitor background signal, instrument performance and overall process performance, respectively.
 
 This example workflow demonstrates the complete MRMhub data processing pipeline on this dataset — peak integration, quantitation, quality control and reporting. It covers many elements of the MRMhub workflow for demonstration purposes, some of which may not be applicable or necessary when processing other datasets.
+
+Note that some plots are assigned to a variable (e.g. `fig4a`, `fig4b`) so they can be reused at the end of this workflow to assemble the multi-panel manuscript figures.
 
 ::: callout-important
 ## Data availability
 
-All code and data for this workflow are deposited in the Zenodo record [10.5281/zenodo.15370293](https://doi.org/10.5281/zenodo.15370293) (*MRMhub-data*).
-
-`mrmhub-workflows.zip` is the complete workflows repository *including* the Dataset 1 data under `data/dataset-1/`. Unzip it, open the project and run `quarto render Dataset1.qmd` — nothing else is needed to reproduce this notebook.
-
-`MRMhub-Dataset1.zip` in the same record holds the raw mzML files together with the MRMhub-INTEGRATOR application and all of its input files, so the peak integration described below can be re-run as published or with new parameters. It is **not** required here: this notebook starts from INTEGRATOR's `long.csv` output, which is already included in the repository.
-
-Note that the Dataset 1 data exceed GitHub's file-size limit and are therefore not part of the [GitHub repository](https://github.com/SLINGhub/MRMhub-workflows) — use the Zenodo archive to reproduce this workflow.
+All code and data for this workflow are deposited in the Zenodo record [10.5281/zenodo.15370293](https://doi.org/10.5281/zenodo.15370293) (*MRMhub-workflows*). The corresponding MS raw data (mzML files), together with the MRMhub-INTEGRATOR application and its input files, are deposited as `MRMhub-Dataset1.zip` in the same record.
 :::
 
 # Raw Data Processing: Peak Picking and Integration
 
-This section describes key aspects of raw data processing workflow, i.e. peak picking and peak integration, used for this dataset. For more details on the usage of the INTEGRATOR application, see the [INTEGRATOR Manual](https://slinghub.github.io/MRMhub/integrator/manual.html).
+This section describes key aspects of the raw data processing workflow, i.e. peak picking and peak integration, used for this dataset. For more details on the usage of the INTEGRATOR application, see the [INTEGRATOR Manual](https://slinghub.github.io/MRMhub/integrator/manual.html).
 
 ## Conversion of vendor raw files to mzML
 
@@ -116,17 +99,17 @@ The feature/transition table (transition_list_20251009.csv) defined the transiti
 
 ![**Feature/Transition Table.** Screenshot of a portion of the CSV file (transition_list_20251009_Final.csv) used for this dataset. Fixed integration borders were set for two adjacent features to ensure correct integration.](images/paste-6.png){#fig-ds1-featuretable fig-align="center" width="70%"}
 
-For this dataset, fixed borders were defined for some features that were poorly separated from adjacent peaks or that had noisy chromatograms to ensure correct and consistent integration, for example PC 36:6. In some other cases, isomers were intentionally co-integrated, such as the LPC and LPE internal standards (see @fig-ds1-peakboundaries).The feature and transition table used in this workflow was optimized for an earlier version of INTEGRATOR. Some feature-specific integration settings included in that table may not be necessary with newer versions of the software. The final version of the feature/transition table (transition_list_20251009_FINAL.csv) is the result from several rounds of parameter optimization with INTEGRATOR and from peak picking QC using the QUANT module, see below.
+For this dataset, fixed borders were defined for some features that were poorly separated from adjacent peaks or that had noisy chromatograms to ensure correct and consistent integration, for example PC 36:6. In some other cases, isomers were intentionally co-integrated, such as the LPC and LPE internal standards (see @fig-ds1-peakboundaries). The final version of the feature/transition table (transition_list_20251009_Final.csv) is the result from several rounds of parameter optimization with INTEGRATOR and from peak picking QC using the QUANT module, see below.
 
 ![**Examples of manually set peak boundaries for MRMhub-INTEGRATOR**. (a) Automatic integration resulting in co-integration of both overlapping peaks (PC 36:6) or integration of only one peak (LPC 18:1 D7). (b) The same features integrated with fixed boundaries for one and two peak boundaries, respectively. Red arrows indicate feature-specific fixed integration border(s).](images/SupplCode1_Image1.png){#fig-ds1-peakboundaries fig-align="center"}
 
 ## Running MRMhub-INTEGRATOR and Review of Results
 
-The most recent release OF INTEGRATOR was obtained from <https://github.com/SLINGhub/MRMhub/releases>. After preparing all input files, the mrmhub application is started. Steps 1 to 4 then run consecutively without further input to perform peak detection, peak picking, integration, and export of data and PDF results. The integration results are reported in the generated file 'long.csv', a long-format table that includes peak areas, actual retention time, peak width, and other metadata. This data file will be used for subsequent data postprocessing (see the following section). A wide-format table with peak areas is available as 'quant_raw.csv'. PDFs of the integrated transitions are available in the by\_\* folders. See the [INTEGRATOR Manual](https://slinghub.github.io/MRMhub/integrator/manual.html) for more details.
+The most recent release of INTEGRATOR was obtained from <https://github.com/SLINGhub/MRMhub/releases>. After preparing all input files, the INTEGRATOR application is started. Steps 1 to 4 then run consecutively without further input to perform peak detection, peak picking, integration, and export of data and PDF results. The integration results are reported in the generated file 'long.csv', a long-format table that includes peak areas, actual retention time, peak width, and other metadata. This data file will be used for subsequent data postprocessing (see the following section). A wide-format table with peak areas is available as 'quant_raw.csv'. PDFs of the integrated transitions are available in the by\_\* folders. See the [INTEGRATOR Manual](https://slinghub.github.io/MRMhub/integrator/manual.html) for more details.
 
-The peak integration results were inspected for all features across samples using the generated PDFs (see above). In this dataset, RT shifts across the entire run of 937 samples were less than 0.02 min
+The peak integration results were inspected for all features across samples using the generated PDFs (see above). In this dataset, RT shifts across the entire run of 937 samples were less than 0.02 min.
 
-![**MRMhub-INTEGRATOR application.** The sequential steps of the MRMhub-INTEGRATOR workflow are initiated by selecting the corresponding number on the keyboard. The intermediate and final datasets generated by this application are stored in the same directory.](images/ds3-paste-3.png){#fig-ds1-integrator-app alt="MRMhub-INTEGRATOR application." fig-align="center" width="62%"}
+![MRMhub-INTEGRATOR application.](images/ds3-paste-3.png){#fig-ds1-integrator-app fig-align="center" width="62%"}
 
 # Data Postprocessing and QC
 
@@ -137,10 +120,10 @@ The postprocessing (Quantification, Quality Control and Reporting) of the data o
 A [Quarto](https://quarto.org/) notebook was created in [RStudio](https://posit.co/download/rstudio-desktop/). The {mrmhub} R package was installed by running the following code in the R console, together with the `mirai` (parallel processing) and `fansi` (coloured console output) packages used in this workflow.
 
 ```{r chunk2-installpkg, include = TRUE, eval = FALSE}
-if (!requireNamespace("pak", quietly = TRUE)) install.packages("pak")
+if (!require("pak")) install.packages("pak")
 # This site was rendered with mrmhub 0.9.9 (the QUANT module of MRMhub),
-# installed from the `main` branch.
-pak::pak("SLINGhub/MRMhub@main")
+# installed from its default branch (main).
+pak::pak("SLINGhub/MRMhub")
 
 # Parallel processing (mirai) and coloured console output (fansi)
 pak::pak(c("mirai", "fansi"))
@@ -148,12 +131,11 @@ pak::pak(c("mirai", "fansi"))
 
 ::: callout-note
 ## mrmhub version
-These notebooks were rendered with **mrmhub 0.9.9** (QUANT module of
-[MRMhub](https://github.com/SLINGhub/MRMhub), `main` branch); install with
-`pak::pak("SLINGhub/MRMhub@main")`.
+
+These notebooks were rendered with **mrmhub 0.9.9** (QUANT module of [MRMhub](https://github.com/SLINGhub/MRMhub), `main` branch); install with `pak::pak("SLINGhub/MRMhub")`.
 :::
 
-The Quarto notebook code generated in this example workflow is available from <https://github.com/SLINGhub/MRMhub-workflows> (file Dataset1.qmd). In the subsequent section, the data postprocessing is encoded and documented step-by-step into the notebook as individual code chunks using {mrmhub} functions. Certain code chunks include additional R code to showcase specific examples for illustrative purposes. In real-world applications, this supplementary code may not be necessary.
+The Quarto notebook code generated in this example workflow is available from <https://github.com/SLINGhub/MRMhub-workflows> (file Dataset1.qmd). In the subsequent section, the data postprocessing is encoded and documented step-by-step into the notebook as individual code chunks using {mrmhub} functions.
 
 ## Postprocessing workflow
 
@@ -167,9 +149,7 @@ library(mrmhub)
 library(mirai) # Used for parallel processing
 
 # Colour mrmhub's cli console feedback in the rendered HTML (requires the fansi package)
-# Colour the mrmhub console output in HTML; disable it for PDF, where the ANSI
-# colour escapes would break LaTeX/lualatex compilation.
-if (knitr::is_latex_output()) options(cli.num_colors = 1, crayon.enabled = FALSE) else mrmhub_enable_cli_color()
+mrmhub_enable_cli_color()
 ```
 
 ### Import the MRMhub-INTEGRATOR results (initial version of the dataset)
@@ -208,7 +188,7 @@ fig4a
 
 ### Overall trends and check for possible outliers
 
-To examine overall technical trends and issues affecting most analytes (features), the Relative Log Abundance (RLA) plot is useful [@delivera2012; @livera2015]. In an RLA plot, each feature is normalised to the across-sample or within-batch median and the resulting values are shown as boxplots for each sample. This visualization helps identify technical problems such as pipetting errors, sample loss, or changes in injection volume or instrument sensitivity.
+To examine overall technical trends and issues affecting most analytes (features), the Relative Log Abundance (RLA) plot is useful [@delivera2012; @livera2015]. In an RLA plot, each feature is normalized to the across-sample or within-batch median and the resulting values are shown as boxplots for each sample. This visualization helps identify technical problems such as pipetting errors, sample loss, or changes in injection volume or instrument sensitivity.
 
 First, an overview of all analyses (samples) is plotted.
 
@@ -232,7 +212,7 @@ plot_rla_boxplot(
   show_plot = TRUE)
 ```
 
-A zoom-in reveals that the endogenous (non-ISTD) features of one QC sample type, the LTRs (long-term reference), have on average approximately half the intensity of the other samples.
+A zoom-in reveals that the endogenous (non-ISTD) features of one QC sample type, the LTRs, have on average approximately half the intensity of the other samples.
 
 ```{r chunk07-rla-plot-zoomin-analyte-only}
 #| label: fig-ds1-rla-analytes-zoom
@@ -241,8 +221,8 @@ A zoom-in reveals that the endogenous (non-ISTD) features of one QC sample type,
 #|   Relative log abundance of endogenous analytes over a subset of analyses, showing lower-intensity LTR samples.
 #| fig-format: png
 #| dpi: 600
-# An outlier sample, discussed later, will be excluded here
-# for demontration purposes.
+# An outlier sample, discussed later, is excluded here for demonstration
+# purposes.
 
 mexp_initial_temp <- mexp_initial
 mexp_initial_temp <- exclude_analyses(
@@ -276,7 +256,7 @@ Now we plot the distributions of the ISTDs only. We see that they, too, have app
 #| fig-cap: "**RLA zoom — internal standards.** ISTD-only RLA over the same analyses; the LTR reduction affects the internal standards too."
 #| fig-format: png
 #| dpi: 600
-extfig2b <- plot_rla_boxplot(
+extfig4b <- plot_rla_boxplot(
   data = mexp_initial,
   rla_type_batch = c("across"),
   variable = "intensity",
@@ -292,10 +272,10 @@ extfig2b <- plot_rla_boxplot(
   x_gridlines = FALSE, batch_zebra_stripe = FALSE, show_plot = FALSE,
   font_base_size = 8, linewidth = 0.2)$plot
 
-extfig2b
+extfig4b
 ```
 
-A further, detailed, batch-by-batch inspection revealed that in batch 6, the sample "Longit_batch6_51" at position 464 had significantly lower intensities of non-ISTD features, with intensities comparable to Blanks.
+A further, detailed, batch-by-batch inspection revealed that in batch 6, the sample "Longit_batch6_51" at position 464 had markedly lower intensities of non-ISTD features, comparable to those of the blanks.
 
 ```{r chunk09-rla-plot-zoomin-batch6}
 #| label: fig-ds1-rla-batch6-analytes
@@ -304,7 +284,7 @@ A further, detailed, batch-by-batch inspection revealed that in batch 6, the sam
 #|   Relative log abundance of endogenous analytes in batch 6, with one sample at blank-level intensity.
 #| fig-format: png
 #| dpi: 600
-extfig2c <- plot_rla_boxplot(
+extfig4c <- plot_rla_boxplot(
   data = mexp_initial,
   rla_type_batch = c("across"),
   variable = "intensity",
@@ -320,10 +300,10 @@ extfig2c <- plot_rla_boxplot(
   x_gridlines = FALSE, batch_zebra_stripe = FALSE, font_base_size = 6,
   show_plot = FALSE, linewidth = 0.2,
   legend_position = c(0.3, 0.32), legend_size = 8, strip_text_size = 8)$plot
-extfig2c
+extfig4c
 ```
 
-However, the ISTD signals were comparable with other samples. This likely suggests that this study sample was not added to the extraction vial before extraction. The sample will be excluded from further analysis.
+However, the ISTD signals were comparable with other samples. This suggests that this study sample was not added to the extraction vial before extraction. The sample is excluded from further analysis.
 
 ```{r chunk09b-rla-plot-zoomin-batch6}
 #| label: fig-ds1-rla-batch6-istd
@@ -333,7 +313,7 @@ However, the ISTD signals were comparable with other samples. This likely sugges
 mexp_initial_temp2 <- mexp_initial
 mexp_initial_temp2@dataset <- mexp_initial_temp2@dataset |> filter(is_istd)
 
-extfig2d <- plot_rla_boxplot(
+extfig4d <- plot_rla_boxplot(
   data = mexp_initial_temp2,
   rla_type_batch = c("across"),
   variable = "intensity",
@@ -349,12 +329,12 @@ extfig2d <- plot_rla_boxplot(
   x_gridlines = FALSE, batch_zebra_stripe = FALSE, font_base_size = 8,
   show_plot = FALSE, linewidth = 0.2,
   legend_position = c(0.3, 0.32), legend_size = 8, strip_text_size = 8)$plot
-extfig2d
+extfig4d
 ```
 
 ## Peak annotation QC
 
-To check for potential peak-picking errors from the integration step (see the section above), the retention time (RT) of the lipid features is plotted against their total carbon number and number of double bonds. Here we apply this plot to the initial integration imported above; the example shown is the PC class. Reviewing these plots across all lipid classes flagged several potential peak-picking errors, notably among the SM, most likely caused by erroneous picking of the isobaric isotopologue peaks of the corresponding PCs. These are corrected further below, where the before/after comparison across all classes is shown. Lipid species that remained flagged as potential misannotations were manually inspected in the chromatograms and compared with an online resource for lipid RTs measured using the same LC-MS method (https://metabolomics.baker.edu.au/method/lipids), and were deemed likely correct.
+To check for potential peak-picking errors from the integration step (see the section above), the retention time (RT) of the lipid features is plotted against their total carbon number and number of double bonds. Here we apply this plot to the initial integration imported above; the example shown is the PC class. Reviewing these plots across all lipid classes flagged several potential peak-picking errors, notably among the SM, most likely caused by erroneous picking of the isobaric isotopologue peaks of the corresponding PCs. These are corrected further below, where the before/after comparison across all classes is shown. Lipid species that remained flagged as potential misannotations were manually inspected in the chromatograms and compared with an online resource for lipid RTs measured using the same LC-MS method (<https://metabolomics.baker.edu.au/method/lipids>), and were deemed likely correct.
 
 ```{r chunk10-rt-vs-chain}
 #| label: fig-ds1-rt-vs-chain
@@ -381,10 +361,10 @@ As another check for potential peak picking errors, highly correlating features 
 ```{r chunk11-feature-correlation}
 #| label: fig-ds1-feature-correlation
 #| fig-cap: "**Feature-correlation QC.** A pair of highly correlated ceramide features, inspected for peak-picking errors."
-# this below is to exclude a sample that has a very low intensity for all features, see next steps for
-# details
 #| fig-format: png
 #| dpi: 600
+# Exclude the sample identified above as having very low intensities for all
+# non-ISTD features.
 mexp_initial <- exclude_analyses(
   mexp_initial,
   analyses = "Longit_batch6_51", clear_existing = TRUE)
@@ -395,7 +375,7 @@ fig4d <- plot_feature_correlations(
   include_feature_filter = c("Cer d18:1/24:0", "Cer d18:0/24:1"),
   qc_types = c("SPL", "BQC", "TQC"),
   cor_min = 0.1, sort_by_corr = TRUE, return_plots = TRUE,
-  show_progress = F, log_scale = FALSE, cols_page = 1, rows_page = 1,
+  show_progress = FALSE, log_scale = FALSE, cols_page = 1, rows_page = 1,
   font_base_size = 6)[[1]] +
   theme(
     strip.text = ggplot2::element_text(size = 6),
@@ -427,19 +407,19 @@ Using the same QC plot as above, we now compare the initial integration with the
 #| fig-cap:
 #|   - "**Peak-annotation QC — before correction.** RT versus carbon number on the initial integration."
 #|   - "**Peak-annotation QC — after correction.** The same plot after fixing the peak-integration errors."
-extfig3a <- plot_rt_vs_chain(
+extfig5a <- plot_rt_vs_chain(
   mexp_initial,
   qc_types = "SPL",
   x_var = "total_c", font_base_size = 6,
   legend_position = "right", legend_size = 0.8)
-extfig3a
+extfig5a
 
-extfig3b <- plot_rt_vs_chain(
+extfig5b <- plot_rt_vs_chain(
   mexp,
   qc_types = "SPL",
   x_var = "total_c", font_base_size = 6,
   legend_position = "right", legend_size = 0.8)
-extfig3b
+extfig5b
 ```
 
 ## PCA to check for potential technical outliers
@@ -449,7 +429,7 @@ extfig3b
 #| fig-cap: "**PCA of raw peak areas.** Principal-component scores by QC type before outlier exclusion."
 #| fig-format: png
 #| dpi: 600
-extfig4a <- plot_pca(
+extfig6a <- plot_pca(
   data = mexp,
   variable = "intensity",
   filter_data = FALSE,
@@ -461,7 +441,7 @@ extfig4a <- plot_pca(
   include_istd = FALSE,
   show_labels = TRUE, label_font_size = 2, shared_labeltext_hide = NA,
   legend_position = "right", legend_size = 0.7)
-extfig4a
+extfig6a
 ```
 
 ## Exclude outlier analysis/sample and replot PCA
@@ -490,7 +470,7 @@ fig4e <- plot_pca(
   show_labels = FALSE, label_font_size = 2, shared_labeltext_hide = NA,
   legend_position = "inside-tr", legend_size = 0.7, legend_bg_alpha = 0.6)
 fig4e
-extfig4b <- plot_pca_loading(
+extfig6b <- plot_pca_loading(
   data = mexp,
   variable = "feature_intensity",
   include_istd = FALSE,
@@ -498,14 +478,14 @@ extfig4b <- plot_pca_loading(
   #qc_types = c("SPL", "BQC", "TQC", "LTR"),
   log_transform = TRUE,
   legend_position = "inside-br", legend_size = 0.7)
-extfig4b
+extfig6b
 ```
 
 ## Importing detailed metadata
 
-Now that the peak integration has been finalized, we import the detailed metadata required for the remaining processing steps; it was not needed for the peak-picking QC and integration curation above, which rely only on the integration results. This metadata describes the analyses/samples, features, internal standards (ISTDs), QC samples, and response curves. We are using the `MRMhub MSorganizer template`, an Excel template that provides a user-friendly solution to collect, organise and pre-validate analysis metadata. However, other formats to import metatadata are available as well, such as from CSV files, individual Excel tables, or R data frames.
+Now that the peak integration has been finalized, we import the detailed metadata required for the remaining processing steps; it was not needed for the peak-picking QC and integration curation above, which rely only on the integration results. This metadata describes the analyses/samples, features, internal standards (ISTDs), QC samples, and response curves. We are using the `MRMhub MSorganizer template`, an Excel template used to collect, organize and pre-validate analysis metadata. Other metadata formats can also be imported, such as CSV files, individual Excel tables, or R data frames.
 
-After metadata import, a summary of the validation of data/metadata integrity is returned. For example, duplicate or missing data, such as IDs will be highlighted. The user can chose to ignore warnings (`ignore_warnings = TRUE`) and proceed with the analysis. Errors however, such as missing IDs or duplicate IDs must always be fixed before analysis can proceed.
+After metadata import, a summary of the data/metadata integrity validation is returned, highlighting for example duplicate or missing IDs. Warnings can be ignored (`ignore_warnings = TRUE`) to proceed with the analysis; errors, such as missing or duplicate IDs, must always be fixed before analysis can proceed.
 
 ```{r chunk16-import-metadata}
 file_path <- "./data/dataset-1/Dataset1_Metadata.xlsx"
@@ -530,7 +510,6 @@ fig4f <- plot_runscatter(
   reference_sd_shade = FALSE,
   #batch_zebra_stripe = TRUE,
   output_pdf = FALSE, show_progress = FALSE,
-  path = "rt_all.pdf",
   return_plots = TRUE,
   legend_position = c(0.7, 0.1), legend_size = 0.8)[[1]]
 ```
@@ -538,11 +517,11 @@ fig4f <- plot_runscatter(
 Additionally, we prepare run-scatter plots of all ISTD features (one panel per ISTD) to check for potential issues with individual internal standards; these are collected for the manuscript's Extended Data figure rather than shown inline here.
 
 ```{r chunk17b-runscatter-istd-all}
-extfig5 <- plot_runscatter(
+extfig7 <- plot_runscatter(
   mexp,
   variable = "intensity",
   include_feature_filter = "ISTD",
-  include_qualifier = F,
+  include_qualifier = FALSE,
   qc_types = c("SPL", "BQC", "TQC", "PBLK", "RQC", "SBLK"),
   show_reference_lines = TRUE,
   ref_qc_types = "SPL",
@@ -552,7 +531,6 @@ extfig5 <- plot_runscatter(
   reference_sd_shade = FALSE,
   #batch_zebra_stripe = TRUE,
   show_progress = FALSE, output_pdf = FALSE,
-  path = "output/area_istd_all.pdf",
   return_plots = TRUE)
 ```
 
@@ -609,7 +587,7 @@ mexp <- correct_batch_centering(
 
 ## Concentration run-scatter before and after correction
 
-To visualise the effect of the drift and batch correction, the concentration of an example feature is plotted against the injection order after correction (`conc`), shown below. The within-batch drift and between-batch offsets present in the raw concentrations (`conc_raw`) are largely removed after correction; the raw and corrected run-scatters are shown side by side in the assembled manuscript figure.
+To visualize the effect of the drift and batch correction, the concentration of an example feature is plotted against the injection order after correction (`conc`), shown below. The within-batch drift and between-batch offsets present in the raw concentrations (`conc_raw`) are largely removed after correction; the raw and corrected run-scatters are shown side by side in the assembled manuscript figure.
 
 ```{r chunk21-runscatter-conc-raw}
 fig5c <- plot_runscatter(
@@ -629,7 +607,6 @@ fig5c <- plot_runscatter(
   reference_sd_shade = FALSE,
   #batch_zebra_stripe = TRUE,
   show_progress = FALSE, output_pdf = FALSE,
-  path = "rt_all.pdf",
   return_plots = TRUE,
   legend_position = c(0.7, 0.1), legend_size = 0.8)[[1]]
 ```
@@ -655,7 +632,6 @@ fig5d <- plot_runscatter(
   reference_sd_shade = FALSE,
   #batch_zebra_stripe = TRUE,
   show_progress = FALSE, output_pdf = FALSE,
-  path = "rt_all.pdf",
   return_plots = TRUE,
   legend_position = c(0.7, 0.1), legend_size = 0.8)[[1]]
 
@@ -721,7 +697,7 @@ mexp_temp <- calc_qc_metrics(
 mexp_temp@metrics_qc <- mexp_temp@metrics_qc |>
   dplyr::filter(!str_detect(feature_id, "^TG O|COH|PG"))
 
-extfig6a <- plot_normalization_qc(
+extfig8a <- plot_normalization_qc(
   data = mexp_temp,
   before_norm_var = "intensity",
   after_norm_var = "norm_intensity",
@@ -732,8 +708,8 @@ extfig6a <- plot_normalization_qc(
   facet_by_class = TRUE,
   include_qualifier = FALSE,
   legend_position = c(0.9, 0.10), legend_size = 0.7)
-extfig6a
-extfig6b <- plot_normalization_qc(
+extfig8a
+extfig8b <- plot_normalization_qc(
   data = mexp_temp,
   before_norm_var = "norm_intensity",
   after_norm_var = "conc",
@@ -744,7 +720,7 @@ extfig6b <- plot_normalization_qc(
   facet_by_class = TRUE,
   include_qualifier = FALSE,
   legend_position = c(0.9, 0.10), legend_size = 0.7)
-extfig6b
+extfig8b
 ```
 
 As an alternative to the Gaussian-kernel drift correction used above, a cubic-spline drift correction is shown below. Here the batch QC samples (`ref_qc_types = "BQC"`) are used as the drift reference, as the spline is fitted through the repeatedly measured BQCs rather than smoothed over the study samples.
@@ -771,7 +747,7 @@ mexp_spline <- calc_qc_metrics(
 mexp_spline@metrics_qc <- mexp_spline@metrics_qc |>
   dplyr::filter(!str_detect(feature_id, "^TG O|COH|PG"))
 
-extfig6c <- plot_normalization_qc(
+extfig8c <- plot_normalization_qc(
   data = mexp_spline,
   plot_type = "diff",
   before_norm_var = "norm_intensity",
@@ -783,7 +759,7 @@ extfig6c <- plot_normalization_qc(
   facet_by_class = TRUE,
   include_qualifier = FALSE,
   legend_position = c(0.9, 0.10), legend_size = 0.7)
-extfig6c
+extfig8c
 ```
 
 ## Technical variability versus intensity
@@ -822,9 +798,9 @@ fig5e
 
 ## BQC vs TQC variability
 
-Comparison of the variability in BQCs vs TQCs may be useful to understand the source of variability in the dataset [@broadhurst2018]. If the variability in BQCs is much higher than in TQCs, this may suggest that the sample processing is a major contributor to overall variability. If the variability in TQCs and BQCs is similar, this may suggest that technical variability is a major contributor to overall variability. We first look at two sphingomyelins (SM), phosphatidylcholines (PC), and triglycerides (TG). PC and TG species consistently show higher variability in BQCs than in TQCs, suggesting that sample processing, i.e., lipid extraction was a major contributor to overall variability, though it is unclear what factor(s) in the sample processing contributed to this variability.
+Comparison of the variability in BQCs vs TQCs may be useful to understand the source of variability in the dataset [@broadhurst2018]. If the variability in BQCs is much higher than in TQCs, this may suggest that the sample processing is a major contributor to overall variability. If the variability in TQCs and BQCs is similar, this may suggest that technical variability is a major contributor to overall variability. We look here at the sphingomyelins (SM), phosphatidylcholines (PC) and triglycerides (TG). PC and TG species consistently show higher variability in BQCs than in TQCs, suggesting that sample processing, i.e. lipid extraction, was a major contributor to overall variability, though it is unclear which factors in the sample processing contributed to it.
 
-SMs on the other hand show a similar variability in BQCs and TQCs, suggesting that the sample processing contributed less to the overall variability. This may be due to the fact that SMs are generally more abundant and thus less affected by variability in extraction efficiency.
+SMs, on the other hand, show similar variability in BQCs and TQCs, suggesting that sample processing contributed less to the overall variability for this class.
 
 ```{r chunk26b-bqc-vs-tqc-cv-2}
 #| label: fig-ds1-bqc-vs-tqc
@@ -870,8 +846,7 @@ fig5f <- plot_responsecurves(
   font_base_size = 4, line_width = 0.5, point_size = 1.2,
   include_feature_filter = sel_species,
   output_pdf = FALSE,
-  path = "response-curves.pdf",
-  show_progress = FALSE, cols_page = 2, rows_page = 2, return_plots = T,
+  show_progress = FALSE, cols_page = 2, rows_page = 2, return_plots = TRUE,
   legend_position = "inside-br", legend_size = 0.6, show_legend_title = FALSE,
   strip_text_size = 6)[[1]]
 fig5f
@@ -904,7 +879,7 @@ mexp_final <- filter_features_qc(
 
 ## Feature filter Results
 
-The outcome of the filtering is summarised per lipid class, showing how many analytes passed and failed the QC criteria in each class.
+The outcome of the filtering is summarized per lipid class, showing how many analytes passed and failed the QC criteria in each class.
 
 ```{r chunk29-feature-filter-results}
 #| label: fig-ds1-qc-byclass
@@ -929,7 +904,7 @@ fig5h
 
 ## Overview analytical variability
 
-The plot below provides an overview of the analytical variability of the filtered dataset, showing the distribution of coefficients of variation (CVs) in the BQCs for all features. We also see that the cholesteryl esters (CE), which we included in the final dataset despite failing QC, show a higher variability. In subsequent statistical analyses and interpretation, it will be important to consider that these CE species were forced to be included in the dataset.
+The plot below provides an overview of the analytical variability of the filtered dataset, showing the distribution of coefficients of variation (CVs) in the BQCs for all features. The cholesteryl esters (CE), which were retained in the final dataset despite failing QC, show higher variability. This must be taken into account in subsequent statistical analyses and interpretation.
 
 ```{r chunk29b-cv-overview}
 #| label: fig-ds1-cv-overview
@@ -952,7 +927,7 @@ plot_abundanceprofile(
 
 ## Feature filter Venn
 
-This plot summarises the overall filtering outcome, showing how many features passed or failed across all criteria and how the individual QC criteria overlapped in the features they removed.
+This plot summarizes the overall filtering outcome, showing how many features passed or failed across all criteria and how the individual QC criteria overlapped in the features they removed.
 
 ```{r chunk30-feature-filter-summary}
 #| label: fig-ds1-qc-overall
@@ -992,23 +967,37 @@ fig5i <- plot_abundanceprofile(
 fig5i
 ```
 
-## Exporting final dataset
+## Exporting the dataset
 
-The dataset is exported as a CSV file. The user can specify the variable to export (here the raw concentrations, `conc_raw`), whether to include qualifier features, and whether to restrict the output to specific QC types (here the study samples, SPL).
+The dataset is exported as a CSV file. The user can specify the variable to export, whether to include qualifier features, whether to restrict the output to specific QC types (here the study samples, SPL), and whether to apply the QC feature filter.
+
+Two versions are written here. The first contains the uncorrected concentrations (`conc_raw`) of all features, before the QC filter, which is useful for re-examining features that did not pass QC.
 
 ```{r chunk31b-save-csv}
 save_dataset_csv(
   data = mexp,
-  path = "./output/Dataset1_UNFILTERED_RAW-feature_conc_uM_20250518a.csv",
+  path = "./output/Dataset1_UNFILTERED_RAW-feature_conc_uM.csv",
   variable = "conc_raw",
   qc_types = "SPL",
   include_qualifier = FALSE,
   filter_data = FALSE)
 ```
 
+The second is the final dataset: drift- and batch-corrected concentrations (`conc`) restricted to the features that passed the QC filter (`filter_data = TRUE`), taken from the filtered object `mexp_final`.
+
+```{r chunk31c-save-csv-filtered}
+save_dataset_csv(
+  data = mexp_final,
+  path = "./output/Dataset1_FILTERED-feature_conc_uM.csv",
+  variable = "conc",
+  qc_types = "SPL",
+  include_qualifier = FALSE,
+  filter_data = TRUE)
+```
+
 The complete `MRMhubExperiment` — imported data, metadata and all processing results — is also saved as a single `.rds` with `save_dataset_rds()`. This self-contained object can be shared and reopened in any R session with `read_dataset_rds()`, which verifies an embedded integrity hash, to continue or audit the analysis without re-running the pipeline.
 
-```{r chunk31c-save-rds}
+```{r chunk31d-save-rds}
 save_dataset_rds(mexp, "./output/Dataset1_mexp.rds")
 ```
 
@@ -1065,13 +1054,13 @@ save_plot(
 
 ## Assembling Extended Figure 4
 
-```{r chunk34-assemble-extfig2}
+```{r chunk34-assemble-extfig4}
 #| label: fig-ds1-manuscript-extfig4
 #| fig-cap: "**Assembled Extended Data Figure 4.** RLA panels before and after normalization, exported to `output/ExtendedFig-4_RLAs.pdf`."
-# include fig4b again as extfig2a for better comparison of RLAs before and after normalization
-extfig2a <- fig4b
+# include fig4b again as extfig4a for better comparison of RLAs before and after normalization
+extfig4a <- fig4b
 
-extfig2 <- (extfig2a / extfig2b / extfig2c / extfig2d) +
+extfig4 <- (extfig4a / extfig4b / extfig4c / extfig4d) +
   plot_layout(ncol = 1, heights = c(1, 1, 1, 1)) +
   plot_annotation(tag_levels = 'a') +
   theme(
@@ -1079,34 +1068,34 @@ extfig2 <- (extfig2a / extfig2b / extfig2c / extfig2d) +
     strip.placement = 'inside')
 
 save_plot(
-  extfig2, "output/ExtendedFig-4_RLAs.pdf",
+  extfig4, "output/ExtendedFig-4_RLAs.pdf",
   width = 180, height = 250)
 ```
 
 ## Assembling Extended Figure 5
 
-```{r chunk35-assemble-extfig3}
+```{r chunk35-assemble-extfig5}
 #| label: fig-ds1-manuscript-extfig5
 #| fig-cap: "**Assembled Extended Data Figure 5.** Peak-annotation QC before and after the integration fixes, exported to `output/ExtendedFig-5.png`."
-extfig3 <- extfig3a /
-  extfig3b +
+extfig5 <- extfig5a /
+  extfig5b +
   plot_annotation(tag_levels = 'a') +
   theme(
     plot.tag = element_text(size = 12, face = "bold"),
     strip.placement = 'inside')
 
 save_plot(
-  extfig3, "output/ExtendedFig-5.png",
+  extfig5, "output/ExtendedFig-5.png",
   width = 180, height = 250)
 ```
 
 ## Assembling Extended Figure 6
 
-```{r chunk36-assemble-extfig4}
+```{r chunk36-assemble-extfig6}
 #| label: fig-ds1-manuscript-extfig6
 #| fig-cap: "**Assembled Extended Data Figure 6.** PCA scores and loadings, exported to `output/ExtendedFig-6_PCAloading.{png,pdf}`."
-extfig4 <- extfig4a /
-  extfig4b +
+extfig6 <- extfig6a /
+  extfig6b +
   plot_layout(ncol = 1, heights = c(1, 1.5)) +
   plot_annotation(tag_levels = 'a') +
   theme(
@@ -1114,33 +1103,33 @@ extfig4 <- extfig4a /
     strip.placement = 'inside')
 
 save_plot(
-  extfig4, "output/ExtendedFig-6_PCAloading", format = c("pdf", "png"),
+  extfig6, "output/ExtendedFig-6_PCAloading", format = c("pdf", "png"),
   width = 180, height = 250)
 ```
 
 ## Saving Extended Figure 7
 
-```{r chunk37-save-extfig5}
+```{r chunk37-save-extfig7}
 save_plot(
-  extfig5[[1]], "output/ExtendedData_Fig7_ISTDtrends.png",
+  extfig7[[1]], "output/ExtendedData_Fig7_ISTDtrends.png",
   width = 180, height = 180, show_plot = FALSE)
 ```
 
 ## Assembling Extended Figure 8
 
-```{r chunk38-save-extfig6}
+```{r chunk38-save-extfig8}
 #| label: fig-ds1-manuscript-extfig8
 #| fig-cap: "**Assembled Extended Data Figure 8.** CV before and after normalization for three drift-correction variants, exported to `output/ExtendedData_Fig8_CVnormbeforeafter.pdf`."
-extfig6 <- extfig6a /
-  extfig6b /
-  extfig6c +
+extfig8 <- extfig8a /
+  extfig8b /
+  extfig8c +
   plot_layout(ncol = 1, heights = c(1, 1, 1)) +
   plot_annotation(tag_levels = 'a') +
   theme(
     plot.tag = element_text(size = 12, face = "bold"),
     strip.placement = 'inside')
 save_plot(
-  extfig6, "output/ExtendedData_Fig8_CVnormbeforeafter.pdf",
+  extfig8, "output/ExtendedData_Fig8_CVnormbeforeafter.pdf",
   width = 160, height = 270)
 ```
 

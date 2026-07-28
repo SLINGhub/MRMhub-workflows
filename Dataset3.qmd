@@ -10,7 +10,6 @@ date: "`r Sys.Date()`"
 format:
   html:
     code-tools: true
-    code-fold: false
     self-contained: true
     code-overflow: wrap
     toc: true
@@ -20,15 +19,6 @@ format:
     fig-align: center
     fig-format: retina
     fig-dpi: 200
-  pdf:
-    pdf-engine: lualatex
-    mainfont: "Latin Modern Sans"
-    fig-format: pdf
-    toc: true
-    fig-dpi: 300
-    number-sections: true
-    keep-tex: false
-    include-in-header: caption-font.tex
 bibliography: references.bib
 ---
 
@@ -43,36 +33,29 @@ set.seed(1041)
 options(dplyr.print_max = 10)
 base_font_size <- 6
 
-# Packages used to prepare the publication figues
+# Packages used to prepare the publication figures
 library(dplyr)
 library(ggplot2)
 library(mirai) # Used for parallel processing
 library(tictoc) # Used for timing
 ```
 
-\newpage
-
 # Overview Dataset
 
-The data come from a human plasma lipidomics study aimed at identifying plasma lipid biomarkers of rapid renal function decline in patients with type 2 diabetes, part of the Diabetes StudY in Nephropathy And other Microvascular cOmplications (DYNAMO) project (Chen *et al.* [-@chen2025]). The lipidomics analysis followed the method of Huynh *et al.* with minor modifications, using the same QC sample types as Dataset 1. This dataset covers the largest of the study's four patient cohorts: raw MS data for samples collected at the National University Hospital, Singapore, comprising 3,816 plasma samples and 775 blank and QC samples (4,591 in total). In total, 748 MRM transitions were monitored, from which 828 features were integrated. For the biological and clinical conclusions related to these data, we refer readers to the original publication [@chen2025].
+The data come from a human plasma lipidomics study aimed at identifying plasma lipid biomarkers of rapid renal function decline in patients with type 2 diabetes, part of the Diabetes StudY in Nephropathy And other Microvascular cOmplications (DYNAMO) project (Chen *et al.* [-@chen2025]). The lipidomics analysis followed the method of Huynh *et al.* [-@huynh2019] with minor modifications, using the same QC sample types as Dataset 1, with the addition of NIST samples. This dataset covers the largest of the study's four patient cohorts: raw MS data for samples collected at the National University Hospital, Singapore, comprising 3,816 plasma samples and 775 blank and QC samples (4,591 in total). In total, 748 MRM transitions were monitored, from which 828 features were integrated. For the biological and clinical conclusions related to these data, we refer readers to the original publication [@chen2025].
 
 This example workflow demonstrates the complete MRMhub data processing pipeline on this dataset — peak integration, quantitation, quality control and reporting. It covers many elements of the MRMhub workflow for demonstration purposes, some of which may not be applicable or necessary when processing other datasets.
 
 ::: callout-important
 ## Data availability
 
-All code and data for this workflow are deposited in the Zenodo record [10.5281/zenodo.15370293](https://doi.org/10.5281/zenodo.15370293) (*MRMhub-data*).
+All code and data for this workflow are deposited in the Zenodo record [10.5281/zenodo.15370293](https://doi.org/10.5281/zenodo.15370293) (*MRMhub-workflows*). The corresponding MS raw data (mzML files), together with the MRMhub-INTEGRATOR application and its input files, are deposited as `MRMhub-Dataset3.zip` in the same record.
 
-`mrmhub-workflows.zip` is the complete workflows repository *including* the Dataset 3 data under `data/dataset-3/`. Unzip it, open the project and run `quarto render Dataset3.qmd` — nothing else is needed to reproduce this notebook.
-
-`MRMhub-Dataset3.zip` in the same record holds the raw mzML files together with the MRMhub-INTEGRATOR application and all of its input files, so the peak integration described below can be re-run as published or with new parameters. It is **not** required here: this notebook starts from INTEGRATOR's `long.csv` output, which is already included in the repository.
-
-Note that the Dataset 3 data exceed GitHub's file-size limit and are therefore not part of the [GitHub repository](https://github.com/SLINGhub/MRMhub-workflows) — use the Zenodo archive to reproduce this workflow.
 :::
 
 # Raw Data Processing: Peak Picking and Integration
 
-This section describes key aspects of raw data processing workflow used for this dataset. For more a detailed description on the workflow, see [Workflow for Dataset 1](https://slinghub.github.io/MRMhub-workflows/Dataset1.html) and the [INTEGRATOR Manual](https://slinghub.github.io/MRMhub/integrator/manual.html).
+This section describes key aspects of the raw data processing workflow used for this dataset. For a more detailed description of the workflow, see [Workflow for Dataset 1](https://slinghub.github.io/MRMhub-workflows/Dataset1.html) and the [INTEGRATOR Manual](https://slinghub.github.io/MRMhub/integrator/manual.html).
 
 ## Conversion of vendor raw files to mzML
 
@@ -100,13 +83,13 @@ The feature/transition table (transition_list_20251010.csv) defined the transiti
 
 ![**Feature/Transition Table**. Screenshot of a portion of the CSV file (transition_list_20251010_Final.csv) used for this dataset. Feature-specific peak widths and fixed integration borders were set for three adjacent features to ensure correct integration.](images/ds3-paste-6.png){#fig-ds3-featuretable fig-align="center" width="75%"}
 
-Feature-specific 'peak_width' settings were applied for multiple features in this dataset when peaks were broader, exhibited increased tailing, or consisted of convoluted peaks that had to be co-integrated (see @fig-ds3-peakboundaries a-d). Fixed borders were assigned for features for which automatic integration failed or produced inconsistent results due to being poorly separated from adjacent peaks or having noisy chromatograms (see @fig-ds3-peakboundaries e-h). The final version of the feature/transition table (transition_list_20251010.csv) is the result from several rounds of parameter optimization with INTEGRATOR.
+Feature-specific 'peak_width' settings were applied for multiple features in this dataset when peaks were broader, exhibited increased tailing, or consisted of convoluted peaks that had to be co-integrated (see @fig-ds3-peakboundaries a-d). Fixed borders were assigned for features for which automatic integration failed or produced inconsistent results due to being poorly separated from adjacent peaks or having noisy chromatograms (see @fig-ds3-peakboundaries e-h). The final version of the feature/transition table (transition_list_20251010_Final.csv) is the result from several rounds of parameter optimization with INTEGRATOR.
 
 ![**Examples of manually set peak boundaries for MRMhub-INTEGRATOR.** (a, b) The effect of different peak_width parameter settings on the integration of a peak with clear tailing (PC 36:6). Panel (a) displays the result using the global setting, which is suitable for the majority of peaks. Panel (b) shows the outcome of applying a feature-specific peak width setting that overrides the global parameter for improved integration. (c, d) The influence of the peak_width parameter on the integration of a peak with nearby interferences (PC O-38:4). Panel (c) corresponds to the global setting, whereas panel (d) illustrates how an excessively wide peak border setting can cause incorrect integration, emphasizing the importance of establishing a suitable global value. (e, f) The effect of various peak integration settings on a complex chromatogram containing overlapping peaks. The global setting, shown in Panel (e), leads to partial integration where the first peak is not correctly recognized. While adjusting the peak width to be too relaxed resulted in the inclusion of the entire interfering signal and a more narrow setting led to its exclusion, neither was optimal. The final configuration, shown in Panel (f), used fixed boundaries defined for the first peak, which allowed for the correct picking and integration of all three isomer peaks of LPC 17:0.](images/paste-9.png){#fig-ds3-peakboundaries fig-align="center" width="100%"}
 
 ## Running MRMhub-INTEGRATOR and Review of Results
 
-The most recent release OF INTEGRATOR was obtained from <https://github.com/SLINGhub/MRMhub/releases>. After preparing all input files, the mrmhub application is started. Steps 1 to 4 then run consecutively without further input to perform peak detection, peak picking, integration, and export of data and PDF results. The integration results are reported in the generated file 'long.csv', a long-format table that includes peak areas, actual retention time, peak width, and other metadata. This data file will be used for subsequent data postprocessing (see the following section). A wide-format table with peak areas is available as 'quant_raw.csv'. PDFs of the integrated transitions are available in the by\_\* folders. See the [INTEGRATOR Manual](https://slinghub.github.io/MRMhub/integrator/manual.html) for more details.
+The most recent release of INTEGRATOR was obtained from <https://github.com/SLINGhub/MRMhub/releases>. After preparing all input files, the INTEGRATOR application is started. Steps 1 to 4 then run consecutively without further input to perform peak detection, peak picking, integration, and export of data and PDF results. The integration results are reported in the generated file 'long.csv', a long-format table that includes peak areas, actual retention time, peak width, and other metadata. This data file will be used for subsequent data postprocessing (see the following section). A wide-format table with peak areas is available as 'quant_raw.csv'. PDFs of the integrated transitions are available in the by\_\* folders. See the [INTEGRATOR Manual](https://slinghub.github.io/MRMhub/integrator/manual.html) for more details.
 
 The peak integration results were inspected for all features across samples using the generated PDFs (see above). In this dataset, RT shifts across the entire run of 4,591 samples were less than 0.04 min, except for \~ 20 samples at the start of a batch towards the end of this analysis, which had increased RT shifts.
 
@@ -119,10 +102,10 @@ The peak integration results were inspected for all features across samples usin
 A [Quarto](https://quarto.org/) notebook was created in [RStudio](https://posit.co/download/rstudio-desktop/). The {mrmhub} R package was installed by running the following code in the R console, together with the `mirai` (parallel processing) and `fansi` (coloured console output) packages used in this workflow.
 
 ```{r chunk2-installpkg, include = TRUE, eval = FALSE}
-if (!requireNamespace("pak", quietly = TRUE)) install.packages("pak")
+if (!require("pak")) install.packages("pak")
 # This site was rendered with mrmhub 0.9.9 (the QUANT module of MRMhub),
-# installed from the `main` branch.
-pak::pak("SLINGhub/MRMhub@main")
+# installed from its default branch (main).
+pak::pak("SLINGhub/MRMhub")
 
 # Parallel processing (mirai) and coloured console output (fansi)
 pak::pak(c("mirai", "fansi"))
@@ -132,10 +115,10 @@ pak::pak(c("mirai", "fansi"))
 ## mrmhub version
 These notebooks were rendered with **mrmhub 0.9.9** (QUANT module of
 [MRMhub](https://github.com/SLINGhub/MRMhub), `main` branch); install with
-`pak::pak("SLINGhub/MRMhub@main")`.
+`pak::pak("SLINGhub/MRMhub")`.
 :::
 
-The Quarto notebook code generated in this example workflow is available from <https://github.com/SLINGhub/MRMhub-workflows> (file Dataset3.qmd). In the subsequent section, the data postprocessing is encoded and documented step-by-step into the notebook as individual code chunks using {mrmhub} functions. Certain code chunks include additional R code to showcase specific examples for illustrative purposes. In real-world applications, this supplementary code may not be necessary.
+The Quarto notebook code generated in this example workflow is available from <https://github.com/SLINGhub/MRMhub-workflows> (file Dataset3.qmd). In the subsequent section, the data postprocessing is encoded and documented step-by-step into the notebook as individual code chunks using {mrmhub} functions.
 
 ## Postprocessing workflow
 
@@ -149,9 +132,7 @@ library(mrmhub)
 library(mirai) # Used for parallel processing
 
 # Colour mrmhub's cli console feedback in the rendered HTML (requires the fansi package)
-# Colour the mrmhub console output in HTML; disable it for PDF, where the ANSI
-# colour escapes would break LaTeX/lualatex compilation.
-if (knitr::is_latex_output()) options(cli.num_colors = 1, crayon.enabled = FALSE) else mrmhub_enable_cli_color()
+mrmhub_enable_cli_color()
 
 # Set number of cores for parallel processing (all-but-one, so the system stays responsive)
 n_cores <- {
@@ -185,7 +166,7 @@ mexp <- import_metadata_msorganiser(mexp, file_path, ignore_warnings = TRUE)
 
 ### Analytical design and timeline
 
-An overview of the analysis structure, detailing the types and sequence of QC samples analyzed is provided by the plot below. It also shows information on the start and end dates, total duration, and median run time for each sample. Setting `show_timestamp = TRUE` in the code below will plot the absolute dates as the x-axis, showing three short interruptions, and the last 4 batches were measured approximately one year later.
+An overview of the analysis structure, detailing the types and sequence of QC samples analyzed is provided by the plot below. It also shows information on the start and end dates, total duration, and median run time for each sample. The last four batches were measured approximately one year after the others.
 
 ```{r chunk6-runsequence}
 #| label: fig-ds3-runsequence
@@ -259,7 +240,7 @@ fig2a <- plot_rla_boxplot(
   batch_zebra_stripe = TRUE, linewidth = 0.1)
 ```
 
-Several outliers among study and QC samples were detected using this RLA analysis (visible also in the plot above)
+Several outliers among study and QC samples were detected using this RLA analysis (visible also in the plot above).
 
 ```{r chunk7B-get-istd-outlier}
 #| label: tbl-ds3-istd-outliers
@@ -275,7 +256,6 @@ To confirm these potential outliers, the peak areas of all ISTDs in different QC
 
 ```{r chunk8-runscatter-plot-istd-1}
 #| label: fig-ds3-runscatter-istd-before
-#| eval: !expr 'knitr::is_html_output()'
 #| fig-cap: "**ISTD run-scatter (before outlier removal).** Peak areas of all internal standards against injection order, by QC type."
 #| fig-width: 6
 #| fig-height: 7.8
@@ -324,7 +304,8 @@ Also for the endogenous analytes, several outliers among study and QC samples we
 ```{r chunk9b-get-analyte-outlier}
 #| label: tbl-ds3-analyte-outliers
 #| tbl-cap: "**Endogenous-analyte outlier samples.** Analyses flagged as outliers on their endogenous-analyte signals."
-# Get outlier in ISTD total signal excluding 3 batches with conistently lower ISTD
+# Get outliers in the endogenous-analyte signals, excluding the 3 batches with
+# consistently lower ISTD
 analyte_outlier <- fig2b$outliers |>
   filter(!(batch_id %in% c("P-01", "P-02", "P-43") & val_res_median > -3))
 print(analyte_outlier)
@@ -332,7 +313,7 @@ print(analyte_outlier)
 
 Inspection of the generated plots and outlier tables identified several individual study samples, Technical QC (TQC), and Batch QC (BQC) samples that exhibited markedly lower signals for both internal standards (ISTDs) and endogenous analytes. TQC samples from two batches showed similarly reduced signals, while adjacent samples displayed normal signal levels, suggesting potential issues with sample preparation or errors in the LC-MS worklist for these specific samples and batches. Accordingly, these samples were classified as technical outliers and excluded from subsequent analysis.
 
-Furthermore, in three batches analyzed toward the end of the sequence, all BQC samples exhibited significant differences in ISTD and analyte signals, whereas study samples in the same batch presented normal signals. This pattern is indicative of probable sample preparation errors affecting these BQCs. Consequently, they were also classified as technical outliers and excluded from the dataset.
+Furthermore, in three batches analyzed toward the end of the sequence, all BQC samples exhibited marked differences in ISTD and analyte signals, whereas study samples in the same batch presented normal signals. This pattern is indicative of probable sample preparation errors affecting these BQCs. Consequently, they were also classified as technical outliers and excluded from the dataset.
 
 Finally, an additional 18 samples were identified as outliers based on their endogenous analyte signals, although their ISTD signals remained comparable to other samples. These discrepancies were attributed to errors that occurred during the pipetting of sample aliquots into the extraction tubes.
 
@@ -341,7 +322,7 @@ Finally, an additional 18 samples were identified as outliers based on their end
 setdiff(analyte_outlier$analysis_id, istd_outlier$analysis_id)
 ```
 
-In total, 94 analyses/samples were classified as technical outliers and will be excluded from further analysis.
+In total, 98 analyses/samples were classified as technical outliers and are excluded from further analysis.
 
 ```{r chunk11-exclroutlie}
 # Combined ISTD and analyte outlier
@@ -358,11 +339,10 @@ mexp <- exclude_analyses(
   analyses = outlier_combined$analysis_id, clear_existing = TRUE)
 ```
 
-To check if these identified outliers were removed the ISTDs are plotted again. The ISTD signals fairly stable in the first 35 batches, then varied in the subsequent last 4 batches.
+To check that these outliers were removed, the ISTDs are plotted again. The ISTD signals were fairly stable in the first 35 batches, then varied in the last 4 batches.
 
 ```{r chunk12-runscatter-plot-istd-2}
 #| label: fig-ds3-runscatter-istd-after
-#| eval: !expr 'knitr::is_html_output()'
 #| fig-cap: "**ISTD run-scatter (after outlier removal).** Internal-standard peak areas against injection order once technical outliers have been excluded."
 plot_runscatter(
   mexp,
@@ -550,17 +530,15 @@ plot_pca(
 
 ## Removal of batches with identified technical issues
 
-Based on the runscatter plots, and the PCA of the concentrations, it became apparent that batches P-42 and P-43 exhibited technical issues. These batches, which consisted of re-run samples from previous batches, had problems that were not fully resolved by ISTD normalization. Therefore, these batches were excluded from further analysis.
+Based on the RunScatter plots and the PCA of the concentrations, it became apparent that batches P-42 and P-43 exhibited technical issues. These batches, which consisted of re-run samples from previous batches, had problems that were not fully resolved by ISTD normalization. Therefore, these batches were excluded from further analysis.
 
 ```{r chunk22-exclude-batch}
 ids_reruns <- mexp@annot_analyses |>
   filter(batch_id %in% c("P-43", "P-42")) |>
   pull(analysis_id)
 
-# ToDo: Currently exclude_analyses usage requires re-processing of the data. Needs to be updated.
-#mexp_final <- exclude_analyses(mexp, analyses = ids_reruns, clear_existing = FALSE)
-
-# Workaround is to filter the dataset directly
+# The dataset and annotation tables are filtered directly here, as
+# exclude_analyses() at this point would require re-processing the data
 mexp@dataset <- mexp@dataset |> filter(!analysis_id %in% ids_reruns)
 mexp@annot_analyses <- mexp@annot_analyses |>
   filter(!analysis_id %in% ids_reruns)
@@ -570,20 +548,19 @@ mexp@annot_responsecurves <- mexp@annot_responsecurves |>
 
 ## Inspection of individual features concentrations across the run order
 
-The calculated concentrations of individual features were plotted against the analysis order using RunScatter plots. In the examples shown below, some features did not show any significant drift or batch effects (e.g., SM 34:1). In contrast, clear drift effects within batches were visible for lyso-PC features, while other features exhibited batch effects (e.g., PC 36:4) or drifts that spanned across multiple batches (e.g., PI 38:4). The presence of these drift and batch effects indicates that ISTD normalization was insufficient to correct for such analytical artifacts. Therefore, further data correction is required to minimize these effects, as described in the next section.
+The calculated concentrations of individual features were plotted against the analysis order using RunScatter plots. In the examples shown below, some features did not show any marked drift or batch effects (e.g. SM 34:1). In contrast, clear drift effects within batches were visible for lyso-PC features, while other features exhibited batch effects (e.g., PC 36:4) or drifts that spanned across multiple batches (e.g., PI 38:4). The presence of these drift and batch effects indicates that ISTD normalization was insufficient to correct for such analytical artifacts. Therefore, further data correction is required to minimize these effects, as described in the next section.
 
 ```{r chunk24-runsactter-individual}
 #| label: fig-ds3-runscatter-conc-before
-#| eval: !expr 'knitr::is_html_output()'
 #| fig-cap: "**Concentration run-scatter (before drift/batch correction).** Selected features against injection order, showing residual drift and batch effects."
 plot_runscatter(
   mexp,
   variable = "conc",
   filter_data = FALSE,
   qc_types = c("SPL", "BQC", "TQC", "LTR"),
-  include_feature_filter = "PC 34\\:2|PC 36\\:4|PE 38\\:4|PI 38\\:4|
-    PC 38\\:6|CE 181\\:1|Cer d18\\:1\\/16\\:0|TG 52\\:3|SM 34\\:1|
-    TG 56\\:3|LPC 18\\:1",
+  include_feature_filter = paste0(
+    "PC 34\\:2|PC 36\\:4|PE 38\\:4|PI 38\\:4|PC 38\\:6|CE 18\\:1|",
+    "Cer d18\\:1\\/16\\:0|TG 52\\:3|SM 34\\:1|TG 56\\:3|LPC 18\\:1"),
   #y_min = 0.00,
   #y_max = 0.15,
   #plot_range = c(0, 910),
@@ -593,13 +570,12 @@ plot_runscatter(
   point_border_width = 0.1, font_base_size = 6, cols_page = 2,
   rows_page = 6, cap_outliers = TRUE, reference_sd_shade = FALSE,
   #batch_zebra_stripe = TRUE,
-  output_pdf = FALSE,
-  path = "rt_all.pdf")
+  output_pdf = FALSE)
 ```
 
 ## Drift and Batch Correction
 
-While QC-based drift correction is typically used for such metabolomics and lipidomics datasets, we concluded that the QC samples in this dataset did not fully and adequately represent the drifts observed in the study samples. This discrepancy may be due to the fact that the preparation of QC samples in such a large-scale analysis may not have been identical to that of the study samples due to logistical limitations, including differences in timing during sample extraction. We therefore opted for a sample-based Gaussian Kernel smoothing approach, assuming that the samples had been fully stratified and randomized. `kernel_size` sets the number of neighbouring samples over which the trend is smoothed, and `outlier_ksd` excludes points lying more than that many standard deviations from the local trend so that individual outliers do not distort it. After the within-batch smoothing, the batches were re-aligned using sample-based median centering.
+While QC-based drift correction is typically used for such metabolomics and lipidomics datasets, we concluded that the QC samples in this dataset did not adequately represent the drifts observed in the study samples. We therefore opted for a sample-based Gaussian Kernel smoothing approach, assuming that the samples had been fully stratified and randomized. `kernel_size` sets the number of neighbouring samples over which the trend is smoothed, and `outlier_ksd` excludes points lying more than that many standard deviations from the local trend so that individual outliers do not distort it. After the within-batch smoothing, the batches were re-aligned using sample-based median centering.
 
 ```{r chunk23-drift-batch-correction}
 #| cache: false
@@ -620,7 +596,6 @@ After applying the drift and batch correction, the RunScatter plots for the same
 
 ```{r chunk24b-runsactter-individual}
 #| label: fig-ds3-runscatter-conc-after
-#| eval: !expr 'knitr::is_html_output()'
 #| fig-cap: "**Concentration run-scatter (after drift/batch correction).** The same features after Gaussian-kernel drift correction and batch centering."
 #| fig-width: 6
 #| fig-height: 7
@@ -630,9 +605,9 @@ plot_runscatter(
   filter_data = FALSE,
   #include_feature_filter = "ISTD",
   qc_types = c("SPL", "BQC", "TQC", "LTR"),
-  include_feature_filter = "PC 34\\:2|PC 36\\:4|PE 38\\:4|PI 38\\:4|
-    PC 38\\:6|CE 181\\:1|Cer d18\\:1\\/16\\:0|TG 52\\:3|SM 34\\:1|
-    TG 56\\:3|LPC 18\\:1",
+  include_feature_filter = paste0(
+    "PC 34\\:2|PC 36\\:4|PE 38\\:4|PI 38\\:4|PC 38\\:6|CE 18\\:1|",
+    "Cer d18\\:1\\/16\\:0|TG 52\\:3|SM 34\\:1|TG 56\\:3|LPC 18\\:1"),
   #y_min = 0.00,
   #y_max = 0.15,
   #plot_range = c(0, 910),
@@ -642,8 +617,7 @@ plot_runscatter(
   point_border_width = 0.1, font_base_size = 6, cols_page = 2,
   rows_page = 6, cap_outliers = TRUE, reference_sd_shade = FALSE,
   #batch_zebra_stripe = TRUE,
-  output_pdf = FALSE,
-  path = "rt_all.pdf")
+  output_pdf = FALSE)
 ```
 
 ## RunScatter plots of final concentrations of all features
@@ -694,7 +668,7 @@ plot_runscatter(
 
 ## QC of normalization and drift/batch correction
 
-Normalization with ISTDs, particularly the non-authentic, class-wide ISTDs used in this analysis, can introduce artifacts that can lead to an increase in sample variability rather than the expected reduction. Similarly, batch and drift correction can introduce artifacts and increase, rather than decrease, analytical variability. The following plot compares the variability of QC and study samples before (raw areas) and after normalization and drift/batch correction (final concentrations). The plot shows that for most QC types and study samples, variability was reduced after normalization and correction, indicating an overall effect of these processing steps. However, while the study samples exhibited decreased CVs after processing, the BQC and TQC samples showed increases. This may be another illustration that the QC samples did not fully represent the analytical variations affecting the study samples.
+Normalization with ISTDs, particularly the non-authentic, class-wide ISTDs used in this analysis, can introduce artifacts that can lead to an increase in sample variability rather than the expected reduction. Similarly, batch and drift correction can introduce artifacts and increase, rather than decrease, analytical variability. The following plot compares the variability of QC and study samples before (raw areas) and after normalization and drift/batch correction (final concentrations). The plot shows that for most QC types and study samples, variability was reduced after normalization and correction, indicating an overall benefit of these processing steps. However, while the study samples exhibited decreased CVs after processing, the BQC and TQC samples showed increases. This may be another illustration that the QC samples did not fully represent the analytical variations affecting the study samples.
 
 ```{r chunk26-normalization-}
 #| cache: false
@@ -715,7 +689,7 @@ plot_normalization_qc(
   qc_types = c("TQC", "BQC", "SPL", "NIST"),
   cols_page = 5, font_base_size = 5, point_size = 0.5,
   facet_by_class = TRUE,
-  include_qualifier = FALSE,)
+  include_qualifier = FALSE)
 ```
 
 ## Process vs instrument variability
@@ -740,7 +714,7 @@ mrmhub::plot_qcmetrics_comparison(
 
 ## Effect of feature intensity on technical variability
 
-An analysis of the relationship between feature abundance and technical variability can be used to determine the intensity threshold at which feature signals exhibit increased noise and variance. This information can then be applied during peak picking to set appropriate intensity thresholds for feature detection and to reduce the processing time spent on integrating low-abundance features
+An analysis of the relationship between feature abundance and technical variability can be used to determine the intensity threshold at which feature signals exhibit increased noise and variance. This information can then be applied during peak picking to set appropriate intensity thresholds for feature detection and to reduce the processing time spent on integrating low-abundance features.
 
 ```{r chunk27b-intensity-variability}
 #| label: fig-ds3-cv-vs-intensity
@@ -788,7 +762,6 @@ plot_responsecurves(
   font_base_size = 6, line_width = 0.5, point_size = 1.2,
   include_feature_filter = sel_species,
   output_pdf = FALSE,
-  path = "response-curves-dataset3.pdf",
   show_progress = FALSE, cols_page = 3, rows_page = 3, return_plots = TRUE,
   legend_position = "inside-br", legend_size = 0.6, show_legend_title = FALSE)[[1]]
 ```
@@ -842,14 +815,14 @@ mexp <- filter_features_qc(
 
 ## Feature filter Results
 
-The outcome of the filtering is summarised per lipid class, showing how many analytes passed and failed the QC criteria in each class.
+The outcome of the filtering is summarized per lipid class, showing how many analytes passed and failed the QC criteria in each class.
 
 ```{r chunk30-feature-filter-results-class}
 #| label: fig-ds3-qc-byclass
 #| fig-cap: "**Feature-filter outcome by class.** Number of analytes passing and failing QC per lipid class."
 #| cache: false
 # `plot_qc_summary_byclass()` draws one x-axis level per feature class in the QC metrics
-# but only summarises non-ISTD/non-qualifier features. A class made up solely of such
+# but only summarizes non-ISTD/non-qualifier features. A class made up solely of such
 # features is empty in the summary, so the axis has more breaks than labels — which aborts
 # the secondary axis under ggplot2 >= 4.0. Drop those phantom classes from a copy first.
 mexp_byclass <- mexp
@@ -869,7 +842,7 @@ plot_qc_summary_byclass(
 
 ## Feature filter Venn
 
-This plot summarises the overall filtering outcome, showing how many features passed or failed across all criteria and how the individual QC criteria overlapped in the features they removed.
+This plot summarizes the overall filtering outcome, showing how many features passed or failed across all criteria and how the individual QC criteria overlapped in the features they removed.
 
 ```{r chunk31-feature-filter-venn}
 #| label: fig-ds3-qc-overall
@@ -881,7 +854,7 @@ plot_qc_summary_overall(mexp)
 
 ## PCA plots of the final dataset
 
-The PCA plot shows that the overall structure remains similar to that observed before correction. The TQCs are more dispersed, which could reflect the fact that they capture only instrument variability, whereas the sample-based drift correction may have artificially increased the apparent TQC variability. Nevertheless, the TQCs still form a relatively compact cluster. In contrast, the BQCs, LTR, and NIST exhibit long elliptical clusters spanning a larger area. This pattern suggests that sample processing may have introduced systematic variability that was not fully corrected by ISTD normalization and drift/batch correction.
+The PCA plot shows that the overall structure remains similar to that observed before correction. The TQCs are more dispersed than before correction, but still form a relatively compact cluster. In contrast, the BQCs, LTR, and NIST exhibit long elliptical clusters spanning a larger area, indicating systematic variability introduced during sample processing that was not fully corrected by ISTD normalization and drift/batch correction.
 
 ```{r chunk32-pca-final}
 #| label: fig-ds3-pca-final
@@ -920,18 +893,26 @@ plot_abundanceprofile(
   feature_map = "lipidomics")
 ```
 
-## Export final dataset
+## Export the dataset
 
-The final dataset is exported as a CSV file, containing the final concentrations of the filtered dataset. The user can specify whether to include qualifier features, and whether to filter the data for specific QC types. Here, only the study samples (SPL) samples are included.
+The dataset is exported as a CSV file. The user can specify the variable to export, whether to include qualifier features, whether to restrict the output to specific QC types (here the study samples, SPL), and whether to apply the QC feature filter. Two versions are written: all features before the QC filter, and the final dataset restricted to the features that passed it (`filter_data = TRUE`). Both contain the drift- and batch-corrected concentrations (`conc`).
 
 ```{r chunk34-export-final, eval = FALSE}
 save_dataset_csv(
   data = mexp,
-  path = "./output/sperfect_UNFILTERED_RAW-feature_conc_uM_20250518a.csv",
+  path = "./output/Dataset3_UNFILTERED-feature_conc_uM.csv",
   variable = "conc",
   qc_types = "SPL",
   include_qualifier = FALSE,
   filter_data = FALSE)
+
+save_dataset_csv(
+  data = mexp,
+  path = "./output/Dataset3_FILTERED-feature_conc_uM.csv",
+  variable = "conc",
+  qc_types = "SPL",
+  include_qualifier = FALSE,
+  filter_data = TRUE)
 ```
 
 The complete `MRMhubExperiment` — imported data, metadata and all processing results — is also saved as a single `.rds` with `save_dataset_rds()`. This self-contained object can be shared and reopened in any R session with `read_dataset_rds()`, which verifies an embedded integrity hash, to continue or audit the analysis without re-running the pipeline.

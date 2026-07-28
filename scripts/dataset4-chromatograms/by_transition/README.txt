@@ -12,7 +12,7 @@ need these PDFs to RE-GENERATE those figures.
 
 How to obtain the PDFs
 ----------------------
-Download MRMhub-Dataset4.zip from the Zenodo record "MRMhub-data":
+Download MRMhub-Dataset4.zip from the Zenodo record "MRMhub-workflows":
 
     https://doi.org/10.5281/zenodo.15370293
 

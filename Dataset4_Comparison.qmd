@@ -10,7 +10,6 @@ date: "`r Sys.Date()`"
 format:
   html:
     code-tools: true
-    code-fold: true
     self-contained: true
     code-overflow: wrap
     toc: true
@@ -20,15 +19,6 @@ format:
     fig-align: center
     fig-format: retina
     fig-dpi: 200
-  pdf:
-    pdf-engine: lualatex
-    mainfont: "Latin Modern Sans"
-    fig-format: pdf
-    toc: true
-    fig-dpi: 300
-    number-sections: true
-    keep-tex: false
-    include-in-header: caption-font.tex
 bibliography: references.bib
 ---
 
@@ -56,8 +46,6 @@ library(patchwork)
 d4 <- "./data/dataset-4"
 dir.create("output", showWarnings = FALSE, recursive = TRUE)
 ```
-
-\newpage
 
 # Overview
 
@@ -93,7 +81,7 @@ further downloads.
 
 The same files, together with those of the other datasets, are also deposited in
 the Zenodo record [10.5281/zenodo.15370293](https://doi.org/10.5281/zenodo.15370293)
-(*MRMhub-data*) as `mrmhub-workflows.zip`. `MRMhub-Dataset4.zip` in that record
+(*MRMhub-workflows*) as `mrmhub-workflows.zip`. `MRMhub-Dataset4.zip` in that record
 holds the raw mzML files together with the MRMhub-INTEGRATOR application and all
 of its input files, so the peak integration compared below can be re-run as
 published or with new parameters. It is **not** required here: this notebook
@@ -182,7 +170,7 @@ internal standards, fits external calibration curves, and quantifies.
 ## mrmhub version
 This notebook was rendered with **mrmhub 0.9.9** (QUANT module of
 [MRMhub](https://github.com/SLINGhub/MRMhub)); install with
-`pak::pak("SLINGhub/MRMhub@main")`. The coloured
+`pak::pak("SLINGhub/MRMhub")`. The coloured
 console output additionally uses the `fansi` package (`pak::pak("fansi")`).
 :::
 
@@ -192,9 +180,7 @@ library(mrmhub)
 library(mirai) # parallel processing (picked up automatically by mrmhub)
 
 # Colour mrmhub's cli console feedback in the rendered HTML (requires the fansi package)
-# Colour the mrmhub console output in HTML; disable it for PDF, where the ANSI
-# colour escapes would break LaTeX/lualatex compilation.
-if (knitr::is_latex_output()) options(cli.num_colors = 1, crayon.enabled = FALSE) else mrmhub_enable_cli_color()
+mrmhub_enable_cli_color()
 
 # Set number of cores for parallel processing (all-but-one, so the system stays responsive)
 n_cores <- {

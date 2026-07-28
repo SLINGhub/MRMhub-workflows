@@ -38,6 +38,6 @@ published or with new parameters. Not required to run Dataset4.qmd.
 Source & citation
 -----------------
 Code: https://github.com/SLINGhub/MRMhub-workflows
-Code & data deposit: https://doi.org/10.5281/zenodo.15370293 ("MRMhub-data")
+Code & data deposit: https://doi.org/10.5281/zenodo.15370293 ("MRMhub-workflows")
 Cite: MRMhub manuscript (in preparation).
 License: CC BY 4.0 (data).

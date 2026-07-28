@@ -18,14 +18,14 @@ website:
     left:
       - text: "Home"
         href: index.html
-      - text: "Dataset-1 Analysis"
+      - text: "Dataset 1"
         href: Dataset1.html
-      - text: "Dataset-3 Analysis"
+      - text: "Dataset 3"
         href: Dataset3.html
-      - text: "Dataset-4 Analysis"
+      - text: "Dataset 4"
         href: Dataset4.html
-      - text: "Manuscript Figure"
-        href: ManuscriptFigure.html
+      - text: "Dataset 4 Comparison"
+        href: Dataset4_Comparison.html
     right:
       - icon: github
         href: https://github.com/SLINGhub/MRMhub-workflows

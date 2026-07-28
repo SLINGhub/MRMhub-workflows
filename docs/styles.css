@@ -135,6 +135,14 @@ pre.sourceCode code span {
   line-height: 1.5;
 }
 
+/* Official ORCID iD mark, sized to the surrounding text. */
+.orcid-icon {
+  width: 1em;
+  height: 1em;
+  vertical-align: -0.14em;
+  margin-left: 0.15em;
+}
+
 /* When the panel stacks below the content on narrow screens, separate it with
    a rule instead of the desktop whitespace gap. */
 @media (max-width: 991.98px) {

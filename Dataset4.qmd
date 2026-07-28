@@ -10,7 +10,6 @@ date: "`r Sys.Date()`"
 format:
   html:
     code-tools: true
-    code-fold: true
     self-contained: true
     code-overflow: wrap
     toc: true
@@ -20,33 +19,30 @@ format:
     fig-align: center
     fig-format: retina
     fig-dpi: 200
+bibliography: references.bib
 ---
 
 # Overview
 
-This is an MRMhub-QUANT postprocessing report for Dataset 4, a **fully quantitative 15-analyte steroid panel** measured with external calibration (absolute quantification). The data are from an LC-MRM-MS analysis of steroids in human serum using the Steroid Panel LC-MS kit (IBL International, Hamburg, Germany; #30191875), following the Instructions for Use except that LC-MS was performed on an Agilent 6495A triple quadrupole instrument. Only the kit's Gradient 1 analysis was used, covering 15 analytes with their internal standards (66 MRM transitions monitored, including qualifiers, from which 64 features were integrated).
+This is an MRMhub postprocessing report for Dataset 4, a **fully quantitative 15-analyte serum steroid panel** measured with external calibration. The data are from an LC-MRM-MS analysis using the Steroid Panel LC-MS kit (IBL International, Germany), following the Instructions for Use except that LC-MS was performed on an Agilent 6495A triple quadrupole instrument. Only the Gradient 1 analysis was used, covering 15 analytes with their internal standards (66 MRM transitions monitored, including qualifiers, from which 64 features were integrated).
 
-The batch comprised 15 system-suitability samples (SST, containing pure analyte and internal standards), blanks, calibrants (`Cal A`–`Cal F`), low and high quality controls (`LQC`, `HQC`) with assigned target concentrations, and — in place of study samples — 5 external quality assessment (EQA) samples (SKML ring-trial materials) [@jansen2014]. In both the MRMhub and MassHunter workflows, concentrations were obtained by external calibration using quadratic regression with `1/x` weighting for all analytes, and bias was determined for the QC samples against their assigned concentrations. Full source and acquisition settings, transitions, polarities and collision energies are listed in the INTEGRATOR result file under `data/dataset-4/`.
-
-This report follows the MRMhub [external-calibration + QC recipe](https://slinghub.github.io/MRMhub/quant/articles/recipe-01-ext-calibration-qc.html). See `Dataset4_Comparison.qmd` for the comparison of MRMhub vs MassHunter across quantitative peak integration and postprocessing.
+The dataset comprises system-suitability samples (SST, containing pure analyte and internal standards), blanks, calibrants (Cal A – Cal F), low and high quality controls (LQC, HQC) with assigned target concentrations, and, in place of study samples, 5 external quality assessment (EQA) samples (SKML [@jansen2014]).
 
 ::: callout-important
 ## Data availability
 
-The Dataset 4 data are small enough to be included in the [GitHub repository](https://github.com/SLINGhub/MRMhub-workflows) under `data/dataset-4/`, so this notebook renders from a plain `git clone` with no further downloads.
-
-The same files, together with those of the other datasets, are also deposited in the Zenodo record [10.5281/zenodo.15370293](https://doi.org/10.5281/zenodo.15370293) (*MRMhub-data*) as `mrmhub-workflows.zip`. `MRMhub-Dataset4.zip` in that record holds the raw mzML files together with the MRMhub-INTEGRATOR application and all of its input files, so the peak integration can be re-run as published or with new parameters. It is **not** required here: this notebook starts from INTEGRATOR's `long.csv` output.
+The datasets and the full code used to generate this resource are deposited in the Zenodo record [10.5281/zenodo.15370293](https://doi.org/10.5281/zenodo.15370293) (**MRMhub-workflows**).
 :::
 
 ::: callout-note
 ## mrmhub version
 
-Rendered with **mrmhub 0.9.9** (QUANT module of [MRMhub](https://github.com/SLINGhub/MRMhub), `main` branch): `pak::pak("SLINGhub/MRMhub@main")`.
+Rendered with **mrmhub 0.9.9** (QUANT module of [MRMhub](https://github.com/SLINGhub/MRMhub), `main` branch): `pak::pak("SLINGhub/MRMhub")`.
 :::
 
 ## Setup
 
-Load the package set `mrmhub_enable_cli_color()` to renders the mrmhub's console feedback in colour in the HTML output.
+Load the package and call `mrmhub_enable_cli_color()` to render mrmhub's console feedback in colour in the HTML output.
 
 ```{r chunk2-loadpkg}
 library(mrmhub)
@@ -55,7 +51,7 @@ mrmhub_enable_cli_color()
 
 # Import
 
-Two inputs are loaded into a fresh `MRMhubExperiment`. `import_data_mrmhub()` reads the INTEGRATOR long-format peak areas for the assay batch (blanks, calibrators, QCs and EQA samples). `import_metadata_msorganiser()` then attaches the msorganiser metadata workbook, which defines the analytes, their internal standards, the sample annotations (QC types, calibrator levels) and the calibration/target concentrations.
+Data and corresponding metadata are loaded into a fresh `MRMhubExperiment`. `import_data_mrmhub()` reads the INTEGRATOR long-format peak areas for the assay batch (blanks, calibrators, QCs and EQA samples). `import_metadata_msorganiser()` then attaches mrmhub's metadata workbook template, which defines the analytes, their internal standards, the sample annotations, and the calibration/target concentrations.
 
 ```{r chunk3-import}
 mexp <- MRMhubExperiment(title = "Dataset 4 — Steroid Assay")
@@ -107,7 +103,7 @@ plot_calibrationcurves(
 )
 ```
 
-The metrics below summarise each quantifier's fit: **R²** (linearity/goodness of fit) and the estimated **LOD** and **LOQ** (limits of detection and quantification, in the calibrated concentration unit).
+The metrics below summarize each quantifier's fit: **R²** (linearity/goodness of fit) and the estimated **LOD** and **LOQ** (limits of detection and quantification, in the calibrated concentration unit).
 
 ```{r}
 #| label: tbl-d4rep-calibration-metrics
@@ -172,7 +168,7 @@ save_report_xlsx(
 
 ## Complete dataset object (RDS)
 
-`save_dataset_rds()` writes the entire `MRMhubExperiment` — imported data, metadata, calibration fits and quantification results — to a single `.rds`. This is the format for **sharing a complete, self-contained dataset**: everything needed to reproduce, extend or audit the analysis travels in one file. It embeds an `rlang::hash()` fingerprint, so the file's integrity can be verified when it is read back. The file is a plain R object, so it opens in **any R session with `readRDS()`, even without mrmhub installed**; with mrmhub also loaded, the object's methods become available so the recipient can **re-process or inspect it** — picking up exactly where this report ends.
+`save_dataset_rds()` writes the entire `MRMhubExperiment` — imported data, metadata, calibration fits and quantification results — to a single `.rds`, so that everything needed to reproduce, extend or audit the analysis is contained in one file. An `rlang::hash()` fingerprint is embedded, allowing the file's integrity to be verified when it is read back. The file is a plain R object and can therefore be opened in any R session with `readRDS()`, even without mrmhub installed; with mrmhub loaded, the object's methods are available and the analysis can be continued from where this report ends.
 
 ```{r chunk11-export-rds}
 save_dataset_rds(mexp, "output/Dataset4_report_mexp.rds")
@@ -185,3 +181,5 @@ Reload it in a fresh R session with `read_dataset_rds()`, which verifies the emb
 library(mrmhub)
 mexp <- read_dataset_rds("output/Dataset4_report_mexp.rds")
 ```
+
+# References

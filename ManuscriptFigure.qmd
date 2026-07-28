@@ -41,7 +41,7 @@ Needs the Dataset 1 data (`data/dataset-1/Dataset1_MRMhub-INTEGRATOR_Final.csv` 
 `Dataset1_Metadata.xlsx`). These exceed GitHub's file-size limit and are therefore not
 part of the [GitHub repository](https://github.com/SLINGhub/MRMhub-workflows) — download
 `mrmhub-workflows.zip` from the Zenodo record
-[10.5281/zenodo.15370293](https://doi.org/10.5281/zenodo.15370293) (*MRMhub-data*), which
+[10.5281/zenodo.15370293](https://doi.org/10.5281/zenodo.15370293) (*MRMhub-workflows*), which
 is this complete repository with all data included.
 
 A clean `quarto render` re-runs the full Dataset 1 pipeline; for iterating on figure
@@ -95,7 +95,7 @@ dir.create("output", showWarnings = FALSE, recursive = TRUE)
 ## mrmhub version
 This notebook was rendered with **mrmhub 0.9.9** (QUANT module of
 [MRMhub](https://github.com/SLINGhub/MRMhub)); install with
-`pak::pak("SLINGhub/MRMhub@main")`.
+`pak::pak("SLINGhub/MRMhub")`.
 :::
 
 # 1 · Reproduce the Dataset 1 pipeline
