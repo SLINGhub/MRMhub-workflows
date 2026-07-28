@@ -329,10 +329,7 @@ is stripped so feature identifiers match MRMhub.
 ```{r chunk9-masshunter}
 mh_reint <- import_data_masshunter(
   MRMhubExperiment(title = "MassHunter re-integration"),
-  path = file.path(
-    d4,
-    "Dataset4_IntegrationResults_MassHunter_IsoSP-22_V3.csv"
-  ),
+  path = file.path(d4, "Dataset4_IntegrationResults_MassHunter.csv"),
   import_metadata = TRUE, silent = TRUE
 )
 mh_data <- get_analyticaldata(mh_reint, annotated = FALSE) |>
