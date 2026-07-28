@@ -2,17 +2,23 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.8.24">
+<meta name="generator" content="quarto-1.10.18">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
 <title>MRMhub Workflows</title>
 <style>
-code{white-space: pre-wrap;}
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
 span.smallcaps{font-variant: small-caps;}
-div.columns{display: flex; gap: min(4vw, 1.5em);}
-div.column{flex: auto; overflow-x: auto;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
 div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
 ul.task-list{list-style: none;}
 ul.task-list li input[type="checkbox"] {
@@ -24,7 +30,6 @@ ul.task-list li input[type="checkbox"] {
 div.csl-bib-body { }
 div.csl-entry {
   clear: both;
-  margin-bottom: 0em;
 }
 .hanging-indent div.csl-entry {
   margin-left:2em;
@@ -53,19 +58,18 @@ div.csl-indent {
 <link href="./images/favicon.ico" rel="icon">
 <script src="site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
-<script src="site_libs/quarto-html/axe/axe-check.js" type="module"></script>
 <script src="site_libs/quarto-html/popper.min.js"></script>
 <script src="site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="site_libs/quarto-html/anchor.min.js"></script>
 <link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-dc55a5b9e770e841cd82e46aadbfb9b0.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-dark-b651517ce65839d647a86e2780455cfb.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-dc55a5b9e770e841cd82e46aadbfb9b0.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-dark-b85bc7c33db8c58e0ec93c3465666fed.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-08d73034be6051cfeb272bc89b445842.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
-<link href="site_libs/bootstrap/bootstrap-dark-5c11f1d04538fffc088d894759665d96.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="light">
-<link href="site_libs/bootstrap/bootstrap-08d73034be6051cfeb272bc89b445842.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-bafb3f478197d028412ec73fd4ede0bd.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-dark-8fbcfd0b7b81cdeb52e409e02de0c866.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-bafb3f478197d028412ec73fd4ede0bd.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -125,19 +129,19 @@ div.csl-indent {
   </li>  
   <li class="nav-item">
     <a class="nav-link" href="./Dataset1.html"> 
-<span class="menu-text">Dataset-1 Analysis</span></a>
+<span class="menu-text">Dataset 1</span></a>
   </li>  
   <li class="nav-item">
     <a class="nav-link" href="./Dataset3.html"> 
-<span class="menu-text">Dataset-3 Analysis</span></a>
+<span class="menu-text">Dataset 3</span></a>
   </li>  
   <li class="nav-item">
     <a class="nav-link" href="./Dataset4.html"> 
-<span class="menu-text">Dataset-4 Analysis</span></a>
+<span class="menu-text">Dataset 4</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="./ManuscriptFigure.html"> 
-<span class="menu-text">Manuscript Figure</span></a>
+    <a class="nav-link" href="./Dataset4_Comparison.html"> 
+<span class="menu-text">Dataset 4 Comparison</span></a>
   </li>  
 </ul>
             <ul class="navbar-nav navbar-nav-scroll ms-auto">
@@ -166,95 +170,34 @@ div.csl-indent {
 
 <div class="grid landing-grid">
 <div class="g-col-12 g-col-lg-9">
-<p><img src="images/logo.svg" class="hex-logo" alt="MRMhub hex logo"></p>
+<p><img src="images/logo.svg" alt="MRMhub hex logo" class="hex-logo"></p>
 <section id="mrmhub-workflow-examples" class="level1">
 <h1>MRMhub Workflow Examples</h1>
 <div class="lead">
-<p>Reproducible example reports of the MRMhub targeted LC-MS data-processing pipeline</p>
+<p>Reproducible example reports of the MRMhub targeted LC-MS data-processing platform</p>
 </div>
 <div class="title-sep">
 
 </div>
-<p>These notebooks reproduce the <a href="https://slinghub.github.io/MRMhub"><strong>MRMhub</strong></a> pipeline end-to-end on real targeted LC-MS datasets — from INTEGRATOR peak-integration results through QUANT normalization, quantification, quality control and reporting. Each is a self-contained Quarto notebook combining narrative, executable R and outputs, provided as Supplementary Materials for the MRMhub manuscript.</p>
+<p>These notebooks reproduce the <a href="https://slinghub.github.io/MRMhub"><strong>MRMhub</strong></a>-based data processing pipeline end-to-end on real targeted LC-MS datasets, from INTEGRATOR peak-integration results through normalization, quantification, quality control and reporting. Each dataset is processed in a self-contained Quarto notebook combining descriptions, executable R scripts and outputs.</p>
 <section id="workflows" class="level2">
 <h2 class="anchored" data-anchor-id="workflows">Workflows</h2>
 <div class="arrow-list">
 <ul>
-<li><strong><a href="Dataset1.html">Dataset 1 ↗</a></strong> — targeted plasma lipidomics, Tan <em>et al.</em> <span class="citation" data-cites="tan2022">(<a href="#ref-tan2022" role="doc-biblioref">Tan et al. 2022</a>)</span>; 482 features (464 transitions), 937 samples. ISTD normalization, quantification, drift/batch correction and QC filtering.</li>
-<li><strong><a href="Dataset3.html">Dataset 3 ↗</a></strong> — targeted lipidomics, Chen <em>et al.</em> <span class="citation" data-cites="chen2025">(<a href="#ref-chen2025" role="doc-biblioref">Chen et al. 2025</a>)</span>; 828 features (748 transitions), 4,591 samples. The same pipeline at population scale.</li>
-<li><strong><a href="Dataset4.html">Dataset 4 ↗</a></strong> — fully quantitative steroid assay (Panel 1, 15 analytes) <span class="citation" data-cites="jansen2014">(<a href="#ref-jansen2014" role="doc-biblioref">Jansen et al. 2014</a>)</span>. MRMhub-QUANT postprocessing: ISTD normalization, external calibration, quantification and QC bias/variability against reference targets, with CSV/XLSX/RDS export.</li>
+<li><a href="Dataset1.html"><strong>Dataset 1 ↗</strong></a> — <em>SPERFECT</em> study: longitudinal LC-MRM-MS-based plasma lipidomics in participants at risk of coronary artery disease, Tan <em>et al.</em> <span class="citation" data-cites="tan2022">(<a href="#ref-tan2022" role="doc-biblioref">Tan et al. 2022</a>)</span>; 482 features (464 transitions), 937 samples. Feature annotation QC, normalization and quantification, drift and batch correction, detailed QC plots, feature filtering and data export.</li>
+<li><a href="Dataset3.html"><strong>Dataset 3 ↗</strong></a> — <em>DYNAMO</em> study: LC-MRM-MS-based plasma lipidomics study on biomarkers of renal function decline in type 2 diabetes, Chen <em>et al.</em> <span class="citation" data-cites="chen2025">(<a href="#ref-chen2025" role="doc-biblioref">Chen et al. 2025</a>)</span>; 828 features (748 transitions), 4,591 samples. The same overall workflow as Dataset 1, but with detailed outlier detection and additional QC plots.</li>
+<li><a href="Dataset4.html"><strong>Dataset 4 ↗</strong></a> — <em>Steroid panel</em>: fully quantitative LC-MRM-MS-based serum steroid assay with 15 analytes <span class="citation" data-cites="jansen2014">(<a href="#ref-jansen2014" role="doc-biblioref">Jansen et al. 2014</a>)</span>. External calibration curves, quantification, assay variability and bias calculation.</li>
 </ul>
 </div>
 <p><strong>Related:</strong></p>
 <div class="arrow-list">
 <ul>
-<li><strong><a href="Dataset4_Comparison.html">Dataset 4 · MRMhub vs MassHunter ↗</a></strong> — validates MRMhub against Agilent MassHunter across the INTEGRATOR (peak areas) and QUANT (concentrations) modules for the steroid panel.</li>
-<li><strong><a href="ManuscriptFigure.html">Manuscript figure ↗</a></strong> — worked example of assembling publication-ready QC panels with MRMhub, reproducing the manuscript workflow figure’s data panels from the Dataset 1 (SPERFECT) pipeline.</li>
+<li><a href="Dataset4_Comparison.html"><strong>Dataset 4 · MRMhub vs MassHunter ↗</strong></a> — validates the end-to-end processing (peak integration and postprocessing) of MRMhub against Agilent MassHunter for the Dataset 4 steroid panel data.</li>
+<li><a href="ManuscriptFigure.html"><strong>Manuscript figure ↗</strong></a> — assembly of a multipanel figure with QC plots from the Dataset 1 pipeline notebook, used in the Supplementary Notes of the publication (Burla <em>et al.</em>, 2026).</li>
 </ul>
 </div>
-<!--
-## The MRMhub pipeline
-
-::: {.hero-fig}
-
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1120 250" style="max-width: 1000px; width: 100%; height: auto; font-family: 'Source Sans Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;" role="img" aria-label="MRMhub processing overview: four pipeline stages — Peak Integration, Quantitation, Quality Control and Reporting. Peak Integration is performed by MRMhub-INTEGRATOR; the remaining three stages by MRMhub-QUANT.">
-  <style>
-    .ov-head { font-size: 20px; font-weight: 700; fill: #2C3E50; }
-    .ov-item { font-size: 16px; fill: #333; }
-    .ov-band { font-size: 18px; font-weight: 700; fill: #35708c; letter-spacing: 1.5px; }
-    .ov-div  { stroke: #e3e7ea; stroke-width: 1; }
-    .ov-link { cursor: pointer; }
-    .ov-link polygon, .ov-link rect { transition: opacity 0.2s; }
-    .ov-link:hover polygon, .ov-link:hover rect { opacity: 0.78; }
-    .ov-link:hover .ov-head { text-decoration: underline; text-underline-offset: 3px; }
-  </style>
-  <a class="ov-link" href="https://slinghub.github.io/MRMhub/integrator/">
-    <title>Open MRMhub-INTEGRATOR</title>
-    <polygon points="0,4 269,4 295,36 269,68 0,68" fill="#dce9f1"/>
-    <text class="ov-head" x="140" y="43" text-anchor="middle">Peak Integration</text>
-    <rect x="0" y="210" width="269" height="34" rx="4" fill="#edf1f3"/>
-    <text class="ov-band" x="134" y="232" text-anchor="middle">INTEGRATOR</text>
-  </a>
-  <a class="ov-link" href="https://slinghub.github.io/MRMhub/quant/">
-    <title>Open MRMhub-QUANT</title>
-    <polygon points="275,4 544,4 570,36 544,68 275,68 301,36" fill="#f6e7d3"/>
-    <polygon points="550,4 819,4 845,36 819,68 550,68 576,36" fill="#f3e0e0"/>
-    <polygon points="825,4 1094,4 1120,36 1094,68 825,68 851,36" fill="#e4efdd"/>
-    <text class="ov-head" x="415" y="43" text-anchor="middle">Quantitation</text>
-    <text class="ov-head" x="690" y="43" text-anchor="middle">Quality Control</text>
-    <text class="ov-head" x="963" y="43" text-anchor="middle">Reporting</text>
-    <rect x="275" y="210" width="845" height="34" rx="4" fill="#edf1f3"/>
-    <text class="ov-band" x="697" y="232" text-anchor="middle">QUANT</text>
-  </a>
-  <line class="ov-div" x1="272" y1="84" x2="272" y2="196"/>
-  <line class="ov-div" x1="547" y1="84" x2="547" y2="196"/>
-  <line class="ov-div" x1="822" y1="84" x2="822" y2="196"/>
-  <text class="ov-item" x="14" y="96">Retention time alignment</text>
-  <text class="ov-item" x="14" y="117">Peak identification / selection</text>
-  <text class="ov-item" x="14" y="138">Peak border refinement</text>
-  <text class="ov-item" x="14" y="159">Integration</text>
-  <text class="ov-item" x="14" y="180">Reporting</text>
-  <text class="ov-item" x="289" y="96">ISTD normalization</text>
-  <text class="ov-item" x="289" y="117">Interference correction</text>
-  <text class="ov-item" x="289" y="138">Calibration curves</text>
-  <text class="ov-item" x="289" y="159">Quantification</text>
-  <text class="ov-item" x="289" y="180">Drift and batch correction</text>
-  <text class="ov-item" x="564" y="96">Data integrity</text>
-  <text class="ov-item" x="564" y="117">Feature annotation</text>
-  <text class="ov-item" x="564" y="138">Outlier detection</text>
-  <text class="ov-item" x="564" y="159">Runtime effects</text>
-  <text class="ov-item" x="564" y="180">Processing efficacy</text>
-  <text class="ov-item" x="839" y="96">Feature filtering</text>
-  <text class="ov-item" x="839" y="117">Dataset export</text>
-  <text class="ov-item" x="839" y="138">QC reporting</text>
-  <text class="ov-item" x="839" y="159">Process reporting</text>
-  <text class="ov-item" x="839" y="180">FAIR data sharing</text>
-</svg>
-
-:::
--->
 <hr>
-<p><small> <strong>Citation:</strong> Provided as Supplementary Materials for the MRMhub manuscript (in preparation). &nbsp;|&nbsp; <strong>Source:</strong> <a href="https://github.com/SLINGhub/MRMhub-workflows">github.com/SLINGhub/MRMhub-workflows</a> </small></p>
+<p><small> <strong>Source:</strong> <a href="https://github.com/SLINGhub/MRMhub-workflows">github.com/SLINGhub/MRMhub-workflows</a> &nbsp;|&nbsp; <strong>Code &amp; data:</strong> <a href="https://doi.org/10.5281/zenodo.15370293">10.5281/zenodo.15370293</a> </small></p>
 </section>
 </section>
 </div>
@@ -269,21 +212,21 @@ div.csl-indent {
 </section>
 <section id="authors" class="level3">
 <h3 class="anchored" data-anchor-id="authors">Authors</h3>
-<p>MRMhub is developed by:</p>
 <ul>
-<li>Bo Burla (<a href="https://orcid.org/0000-0002-5918-3249">ORCID</a>)</li>
-<li>Guo Shou Teo (<a href="https://orcid.org/0000-0003-3891-1494">ORCID</a>)</li>
-<li>Hyungwon Choi (<a href="https://orcid.org/0000-0002-6687-3088">ORCID</a>)</li>
+<li>Bo Burla <a href="https://orcid.org/0000-0002-5918-3249" aria-label="Bo Burla's ORCID iD"><img src="images/orcid.svg" alt="ORCID iD" class="orcid-icon"></a></li>
+<li>Guo Shou Teo <a href="https://orcid.org/0000-0003-3891-1494" aria-label="Guo Shou Teo's ORCID iD"><img src="images/orcid.svg" alt="ORCID iD" class="orcid-icon"></a></li>
+<li>Hyungwon Choi <a href="https://orcid.org/0000-0002-6687-3088" aria-label="Hyungwon Choi's ORCID iD"><img src="images/orcid.svg" alt="ORCID iD" class="orcid-icon"></a></li>
 </ul>
 </section>
 <section id="data" class="level3">
 <h3 class="anchored" data-anchor-id="data">Data</h3>
-<p>Source data are available from <a href="https://zenodo.org/records/15370294">Zenodo</a> (record <strong>MRMhub-data</strong>).</p>
+<p>The datasets and the full code used to generate this resource are deposited together in the Zenodo record <a href="https://doi.org/10.5281/zenodo.15370293">10.5281/zenodo.15370293</a> (<strong>MRMhub-workflows</strong>). The GitHub repository does not contain the Dataset 1 and 3 data due to their sizes.</p>
 </section>
 <section id="citation" class="level3">
 <h3 class="anchored" data-anchor-id="citation">Citation</h3>
 <ul>
-<li>MRMhub manuscript (in preparation)</li>
+<li>Preprint: Burla <em>et al.</em> <span class="citation" data-cites="burla2025">(<a href="#ref-burla2025" role="doc-biblioref">Burla et al. 2025</a>)</span>, <a href="https://doi.org/10.64898/2025.12.20.695370">10.64898/2025.12.20.695370</a></li>
+<li>Deposit: <a href="https://doi.org/10.5281/zenodo.15370293">10.5281/zenodo.15370293</a></li>
 </ul>
 </section>
 <section id="contact" class="level3">
@@ -294,15 +237,18 @@ div.csl-indent {
 </div>
 <section id="references" class="level2">
 <h2 class="anchored" data-anchor-id="references">References</h2>
-<div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
+<div id="refs" class="references csl-bib-body hanging-indent" role="list">
+<div id="ref-burla2025" class="csl-entry" role="listitem">
+Burla, Bo, Guo Shou Teo, Peter I. Benke, et al. 2025. <span>“<span>MRMhub</span>: One-Stop Solution for Automated Processing of Large-Scale Targeted Metabolomics Data.”</span> <em>bioRxiv</em>, ahead of print, December 23. <a href="https://doi.org/10.64898/2025.12.20.695370">https://doi.org/10.64898/2025.12.20.695370</a>.
+</div>
 <div id="ref-chen2025" class="csl-entry" role="listitem">
-Chen, Yuqing, Federico Torta, Hiromi W. L. Koh, Peter I. Benke, Resham L. Gurung, Jian-Jun Liu, Keven Ang, et al. 2025. <span>“Metabolomics Profiling in Multi-Ancestral Individuals with Type 2 Diabetes in Singapore Identified Metabolites Associated with Renal Function Decline.”</span> <em>Diabetologia</em> 68 (3): 557–75. <a href="https://doi.org/10.1007/s00125-024-06324-z">https://doi.org/10.1007/s00125-024-06324-z</a>.
+Chen, Yuqing, Federico Torta, Hiromi W. L. Koh, et al. 2025. <span>“Metabolomics Profiling in Multi-Ancestral Individuals with Type 2 Diabetes in Singapore Identified Metabolites Associated with Renal Function Decline.”</span> <em>Diabetologia</em> 68 (3): 557–75. <a href="https://doi.org/10.1007/s00125-024-06324-z">https://doi.org/10.1007/s00125-024-06324-z</a>.
 </div>
 <div id="ref-jansen2014" class="csl-entry" role="listitem">
-Jansen, Rob, Nuthar Jassam, Annette Thomas, Carmen Perich, Pilar Fernandez-Calle, Ana Paula Faria, Helena Correia, et al. 2014. <span>“A Category 1 <span>EQA</span> Scheme for Comparison of Laboratory Performance and Method Performance: An International Pilot Study in the Framework of the Calibration 2000 Project.”</span> <em>Clinica Chimica Acta</em> 432 (May): 90–98. <a href="https://doi.org/10.1016/j.cca.2013.11.003">https://doi.org/10.1016/j.cca.2013.11.003</a>.
+Jansen, Rob, Nuthar Jassam, Annette Thomas, et al. 2014. <span>“A Category 1 <span>EQA</span> Scheme for Comparison of Laboratory Performance and Method Performance: An International Pilot Study in the Framework of the Calibration 2000 Project.”</span> <em>Clinica Chimica Acta</em> 432 (May): 90–98. <a href="https://doi.org/10.1016/j.cca.2013.11.003">https://doi.org/10.1016/j.cca.2013.11.003</a>.
 </div>
 <div id="ref-tan2022" class="csl-entry" role="listitem">
-Tan, Sock Hwee, Hiromi W. L. Koh, Jing Yi Chua, Bo Burla, Ching Ching Ong, Li San Lynette Teo, Xiaoxun Yang, et al. 2022. <span>“Variability of the Plasma Lipidome and Subclinical Coronary Atherosclerosis.”</span> <em>Arteriosclerosis, Thrombosis, and Vascular Biology</em> 42 (1): 100–112. <a href="https://doi.org/10.1161/ATVBAHA.121.316847">https://doi.org/10.1161/ATVBAHA.121.316847</a>.
+Tan, Sock Hwee, Hiromi W. L. Koh, Jing Yi Chua, et al. 2022. <span>“Variability of the Plasma Lipidome and Subclinical Coronary Atherosclerosis.”</span> <em>Arteriosclerosis, Thrombosis, and Vascular Biology</em> 42 (1): 100–112. <a href="https://doi.org/10.1161/ATVBAHA.121.316847">https://doi.org/10.1161/ATVBAHA.121.316847</a>.
 </div>
 </div>
 

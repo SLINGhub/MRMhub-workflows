@@ -27,19 +27,6 @@ pre.sourceCode code span {
   margin: 0;
 }
 
-/* Tighter spacing for R-output code blocks in the dataset notebooks. */
-pre.r-output, pre.r-output code {
-  font-family: monospace;
-  font-size: 0.9em;
-  line-height: 1;
-  margin: 0;
-  padding: 0;
-  white-space: pre;
-}
-pre.r-output code {
-  line-height: 0.9;
-}
-
 /* Match QUANT's content width. pkgdown widens its container to ~1340px; the
    Quarto `page-layout: full` here removes the reserved margin columns, and this
    caps + centres the result so the prose column is as wide as QUANT's rather
@@ -58,14 +45,6 @@ pre.r-output code {
   height: auto;
   margin: 0.25rem 0 1rem 1.5rem;
 }
-
-/* Give the overview hero figure room to breathe. */
-.hero-fig {
-  text-align: center;
-  margin-top: 1.25rem;
-  margin-bottom: 2.25rem;
-}
-
 
 /* Wider gutter between the content column and the info-panel sidebar. */
 .landing-grid {
@@ -88,7 +67,7 @@ pre.r-output code {
   margin: 1.25rem 0 1.75rem;
 }
 
-/* Smaller, quieter section headers (e.g. "The MRMhub modules"). No underline —
+/* Smaller, quieter section headers (e.g. "Workflows"). No underline —
    only the page title carries a separating rule (.title-sep). */
 .landing-grid h2,
 .landing-grid h3 {
@@ -101,11 +80,6 @@ pre.r-output code {
   font-size: 1.4rem;
   margin-top: 2.6rem;
   margin-bottom: 0.85rem;
-}
-
-/* Roomier spacing between the two module bullets. */
-.module-list li + li {
-  margin-top: 1rem;
 }
 
 /* Steel-blue arrow markers for the Getting started list. */
@@ -124,29 +98,6 @@ pre.r-output code {
   position: absolute;
   left: -1.5em;
   color: #5B8FA8;
-  font-weight: 700;
-}
-
-/* Module list — a filled square per module in its figure colour
-   (INTEGRATOR steel-blue, QUANT green) to tie the list to the diagrams. */
-.module-list ul {
-  list-style: none;
-  padding-left: 1.8em;
-  counter-reset: mod;
-}
-.module-list li {
-  position: relative;
-  counter-increment: mod;
-}
-.module-list li::before {
-  content: counter(mod) ".";
-  position: absolute;
-  left: -1.8em;
-  top: 0;
-  font-weight: 700;
-  color: var(--bs-link-color, #5B8FA8);
-}
-.module-list a {
   font-weight: 700;
 }
 
@@ -184,28 +135,12 @@ pre.r-output code {
   line-height: 1.5;
 }
 
-/* Developers list — name + ORCID mark, muted role beneath (pkgdown aside). */
-.developer-list {
-  list-style: none;
-  padding-left: 0;
-  margin-bottom: 0;
-}
-.developer-list li {
-  margin: 0 0 0.95rem;
-  line-height: 1.4;
-}
-.developer-list .dev-name {
-  font-weight: 500;
-}
-.developer-list .dev-role {
-  color: #6c757d;
-  font-size: 0.82rem;
-}
-.developer-list .orcid {
-  vertical-align: text-bottom;
-}
-.developer-list .orcid svg {
-  display: inline-block;
+/* Official ORCID iD mark, sized to the surrounding text. */
+.orcid-icon {
+  width: 1em;
+  height: 1em;
+  vertical-align: -0.14em;
+  margin-left: 0.15em;
 }
 
 /* When the panel stacks below the content on narrow screens, separate it with
