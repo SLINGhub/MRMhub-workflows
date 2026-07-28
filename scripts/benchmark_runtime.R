@@ -56,8 +56,8 @@ benchmark_dataset <- function(ds) {
               features.to.keep = c("CE 20:4","CE 22:5","CE 22:6","CE 16:0","CE 18:0")))
     prefix <- "output/_bench_ds1"; out <- "output/timing_dataset1.rds"; label <- "SPERFECT"
   } else {
-    dp <- "./data/dataset-3/Dataset3_MRMhub-INTEGRATOR_20251010.csv"
-    mp <- "./data/dataset-3/Dataset3_Metadata_20251010.xlsx"
+    dp <- "./data/dataset-3/Dataset3_MRMhub-INTEGRATOR_Final.csv"
+    mp <- "./data/dataset-3/Dataset3_Metadata.xlsx"
     mexp <- MRMhubExperiment()
     mexp <- timed("import", import_data_mrmhub(mexp, dp, import_metadata = TRUE))
     mexp <- timed("import", import_metadata_msorganiser(mexp, mp, ignore_warnings = TRUE))

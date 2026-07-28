@@ -83,6 +83,23 @@ The workflow compares MRMhub and MassHunter at both pipeline stages:
 - **QUANT** — calibration fits and concentrations, ending in accuracy against the
   SKML EQA reference values (@fig-d4-fig2).
 
+::: callout-important
+## Data availability
+
+The Dataset 4 data are small enough to be included in the
+[GitHub repository](https://github.com/SLINGhub/MRMhub-workflows) under
+`data/dataset-4/`, so this notebook renders from a plain `git clone` with no
+further downloads.
+
+The same files, together with those of the other datasets, are also deposited in
+the Zenodo record [10.5281/zenodo.15370293](https://doi.org/10.5281/zenodo.15370293)
+(*MRMhub-data*) as `mrmhub-workflows.zip`. `MRMhub-Dataset4.zip` in that record
+holds the raw mzML files together with the MRMhub-INTEGRATOR application and all
+of its input files, so the peak integration compared below can be re-run as
+published or with new parameters. It is **not** required here: this notebook
+starts from INTEGRATOR's `long.csv` output.
+:::
+
 # Raw Data Processing: Peak Picking and Integration
 
 Raw `.d` files were converted to mzML and integrated with MRMhub-INTEGRATOR, as

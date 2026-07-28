@@ -59,7 +59,15 @@ The data come from a human plasma lipidomics study aimed at identifying plasma l
 This example workflow demonstrates the complete MRMhub data processing pipeline on this dataset — peak integration, quantitation, quality control and reporting. It covers many elements of the MRMhub workflow for demonstration purposes, some of which may not be applicable or necessary when processing other datasets.
 
 ::: callout-important
-All datasets used and generated within this workflow have been deposited in the **Zenodo** repository <https://zenodo.org/records/15370293>. Within this repository, the raw mass spectrometry files and the MRMhub-INTEGRATOR input files required for peak integration are available under the record "**Dataset 3"**. The data and metadata files used and produced by the code in this Quarto notebook can be found under the "**mrmhub-workflows**" record. Please note that due to size limitations, the corresponding GitHub repository does not include any of these datasets.
+## Data availability
+
+All code and data for this workflow are deposited in the Zenodo record [10.5281/zenodo.15370293](https://doi.org/10.5281/zenodo.15370293) (*MRMhub-data*).
+
+`mrmhub-workflows.zip` is the complete workflows repository *including* the Dataset 3 data under `data/dataset-3/`. Unzip it, open the project and run `quarto render Dataset3.qmd` — nothing else is needed to reproduce this notebook.
+
+`MRMhub-Dataset3.zip` in the same record holds the raw mzML files together with the MRMhub-INTEGRATOR application and all of its input files, so the peak integration described below can be re-run as published or with new parameters. It is **not** required here: this notebook starts from INTEGRATOR's `long.csv` output, which is already included in the repository.
+
+Note that the Dataset 3 data exceed GitHub's file-size limit and are therefore not part of the [GitHub repository](https://github.com/SLINGhub/MRMhub-workflows) — use the Zenodo archive to reproduce this workflow.
 :::
 
 # Raw Data Processing: Peak Picking and Integration
@@ -72,7 +80,7 @@ The original raw data files (Agilent .d) were converted to mzML using msconvert 
 
 ## Preparation of the INTEGRATOR input files
 
-The final input files used for this dataset are available from the Zenodo repository (see above). The following subsections summarize the key settings used for this example.
+The final input files used for this dataset are contained in `MRMhub-Dataset3.zip` (see above), for those who wish to re-run the integration. The following subsections summarize the key settings used for this example.
 
 ### Global Settings File (param.txt)
 
@@ -156,22 +164,22 @@ if (mirai::status()$daemons == 0) mirai::daemons(n_cores)
 
 ### Import the MRMhub-INTEGRATOR results
 
-The results from the peak integration performed with the INTEGRATOR workflow, as described in the previous section, were imported into a `MRMhubExperiment` data object. This object represents the central data container used in this postprocessing workflow. Note that the original result file from INTEGRATOR ('long.csv') has been renamed to 'Dataset3_MRMhub-INTEGRATOR_20251010.csv'.
+The results from the peak integration performed with the INTEGRATOR workflow, as described in the previous section, were imported into a `MRMhubExperiment` data object. This object represents the central data container used in this postprocessing workflow. Note that the original result file from INTEGRATOR ('long.csv') has been renamed to 'Dataset3_MRMhub-INTEGRATOR_Final.csv'.
 
 ```{r chunk4-importdata1}
 #| cache: false
-data_path <- "./data/dataset-3/Dataset3_MRMhub-INTEGRATOR_20251010.csv"
+data_path <- "./data/dataset-3/Dataset3_MRMhub-INTEGRATOR_Final.csv"
 mexp <- MRMhubExperiment()
 mexp <- import_data_mrmhub(mexp, data_path, import_metadata = TRUE)
 ```
 
 ### Import the analysis metadata
 
-Detailed analysis metadata, describing the analytes, samples, features, internal standards (ISTDs), and response curves required for subsequent steps, were imported from the Excel workbook 'Dataset3_Metadata_20251010.xlsx'. This workbook is available within the previously mentioned Zenodo archive (record Dataset 3).
+Detailed analysis metadata, describing the analytes, samples, features, internal standards (ISTDs), and response curves required for subsequent steps, were imported from the Excel workbook 'Dataset3_Metadata.xlsx', included in this repository under `data/dataset-3/`.
 
 ```{r chunk5-import-metadata1}
 #| cache: false
-file_path <- "./data/dataset-3/Dataset3_Metadata_20251010.xlsx"
+file_path <- "./data/dataset-3/Dataset3_Metadata.xlsx"
 mexp <- import_metadata_msorganiser(mexp, file_path, ignore_warnings = TRUE)
 ```
 

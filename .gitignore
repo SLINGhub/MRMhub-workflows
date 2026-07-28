@@ -59,10 +59,14 @@ renv/library/
 .httr-oauth
 .quarto
 
-# Bulk data stays ignored, but keep each dataset's README.txt tracked so the
-# folders are visible on GitHub with their Zenodo provenance.
-data/dataset-*/*
-!data/dataset-*/README.txt
+# Datasets 1 and 3 exceed GitHub's file-size limit and stay ignored; each folder's
+# README.txt is kept so the folders are visible on GitHub with their Zenodo provenance.
+# Dataset 4 is small (<1 MB) and IS tracked, so Dataset4.qmd and
+# Dataset4_Comparison.qmd render straight from a clone.
+data/dataset-1/*
+data/dataset-3/*
+!data/dataset-1/README.txt
+!data/dataset-3/README.txt
 
 # Superseded raw versions moved out of the dataset folders (kept locally, never committed)
 _archive/

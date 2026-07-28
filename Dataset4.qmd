@@ -26,9 +26,17 @@ format:
 
 This is an MRMhub-QUANT postprocessing report for Dataset 4, a **fully quantitative 15-analyte steroid panel** measured with external calibration (absolute quantification). The data are from an LC-MRM-MS analysis of steroids in human serum using the Steroid Panel LC-MS kit (IBL International, Hamburg, Germany; #30191875), following the Instructions for Use except that LC-MS was performed on an Agilent 6495A triple quadrupole instrument. Only the kit's Gradient 1 analysis was used, covering 15 analytes with their internal standards (66 MRM transitions monitored, including qualifiers, from which 64 features were integrated).
 
-The batch comprised 15 system-suitability samples (SST, containing pure analyte and internal standards), blanks, calibrants (`Cal A`–`Cal F`), low and high quality controls (`LQC`, `HQC`) with assigned target concentrations, and — in place of study samples — 5 external quality assessment (EQA) samples (SKML ring-trial materials) [@jansen2014]. In both the MRMhub and MassHunter workflows, concentrations were obtained by external calibration using quadratic regression with `1/x` weighting for all analytes, and bias was determined for the QC samples against their assigned concentrations. Full source and acquisition settings, transitions, polarities and collision energies are listed in the INTEGRATOR result file (Zenodo, Dataset 4).
+The batch comprised 15 system-suitability samples (SST, containing pure analyte and internal standards), blanks, calibrants (`Cal A`–`Cal F`), low and high quality controls (`LQC`, `HQC`) with assigned target concentrations, and — in place of study samples — 5 external quality assessment (EQA) samples (SKML ring-trial materials) [@jansen2014]. In both the MRMhub and MassHunter workflows, concentrations were obtained by external calibration using quadratic regression with `1/x` weighting for all analytes, and bias was determined for the QC samples against their assigned concentrations. Full source and acquisition settings, transitions, polarities and collision energies are listed in the INTEGRATOR result file under `data/dataset-4/`.
 
 This report follows the MRMhub [external-calibration + QC recipe](https://slinghub.github.io/MRMhub/quant/articles/recipe-01-ext-calibration-qc.html). See `Dataset4_Comparison.qmd` for the comparison of MRMhub vs MassHunter across quantitative peak integration and postprocessing.
+
+::: callout-important
+## Data availability
+
+The Dataset 4 data are small enough to be included in the [GitHub repository](https://github.com/SLINGhub/MRMhub-workflows) under `data/dataset-4/`, so this notebook renders from a plain `git clone` with no further downloads.
+
+The same files, together with those of the other datasets, are also deposited in the Zenodo record [10.5281/zenodo.15370293](https://doi.org/10.5281/zenodo.15370293) (*MRMhub-data*) as `mrmhub-workflows.zip`. `MRMhub-Dataset4.zip` in that record holds the raw mzML files together with the MRMhub-INTEGRATOR application and all of its input files, so the peak integration can be re-run as published or with new parameters. It is **not** required here: this notebook starts from INTEGRATOR's `long.csv` output.
+:::
 
 ::: callout-note
 ## mrmhub version

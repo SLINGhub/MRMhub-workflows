@@ -12,18 +12,16 @@ need these PDFs to RE-GENERATE those figures.
 
 How to obtain the PDFs
 ----------------------
-Download the Dataset 4 archive from Zenodo (record "MRMhub-data"):
+Download MRMhub-Dataset4.zip from the Zenodo record "MRMhub-data":
 
-    https://zenodo.org/records/15370294
+    https://doi.org/10.5281/zenodo.15370293
 
-The by_transition PDFs are included in the full Dataset 4 upload (with the raw
-mzML files). Unzip and place all *.pdf files into this folder:
+That archive holds the raw mzML files, the MRMhub-INTEGRATOR application and its
+input files, and these by_transition PDFs. Unzip it and place all *.pdf files
+into this folder:
 
     scripts/dataset4-chromatograms/by_transition/
 
 Then regenerate the figures from the repository root:
 
     Rscript scripts/dataset4-chromatograms/dataset4-chromatograms.R
-
-Note: the Dataset 4 data is not yet on Zenodo at the time of writing; it will be
-deposited in the same record.

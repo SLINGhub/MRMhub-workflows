@@ -75,7 +75,15 @@ The data come from the SPERFECT study (*SPhingolipids as sErial biomaRkers oF di
 This example workflow demonstrates the complete MRMhub data processing pipeline on this dataset — peak integration, quantitation, quality control and reporting. It covers many elements of the MRMhub workflow for demonstration purposes, some of which may not be applicable or necessary when processing other datasets.
 
 ::: callout-important
-All datasets used and generated within this workflow have been deposited in the **Zenodo** repository https://zenodo.org/records/15370293. Within this repository, the raw mass spectrometry files and the MRMhub-INTEGRATOR input files required for peak integration are available under the record "**Dataset 1**". The data and metadata files used and produced by the code in this Quarto notebook can be found under the "**mrmhub-workflows**" record. Please note that due to size limitations, the corresponding GitHub repository does not include any of these datasets.
+## Data availability
+
+All code and data for this workflow are deposited in the Zenodo record [10.5281/zenodo.15370293](https://doi.org/10.5281/zenodo.15370293) (*MRMhub-data*).
+
+`mrmhub-workflows.zip` is the complete workflows repository *including* the Dataset 1 data under `data/dataset-1/`. Unzip it, open the project and run `quarto render Dataset1.qmd` — nothing else is needed to reproduce this notebook.
+
+`MRMhub-Dataset1.zip` in the same record holds the raw mzML files together with the MRMhub-INTEGRATOR application and all of its input files, so the peak integration described below can be re-run as published or with new parameters. It is **not** required here: this notebook starts from INTEGRATOR's `long.csv` output, which is already included in the repository.
+
+Note that the Dataset 1 data exceed GitHub's file-size limit and are therefore not part of the [GitHub repository](https://github.com/SLINGhub/MRMhub-workflows) — use the Zenodo archive to reproduce this workflow.
 :::
 
 # Raw Data Processing: Peak Picking and Integration
@@ -88,7 +96,7 @@ INTEGRATOR requires the raw files to be in the mzML format. The original raw dat
 
 ## Preparing the INTEGRATOR input files
 
-INTEGRATOR requires three different input files. Templates and examples are included in the downloaded MRMhub-INTEGRATOR release archive. The final input files used for this dataset are available from the Zenodo repository (see above). The following subsections describe each required input file and the key settings used for this example.
+INTEGRATOR requires three different input files. Templates and examples are included in the downloaded MRMhub-INTEGRATOR release archive. The final input files used for this dataset are contained in `MRMhub-Dataset1.zip` (see above), for those who wish to re-run the integration. The following subsections describe each required input file and the key settings used for this example.
 
 ### Global Settings File
 

@@ -1,0 +1,41 @@
+cff-version: 1.2.0
+message: >-
+  If you use these workflows or their data, please cite the Zenodo deposit below.
+  The code is MIT-licensed; the datasets under data/ and the rendered site in docs/
+  are CC BY 4.0 (see LICENSE).
+title: "MRMhub Workflow Examples: reproducible targeted LC-MS data-processing workflows"
+abstract: >-
+  Reproducible Quarto notebooks demonstrating the MRMhub targeted LC-MS
+  data-processing pipeline on real datasets, covering relative-quantification
+  lipidomics at study and population scale and a fully quantitative,
+  externally calibrated steroid assay validated against Agilent MassHunter.
+  Provided as Supplementary Materials for the MRMhub manuscript.
+type: software
+version: "0.9.9"
+doi: 10.5281/zenodo.15370293
+license: MIT
+license-url: "https://github.com/SLINGhub/MRMhub-workflows/blob/main/LICENSE"
+repository-code: "https://github.com/SLINGhub/MRMhub-workflows"
+url: "https://slinghub.github.io/MRMhub-workflows"
+keywords:
+  - lipidomics
+  - metabolomics
+  - targeted mass spectrometry
+  - multiple reaction monitoring
+  - quality control
+  - reproducible research
+authors:
+  - family-names: Burla
+    given-names: Bo
+    orcid: "https://orcid.org/0000-0002-5918-3249"
+    affiliation: "Singapore Lipidomics Incubator, National University of Singapore"
+    email: bo.burla@nus.edu.sg
+  - family-names: Teo
+    given-names: Guo Shou
+    orcid: "https://orcid.org/0000-0003-3891-1494"
+    affiliation: "Singapore Lipidomics Incubator, National University of Singapore"
+  - family-names: Choi
+    given-names: Hyungwon
+    orcid: "https://orcid.org/0000-0002-6687-3088"
+    affiliation: "Singapore Lipidomics Incubator, National University of Singapore"
+    email: hyung_won_choi@nus.edu.sg

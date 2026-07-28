@@ -40,7 +40,8 @@ These notebooks reproduce the [**MRMhub**](https://slinghub.github.io/MRMhub) pi
 
 <small>
 **Citation:** Provided as Supplementary Materials for the MRMhub manuscript (in preparation). &nbsp;|&nbsp;
-**Source:** [github.com/SLINGhub/MRMhub-workflows](https://github.com/SLINGhub/MRMhub-workflows)
+**Source:** [github.com/SLINGhub/MRMhub-workflows](https://github.com/SLINGhub/MRMhub-workflows) &nbsp;|&nbsp;
+**Code & data:** [10.5281/zenodo.15370293](https://doi.org/10.5281/zenodo.15370293)
 </small>
 
 :::
@@ -63,11 +64,12 @@ MRMhub is developed by:
 
 ### Data
 
-Source data are available from [Zenodo](https://zenodo.org/records/15370294) (record **MRMhub-data**).
+Code and data are deposited together in the Zenodo record [10.5281/zenodo.15370293](https://doi.org/10.5281/zenodo.15370293) (**MRMhub-data**). Its `mrmhub-workflows.zip` is this complete repository with all data included — unzip and run `quarto render`.
 
 ### Citation
 
 - MRMhub manuscript (in preparation)
+- Deposit: [10.5281/zenodo.15370293](https://doi.org/10.5281/zenodo.15370293)
 
 ### Contact
 
