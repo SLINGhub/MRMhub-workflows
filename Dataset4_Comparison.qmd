@@ -1,6 +1,6 @@
 ---
-title: "MRMhub Data Processing Workflow for Dataset 4"
-subtitle: "Steroid Assay"
+title: "MRMhub vs Agilent MassHunter"
+subtitle: "Dataset 4 — Steroid Assay"
 author:
   - name: "Bo Burla"
     affiliation: "National University of Singapore"
