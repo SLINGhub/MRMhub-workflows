@@ -5,8 +5,10 @@
 .Ruserdata
 .Rproj
 
-# Quarto render cache (never commit)
-*_files/
+# Quarto render cache (never commit). Scoped to the repo root: the *_files/
+# directories under docs/ hold the figure PNGs the published site links to
+# (lightbox click-to-zoom targets) and ARE tracked, see below.
+/*_files/
 *_cache/
 output/
 
