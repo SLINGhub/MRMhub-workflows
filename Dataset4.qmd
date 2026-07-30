@@ -28,6 +28,8 @@ This is an MRMhub postprocessing report for Dataset 4, a **fully quantitative 15
 
 The dataset comprises system-suitability samples (SST, containing pure analyte and internal standards), blanks, calibrants (Cal A – Cal F), low and high quality controls (LQC, HQC) with assigned target concentrations, and, in place of study samples, 5 external quality assessment (EQA) samples (SKML [@jansen2014]).
 
+These data were additionally processed end-to-end with a vendor tool (Agilent MassHunter Quantitative Analysis) and compared with MRMhub at both the peak-integration and the quantification stage, see [MRMhub vs MassHunter](Dataset4_Comparison.html).
+
 ::: callout-important
 ## Data availability
 
@@ -47,6 +49,66 @@ Load the package and call `mrmhub_enable_cli_color()` to render mrmhub's console
 ```{r chunk2-loadpkg}
 library(mrmhub)
 mrmhub_enable_cli_color()
+
+# Used only to compose the example chromatograms below.
+library(ggplot2)
+library(patchwork)
+```
+
+# Raw Data Processing: Peak Picking and Integration
+
+Peak picking and integration were performed with MRMhub-INTEGRATOR, as for Datasets 1 and 3. For a full description of the workflow and its parameters, see [Workflow for Dataset 1](https://slinghub.github.io/MRMhub-workflows/Dataset1.html) and the [INTEGRATOR Manual](https://slinghub.github.io/MRMhub/integrator/manual.html).
+
+## Conversion of vendor raw files to mzML
+
+INTEGRATOR requires the raw files in mzML format. The original Agilent .d files were converted using msconvert from the ProteoWizard software ([https://proteowizard.sourceforge.io](https://proteowizard.sourceforge.io/)) with the following settings: output format = mzML; binary encoding precision = 32 bit; write index = true. See the [MRMhub Manual](https://slinghub.github.io/MRMhub/integrator/msconvert.html) for more details.
+
+## Preparing the INTEGRATOR input files
+
+INTEGRATOR takes three input files: the global settings file (param.txt), the sample table listing the .mzML files in acquisition order, and the feature/transition table defining each transition by precursor and product m/z with its expected retention time. All input files used for this dataset are contained in `MRMhub-Dataset4.zip` in the Zenodo record above, for those who wish to re-run the integration. Of the 66 transitions monitored, 64 features were integrated: the 15 analytes, their 15 internal standards, and the qualifier transitions of both.
+
+Two per-feature settings in the feature/transition table were adjusted for this panel. The `peak_width` parameter was set individually for several analytes, overriding the global value. The `baseline` mode was set to `v_drop` for most features, which places the horizontal baseline at the lowest intensity of the integrated region rather than at the default 5th percentile of the intensities in the integration window.
+
+The batch was integrated in two subsets, exported as separate long-format tables: the ten replicate system-suitability injections (`SST`) and the 20 assay injections (`ASSAY`: three solvent blanks, one process blank, the calibrators `Cal 0`–`Cal F`, `QC_Low1` and `QC_High1`, and seven injections of the five SKML EQA materials). This report reads the assay subset; the [comparison with MassHunter](Dataset4_Comparison.html) uses both.
+
+## Running MRMhub-INTEGRATOR and Review of Results
+
+The most recent release of INTEGRATOR was obtained from <https://github.com/SLINGhub/MRMhub/releases>. After preparing the input files, steps 1 to 4 of the application run consecutively to perform peak detection, peak picking, integration, and export of data and PDF results. The integration results are reported in 'long.csv', a long-format table with peak areas, apex retention times, peak widths and integration borders; here it was renamed to 'Dataset4_MRMhub-INTEGRATOR_ASSAY.csv'. PDFs of the integrated transitions are written to the by\_\* folders.
+
+The integration results were inspected for all features across all injections using the generated PDFs, and the settings above are the result of several rounds of parameter optimization with INTEGRATOR. @fig-d4rep-chromatograms shows six of these plots: three well-resolved QC peaks and, beneath them, three cases in which the analyte sits next to a co-eluting neighbour. The peak areas exported here are the input to the postprocessing that follows; they are compared against an independent Agilent MassHunter re-integration of the same raw files in the [comparison workflow](Dataset4_Comparison.html).
+
+```{r}
+#| label: fig-d4rep-chromatograms
+#| fig-cap: "**Example INTEGRATOR chromatograms.** The shaded region is the integrated peak. **Top row** — well-resolved peaks in the low QC (`QC_Low1`): 11-deoxycortisol, Aldosterone, Dihydrotestosterone. **Bottom row** — three demanding cases, each with a co-eluting neighbour: 21-deoxycortisol in the high QC (`QC_High1`, large neighbour to the right), Aldosterone in EQA sample `SKML2026_1Bb` (neighbour to the right, peak at 0.3 × Cal A) and 11-deoxycorticosterone in `SKML2026_1A`."
+#| echo: false
+#| fig-width: 8.4
+#| fig-height: 4.6
+#| out-width: "100%"
+#| fig.alt: "Six integrated chromatograms. The top row shows clean, well-resolved low-QC peaks for 11-deoxycortisol, Aldosterone and Dihydrotestosterone. The bottom row shows peaks with co-eluting neighbours: 21-deoxycortisol in the high QC, Aldosterone in an EQA sample, and 11-deoxycorticosterone flanked by large peaks on both sides."
+# Chromatograms are pre-cropped from the INTEGRATOR by_transition PDFs by
+# scripts/dataset4-chromatograms/dataset4-chromatograms.R and embedded as static
+# PNGs, so the render needs neither the PDFs nor magick/pdftools.
+chrom_dir <- "images/dataset4"
+chrom_gg <- function(name, title) {
+  ggplot() +
+    annotation_custom(grid::rasterGrob(
+      png::readPNG(file.path(chrom_dir, paste0(name, ".png"))),
+      interpolate = TRUE
+    )) +
+    labs(title = title) +
+    theme_void(base_size = 8, base_family = "sans") +
+    theme(
+      plot.title = element_text(size = 8, hjust = 0.5, margin = margin(b = 0)),
+      plot.margin = margin(1, 2, 1, 2)
+    )
+}
+
+(chrom_gg("top_11-deoxycortisol_QC_Low1", "11-deoxycortisol") |
+  chrom_gg("top_Aldosterone_QC_Low1", "Aldosterone") |
+  chrom_gg("top_Dihydrotestosterone_QC_Low1", "Dihydrotestosterone")) /
+  (chrom_gg("top_21-deoxycortisol_QC_High1", "21-deoxycortisol") |
+    chrom_gg("top_Aldosterone_SKML2026_1Bb", "Aldosterone") |
+    chrom_gg("top_11-deoxycorticosterone_SKML2026_1A", "11-deoxycorticosterone"))
 ```
 
 # Import
@@ -174,7 +236,7 @@ save_report_xlsx(
 save_dataset_rds(mexp, "output/Dataset4_report_mexp.rds")
 ```
 
-Reload it in a fresh R session with `read_dataset_rds()`, which verifies the embedded integrity hash on read (load `mrmhub` first so the object's methods are available):
+Reload it in a fresh R session with `read_dataset_rds()`, which verifies the embedded integrity hash on read (load mrmhub first so the object's methods are available):
 
 ```{r chunk12-rds-import}
 #| eval: false

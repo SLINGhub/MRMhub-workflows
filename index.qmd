@@ -30,7 +30,7 @@ These notebooks reproduce the [**MRMhub**](https://slinghub.github.io/MRMhub)-ba
 **Related:**
 
 ::: arrow-list
-- [**Dataset 4 · MRMhub vs MassHunter ↗**](Dataset4_Comparison.html) — validates the end-to-end processing (peak integration and postprocessing) of MRMhub against Agilent MassHunter for the Dataset 4 steroid panel data.
+- [**Dataset 4 · MRMhub vs MassHunter ↗**](Dataset4_Comparison.html) — compares the end-to-end processing (peak integration and postprocessing) of MRMhub with Agilent MassHunter for the Dataset 4 steroid panel data.
 - [**Manuscript figure ↗**](ManuscriptFigure.html) — assembly of a multipanel figure with QC plots from the Dataset 1 pipeline notebook, used in the Supplementary Notes of the publication (Burla *et al.*, 2026).
 :::
 

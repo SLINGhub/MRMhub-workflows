@@ -36,7 +36,6 @@ base_font_size <- 6
 # Packages used to prepare the publication figures
 library(dplyr)
 library(ggplot2)
-library(mirai) # Used for parallel processing
 library(tictoc) # Used for timing
 ```
 
@@ -44,7 +43,7 @@ library(tictoc) # Used for timing
 
 The data come from a human plasma lipidomics study aimed at identifying plasma lipid biomarkers of rapid renal function decline in patients with type 2 diabetes, part of the Diabetes StudY in Nephropathy And other Microvascular cOmplications (DYNAMO) project (Chen *et al.* [-@chen2025]). The lipidomics analysis followed the method of Huynh *et al.* [-@huynh2019] with minor modifications, using the same QC sample types as Dataset 1, with the addition of NIST samples. This dataset covers the largest of the study's four patient cohorts: raw MS data for samples collected at the National University Hospital, Singapore, comprising 3,816 plasma samples and 775 blank and QC samples (4,591 in total). In total, 748 MRM transitions were monitored, from which 828 features were integrated. For the biological and clinical conclusions related to these data, we refer readers to the original publication [@chen2025].
 
-This example workflow demonstrates the complete MRMhub data processing pipeline on this dataset — peak integration, quantitation, quality control and reporting. It covers many elements of the MRMhub workflow for demonstration purposes, some of which may not be applicable or necessary when processing other datasets.
+This example workflow covers the complete MRMhub data processing pipeline on this dataset: peak integration, quantitation, quality control and reporting. It includes many elements of the MRMhub workflow, some of which may not be applicable or necessary for other datasets.
 
 ::: callout-important
 ## Data availability
@@ -55,7 +54,7 @@ All code and data for this workflow are deposited in the Zenodo record [10.5281/
 
 # Raw Data Processing: Peak Picking and Integration
 
-This section describes key aspects of the raw data processing workflow used for this dataset. For a more detailed description of the workflow, see [Workflow for Dataset 1](https://slinghub.github.io/MRMhub-workflows/Dataset1.html) and the [INTEGRATOR Manual](https://slinghub.github.io/MRMhub/integrator/manual.html).
+Peak picking and peak integration were performed with MRMhub-INTEGRATOR; the key aspects for this dataset are given below. For a more detailed description of the workflow, see [Workflow for Dataset 1](https://slinghub.github.io/MRMhub-workflows/Dataset1.html) and the [INTEGRATOR Manual](https://slinghub.github.io/MRMhub/integrator/manual.html).
 
 ## Conversion of vendor raw files to mzML
 
@@ -73,7 +72,7 @@ The parameter mz_tol, defining the maximum tolerance in m/z values for identifyi
 
 ### Sample Table
 
-In the sample table (run_order_20251010.csv) the samples to be processed were listed by their .mzML file names. The first two BQC (batch quality control) samples were selected as retention time reference anchors. The sample type for each sample was defined in column C (sample_type) using the [MRMhub QC type](https://slinghub.github.io/MRMhub/articles/02_keydataids.html#qc-types-sample-types) nomenclature. This is optional and INTEGRATOR distinguishes only between blanks (identified by the presence of the text `BLK`), and non-blanks.
+In the sample table (run_order_20251010.csv) the samples to be processed were listed by their .mzML file names. The first two BQC (batch quality control) samples were selected as retention time reference anchors. The sample type for each sample was defined in column C (sample_type) using the [MRMhub QC type](https://slinghub.github.io/MRMhub/quant/articles/manual-06-sample-types.html#qc-types-sample-types) nomenclature. This is optional and INTEGRATOR distinguishes only between blanks (identified by the presence of the text `BLK`), and non-blanks.
 
 ![**Sample table.** Screenshot of a portion of the CSV file used for this dataset (run_order_20251010.csv).](images/paste-8.png){#fig-ds3-sampletable fig-align="center" width="50%"}
 
@@ -99,7 +98,7 @@ The peak integration results were inspected for all features across samples usin
 
 ## Setting up a Quarto Notebook and Installation of {mrmhub}
 
-A [Quarto](https://quarto.org/) notebook was created in [RStudio](https://posit.co/download/rstudio-desktop/). The {mrmhub} R package was installed by running the following code in the R console, together with the `mirai` (parallel processing) and `fansi` (coloured console output) packages used in this workflow.
+A [Quarto](https://quarto.org/) notebook was created in [RStudio](https://posit.co/download/rstudio-desktop/). The {mrmhub} R package was installed by running the following code in the R console, together with the mirai (parallel processing) and fansi (coloured console output) packages, and the optional plotting packages (ggvenn, patchwork, ggbeeswarm) used in this workflow.
 
 ```{r chunk2-installpkg, include = TRUE, eval = FALSE}
 if (!require("pak")) install.packages("pak")
@@ -107,8 +106,9 @@ if (!require("pak")) install.packages("pak")
 # installed from its default branch (main).
 pak::pak("SLINGhub/MRMhub")
 
-# Parallel processing (mirai) and coloured console output (fansi)
-pak::pak(c("mirai", "fansi"))
+# Parallel processing (mirai), coloured console output (fansi), and the
+# optional plotting packages used by some QC figures in this workflow.
+pak::pak(c("mirai", "fansi", "ggvenn", "patchwork", "ggbeeswarm"))
 ```
 
 ::: callout-note
@@ -122,30 +122,49 @@ The Quarto notebook code generated in this example workflow is available from <h
 
 ## Postprocessing workflow
 
-### Load `mrmhub` and other required R packages
+### Load mrmhub and other required R packages
 
 To improve performance, multi-threading was used for some of the calculations and plotting, for which the R package {mirai} needs to be installed and loaded.
 
 ```{r chunk03-loadpkg, results = FALSE, message = FALSE}
 #| cache: false
 library(mrmhub)
-library(mirai) # Used for parallel processing
 
 # Colour mrmhub's cli console feedback in the rendered HTML (requires the fansi package)
 mrmhub_enable_cli_color()
 
-# Set number of cores for parallel processing (all-but-one, so the system stays responsive)
-n_cores <- {
-  n <- parallel::detectCores()
-  if (is.na(n)) n <- 4L
-  max(1L, n - 1L)
-}
-if (mirai::status()$daemons == 0) mirai::daemons(n_cores)
+# --- Optional: multithreading -------------------------------------------------
+# This workflow runs single-threaded by default, so it renders with only the
+# packages installed alongside mrmhub. Some steps -- plot_runscatter() PDF export
+# and drift/batch correction -- can run in parallel for a substantial speed-up,
+# which requires the mirai, carrier and qpdf packages. To enable it, install them
+# once with:
+#   pak::pak(c("mirai", "carrier", "qpdf"))
+# then uncomment the two lines below and set multithreading = TRUE in the
+# plot_runscatter() calls further down.
+# n_cores <- max(1L, {n <- parallel::detectCores(); if (is.na(n)) 4L else n} - 1L)
+# if (mirai::status()$daemons == 0) mirai::daemons(n_cores)
 ```
+
+::: {.callout-note collapse="true"}
+## Optional: multithreading
+
+This workflow runs **single-threaded by default**, so it renders with only the
+packages installed alongside mrmhub. Some steps — `plot_runscatter()` PDF
+export and drift/batch correction — can run in parallel for a substantial
+speed-up. This requires three additional packages:
+
+```r
+pak::pak(c("mirai", "carrier", "qpdf"))
+```
+
+Once installed, uncomment the mirai daemon setup in the setup chunk above and
+set `multithreading = TRUE` in the `plot_runscatter()` calls.
+:::
 
 ### Import the MRMhub-INTEGRATOR results
 
-The results from the peak integration performed with the INTEGRATOR workflow, as described in the previous section, were imported into a `MRMhubExperiment` data object. This object represents the central data container used in this postprocessing workflow. Note that the original result file from INTEGRATOR ('long.csv') has been renamed to 'Dataset3_MRMhub-INTEGRATOR_Final.csv'.
+The results from the peak integration performed with the INTEGRATOR workflow, as described in the previous section, were imported into a `MRMhubExperiment` data object. This object represents the central data container used in this postprocessing workflow. The original result file from INTEGRATOR ('long.csv') has been renamed to 'Dataset3_MRMhub-INTEGRATOR_Final.csv'.
 
 ```{r chunk4-importdata1}
 #| cache: false
@@ -642,7 +661,7 @@ plot_runscatter(
   point_size = 1, font_base_size = 6, cols_page = 2, rows_page = 3,
   cap_outliers = FALSE, reference_sd_shade = FALSE, show_progress = FALSE,
   #batch_zebra_stripe = TRUE,
-  multithreading = TRUE, # parallelise PDF page generation across the mirai daemons
+  multithreading = FALSE, # set TRUE (needs mirai, carrier, qpdf) to parallelise PDF export across mirai daemons
   output_pdf = TRUE,
   path = "./output/Dataset3_runscatter_rawConc_all.pdf")
 
@@ -661,7 +680,7 @@ plot_runscatter(
   point_size = 1, font_base_size = 6, cols_page = 2, rows_page = 3,
   cap_outliers = FALSE, show_progress = FALSE, reference_sd_shade = FALSE,
   #batch_zebra_stripe = TRUE,
-  multithreading = TRUE, # parallelise PDF page generation across the mirai daemons
+  multithreading = FALSE, # set TRUE (needs mirai, carrier, qpdf) to parallelise PDF export across mirai daemons
   output_pdf = TRUE,
   path = "./output/Dataset3_runscatter_FinalConc_all.pdf")
 ```

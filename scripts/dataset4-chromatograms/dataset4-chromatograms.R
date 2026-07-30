@@ -5,7 +5,8 @@
 # pre-generated images, so the notebook render needs neither the PDFs nor magick
 # / ghostscript. Re-run this script only when the example chromatograms change.
 #
-# Requires: magick (+ a ghostscript delegate for reading PDFs).
+# Requires: magick and pdftools (pdftools rasterizes the PDF pages via its own
+# poppler build, so no ghostscript delegate is needed).
 # Run from the repository root:  Rscript scripts/dataset4-chromatograms/dataset4-chromatograms.R
 #
 # Inputs (by_transition PDFs + mzML_list.txt) live alongside this script in
@@ -14,6 +15,7 @@
 
 suppressPackageStartupMessages({
   library(magick)
+  library(pdftools)
   library(stringr)
 })
 
@@ -36,7 +38,8 @@ crop_cell <- function(pdf, analysis_id, nrow = 2, ncol = 2, density = 300) {
   page <- ceiling(ci / per)
   pos  <- ((ci - 1) %% per) + 1
   row  <- ceiling(pos / ncol); col <- ((pos - 1) %% ncol) + 1
-  img  <- image_read_pdf(file.path(bt_dir, pdf), pages = page, density = density)
+  img  <- image_read(pdf_render_page(file.path(bt_dir, pdf), page = page,
+                                     dpi = density))
   ii   <- image_info(img); cw <- ii$width / ncol; chh <- ii$height / nrow
   image_crop(img, sprintf("%.0fx%.0f+%.0f+%.0f",
                           cw, chh, (col - 1) * cw, (row - 1) * chh)) |>
@@ -49,15 +52,24 @@ save_crop <- function(pdf, analysis_id, name) {
   message("wrote ", name, ".png")
 }
 
-# Top-of-document example chromatograms: the three highlighted quantifiers at
-# high (HQC) and low (LQC) QC levels.
-for (a in list(c("21-deoxycortisol_0012.pdf",    "21-deoxycortisol"),
-               c("11-deoxycortisol_0004.pdf",    "11-deoxycortisol"),
-               c("Aldosterone_0017.pdf",         "Aldosterone"),
-               c("Cortisol_D4_0030.pdf",         "CortisolD4"),
-               c("Dihydrotestosterone_0051.pdf", "Dihydrotestosterone"))) {
-  save_crop(a[1], "QC_High1_P1", paste0("top_", a[2], "_HQC"))
-  save_crop(a[1], "QC_Low1_P1",  paste0("top_", a[2], "_LQC"))
+# Top-of-document example chromatograms: a 2x3 mix of well-behaved and demanding
+# peaks. Top row — three clean low-QC peaks. Bottom row — three difficult cases,
+# each with a co-eluting neighbour: 21-deoxycortisol in the HQC (large neighbour
+# right) and two SKML EQA study samples. The EQA cases were picked from the
+# INTEGRATOR peak metrics (height relative to the blank background, area relative
+# to Cal A, FWHM relative to the calibrator peak shape) together with the
+# MRMhub-vs-MassHunter area difference.
+for (a in list(
+  # clean reference peaks (low QC)
+  c("11-deoxycortisol_0004.pdf",       "QC_Low1_P1",      "11-deoxycortisol"),
+  c("Aldosterone_0017.pdf",            "QC_Low1_P1",      "Aldosterone"),
+  c("Dihydrotestosterone_0051.pdf",    "QC_Low1_P1",      "Dihydrotestosterone"),
+  # co-eluting interference
+  c("21-deoxycortisol_0012.pdf",       "QC_High1_P1",     "21-deoxycortisol"),
+  c("Aldosterone_0017.pdf",            "SKML2026_1Bb_P1", "Aldosterone"),
+  c("11-deoxycorticosterone_0000.pdf", "SKML2026_1A_P1",  "11-deoxycorticosterone"))) {
+  save_crop(a[1], a[2],
+            paste0("top_", a[3], "_", str_remove(a[2], "_P1$")))
 }
 
 # Figure 1 Panel D examples (the three highlighted, divergent-area cases).

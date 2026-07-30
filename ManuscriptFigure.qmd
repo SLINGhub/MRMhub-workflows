@@ -18,14 +18,13 @@ format:
 
 # About this notebook
 
-This notebook is a **worked example of how to produce publication-ready QC panels with
-`{mrmhub}`**. It reproduces the lower half of the manuscript's main workflow figure — panel
-**c** (*Global analysis QC*, *Peak annotation QC*, *Analyte and sample-level QC*), panel **d**
-(*Post-QC report*, *Concentration summary*), and panel **e** (the SPERFECT-vs-DYNAMO runtime /
-memory benchmark) — using the **Dataset 1 (SPERFECT)** pipeline, on a 3 × 2 grid
-composed with `{patchwork}`.
+The lower half of the manuscript's main workflow figure is reproduced here from the
+Dataset 1 (SPERFECT) pipeline, on a 3 × 2 grid composed with patchwork: panel c
+(*Global analysis QC*, *Peak annotation QC*, *Analyte and sample-level QC*), panel d
+(*Post-QC report*, *Concentration summary*) and panel e (the SPERFECT-vs-DYNAMO
+runtime / memory benchmark).
 
-Panels c and d are standard `{mrmhub}` plots (`plot_pca`, `plot_rt_vs_chain`, `plot_runscatter`,
+Panels c and d are standard mrmhub plots (`plot_pca`, `plot_rt_vs_chain`, `plot_runscatter`,
 `plot_qc_summary_byclass`, `plot_abundanceprofile`) built from a single `MRMhubExperiment`
 object, following the same pipeline as `Dataset1.qmd` (see that notebook for the full
 narrative). Panel e is drawn here from the measured runtimes written by
@@ -39,7 +38,7 @@ manuscript figure.
 
 Needs the Dataset 1 data (`data/dataset-1/Dataset1_MRMhub-INTEGRATOR_Final.csv` +
 `Dataset1_Metadata.xlsx`). These exceed GitHub's file-size limit and are therefore not
-part of the [GitHub repository](https://github.com/SLINGhub/MRMhub-workflows) — download
+part of the [GitHub repository](https://github.com/SLINGhub/MRMhub-workflows). Download
 `mrmhub-workflows.zip` from the Zenodo record
 [10.5281/zenodo.15370293](https://doi.org/10.5281/zenodo.15370293) (*MRMhub-workflows*), which
 is this complete repository with all data included.
@@ -495,6 +494,6 @@ benchmark panels (c, d, e) exported here.
 
 **Tuning.** The representative run-scatter feature (`example_species`), the PC-class filter for
 the peak-annotation panel, the legend positions, and the patchwork `widths`/`heights` are the
-main layout knobs. Panel e reads measured timings from `output/timing_dataset{1,3}.rds` — run
+main layout knobs. Panel e reads measured timings from `output/timing_dataset{1,3}.rds`; run
 `scripts/benchmark_runtime.R` to refresh them.
 :::

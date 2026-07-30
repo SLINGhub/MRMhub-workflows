@@ -33,7 +33,6 @@ options(dplyr.print_max = 10)
 
 # Packages used to prepare the publication figures
 library(here)
-library(mirai) # Use for parallel processing
 
 # Use for generating plots for publication
 library(patchwork)
@@ -46,22 +45,26 @@ example_species <- c("PC 38:6 \\(a\\)")
 example_species_all <- c(example_species, example_species_istd)
 base_font_size = 7
 
-# Set number of cores for parallel processing (all-but-one, so the system stays responsive)
-n_cores <- {
-  n <- parallel::detectCores()
-  if (is.na(n)) n <- 4L
-  max(1L, n - 1L)
-}
-if (mirai::status()$daemons == 0) mirai::daemons(n_cores)
+# --- Optional: multithreading -------------------------------------------------
+# This workflow runs single-threaded by default, so it renders with only the
+# packages installed alongside mrmhub. Some steps -- plot_runscatter() PDF export
+# and drift/batch correction -- can run in parallel for a substantial speed-up,
+# which requires the mirai, carrier and qpdf packages. To enable it, install them
+# once with:
+#   pak::pak(c("mirai", "carrier", "qpdf"))
+# then uncomment the two lines below and set multithreading = TRUE in the
+# plot_runscatter() calls further down.
+# n_cores <- max(1L, {n <- parallel::detectCores(); if (is.na(n)) 4L else n} - 1L)
+# if (mirai::status()$daemons == 0) mirai::daemons(n_cores)
 ```
 
 # Overview Dataset
 
 The data come from the SPERFECT study (*SPhingolipids as sErial biomaRkers oF disease progression in acutE myoCardial infarcTion*; Tan *et al.* [-@tan2022]), a targeted lipidomics analysis of plasma from 84 participants at risk of coronary artery disease. Participants contributed to a longitudinal arm with blood collection at up to five follow-up time points (378 samples), and a subset to a diurnal rhythm study (299 samples). Including QC samples, the dataset comprises 937 injections acquired by LC-MRM in six analytical batches; 464 MRM transitions were monitored, from which 482 features were integrated (a transition can yield multiple features, e.g. for isomers or isobars). The QC samples are solvent blanks (SBLK), process blanks (PBLK, containing the ISTD mix), technical QC (TQC, pooled aliquots of extracted study samples), batch QC (BQC, aliquots of pooled plasma extracted alongside the study samples), response-curve QC (RQC, the TQC injected at different volumes) and long-term reference (LTR) samples. PBLKs and BQCs were co-extracted; PBLK, TQC and BQC samples were measured at regular intervals throughout the analysis to monitor background signal, instrument performance and overall process performance, respectively.
 
-This example workflow demonstrates the complete MRMhub data processing pipeline on this dataset — peak integration, quantitation, quality control and reporting. It covers many elements of the MRMhub workflow for demonstration purposes, some of which may not be applicable or necessary when processing other datasets.
+This example workflow covers the complete MRMhub data processing pipeline on this dataset: peak integration, quantitation, quality control and reporting. It includes many elements of the MRMhub workflow, some of which may not be applicable or necessary for other datasets.
 
-Note that some plots are assigned to a variable (e.g. `fig4a`, `fig4b`) so they can be reused at the end of this workflow to assemble the multi-panel manuscript figures.
+Some plots are assigned to a variable (e.g. `fig4a`, `fig4b`) so they can be reused at the end of this workflow to assemble the multi-panel manuscript figures.
 
 ::: callout-important
 ## Data availability
@@ -71,11 +74,11 @@ All code and data for this workflow are deposited in the Zenodo record [10.5281/
 
 # Raw Data Processing: Peak Picking and Integration
 
-This section describes key aspects of the raw data processing workflow, i.e. peak picking and peak integration, used for this dataset. For more details on the usage of the INTEGRATOR application, see the [INTEGRATOR Manual](https://slinghub.github.io/MRMhub/integrator/manual.html).
+Peak picking and peak integration were performed with MRMhub-INTEGRATOR. For more details on the usage of the INTEGRATOR application, see the [INTEGRATOR Manual](https://slinghub.github.io/MRMhub/integrator/manual.html).
 
 ## Conversion of vendor raw files to mzML
 
-INTEGRATOR requires the raw files to be in the mzML format. The original raw data files (Agilent .d) were converted to mzML using msconvert from the ProteoWizard software ([https://proteowizard.sourceforge.io](https://proteowizard.sourceforge.io/)) with the following settings: output format = mzML; binary encoding precision = 32 bit; write index = true. See the [MRMhub Manual](https://slinghub.github.io/MRMhub/articles/msconvert_manual.html) for more details.
+INTEGRATOR requires the raw files to be in the mzML format. The original raw data files (Agilent .d) were converted to mzML using msconvert from the ProteoWizard software ([https://proteowizard.sourceforge.io](https://proteowizard.sourceforge.io/)) with the following settings: output format = mzML; binary encoding precision = 32 bit; write index = true. See the [MRMhub Manual](https://slinghub.github.io/MRMhub/integrator/msconvert.html) for more details.
 
 ## Preparing the INTEGRATOR input files
 
@@ -89,7 +92,7 @@ The parameter mz_tol, defining the maximum tolerance in m/z values for identifyi
 
 ### Sample Table
 
-In the sample table (run_order_20251009.csv) the samples to be processed were listed by their .mzML file names. The first two BQC (batch quality control) samples were selected as retention time reference anchors. The sample type for each sample was defined in column C (sample_type) using the [MRMhub QC type](https://slinghub.github.io/MRMhub/articles/02_keydataids.html#qc-types-sample-types) nomenclature. This is optional and INTEGRATOR distinguishes only between blanks (identified by the presence of the text `BLK`), and non-blanks.
+In the sample table (run_order_20251009.csv) the samples to be processed were listed by their .mzML file names. The first two BQC (batch quality control) samples were selected as retention time reference anchors. The sample type for each sample was defined in column C (sample_type) using the [MRMhub QC type](https://slinghub.github.io/MRMhub/quant/articles/manual-06-sample-types.html#qc-types-sample-types) nomenclature. This is optional and INTEGRATOR distinguishes only between blanks (identified by the presence of the text `BLK`), and non-blanks.
 
 ![**Sample Table.** Screenshot of a portion of the CSV file used for this dataset (run_order_20251009.csv). Two samples are selected as RT reference samples.](images/paste-1.png){#fig-ds1-sampletable fig-align="center" width="60%"}
 
@@ -99,7 +102,7 @@ The feature/transition table (transition_list_20251009.csv) defined the transiti
 
 ![**Feature/Transition Table.** Screenshot of a portion of the CSV file (transition_list_20251009_Final.csv) used for this dataset. Fixed integration borders were set for two adjacent features to ensure correct integration.](images/paste-6.png){#fig-ds1-featuretable fig-align="center" width="70%"}
 
-For this dataset, fixed borders were defined for some features that were poorly separated from adjacent peaks or that had noisy chromatograms to ensure correct and consistent integration, for example PC 36:6. In some other cases, isomers were intentionally co-integrated, such as the LPC and LPE internal standards (see @fig-ds1-peakboundaries). The final version of the feature/transition table (transition_list_20251009_Final.csv) is the result from several rounds of parameter optimization with INTEGRATOR and from peak picking QC using the QUANT module, see below.
+For this dataset, fixed borders were defined for some features that were poorly separated from adjacent peaks or that had noisy chromatograms to ensure correct and consistent integration, for example PC 36:6. In some other cases, isomers were intentionally co-integrated, such as the LPC and LPE internal standards (see @fig-ds1-peakboundaries). The final version of the feature/transition table (transition_list_20251009_Final.csv) is the result from several rounds of parameter optimization with INTEGRATOR and from peak picking QC using the QUANT module, see below. INTEGRATOR continues to be developed, and some of these feature-specific settings may become unnecessary as the automated peak integration is improved.
 
 ![**Examples of manually set peak boundaries for MRMhub-INTEGRATOR**. (a) Automatic integration resulting in co-integration of both overlapping peaks (PC 36:6) or integration of only one peak (LPC 18:1 D7). (b) The same features integrated with fixed boundaries for one and two peak boundaries, respectively. Red arrows indicate feature-specific fixed integration border(s).](images/SupplCode1_Image1.png){#fig-ds1-peakboundaries fig-align="center"}
 
@@ -117,7 +120,7 @@ The postprocessing (Quantification, Quality Control and Reporting) of the data o
 
 ## Setting up a Quarto Notebook and Installation of {mrmhub}
 
-A [Quarto](https://quarto.org/) notebook was created in [RStudio](https://posit.co/download/rstudio-desktop/). The {mrmhub} R package was installed by running the following code in the R console, together with the `mirai` (parallel processing) and `fansi` (coloured console output) packages used in this workflow.
+A [Quarto](https://quarto.org/) notebook was created in [RStudio](https://posit.co/download/rstudio-desktop/). The {mrmhub} R package was installed by running the following code in the R console, together with the mirai (parallel processing) and fansi (coloured console output) packages, and the optional plotting packages (ggvenn, patchwork, ggbeeswarm) used in this workflow.
 
 ```{r chunk2-installpkg, include = TRUE, eval = FALSE}
 if (!require("pak")) install.packages("pak")
@@ -125,8 +128,9 @@ if (!require("pak")) install.packages("pak")
 # installed from its default branch (main).
 pak::pak("SLINGhub/MRMhub")
 
-# Parallel processing (mirai) and coloured console output (fansi)
-pak::pak(c("mirai", "fansi"))
+# Parallel processing (mirai), coloured console output (fansi), and the
+# optional plotting packages used by some QC figures in this workflow.
+pak::pak(c("mirai", "fansi", "ggvenn", "patchwork", "ggbeeswarm"))
 ```
 
 ::: callout-note
@@ -139,22 +143,37 @@ The Quarto notebook code generated in this example workflow is available from <h
 
 ## Postprocessing workflow
 
-### Load `mrmhub` and other required packages
+### Load mrmhub and other required packages
 
 To improve performance, multi-threading was used for some of the calculations and plotting, for which the R package {mirai} needs to be installed and loaded.
 
 ```{r chunk03-loadpkg, results = FALSE, message = FALSE}
 #| cache: false
 library(mrmhub)
-library(mirai) # Used for parallel processing
 
 # Colour mrmhub's cli console feedback in the rendered HTML (requires the fansi package)
 mrmhub_enable_cli_color()
 ```
 
+::: {.callout-note collapse="true"}
+## Optional: multithreading
+
+This workflow runs **single-threaded by default**, so it renders with only the
+packages installed alongside mrmhub. Some steps — `plot_runscatter()` PDF
+export and drift/batch correction — can run in parallel for a substantial
+speed-up. This requires three additional packages:
+
+```r
+pak::pak(c("mirai", "carrier", "qpdf"))
+```
+
+Once installed, uncomment the mirai daemon setup in the setup chunk above and
+set `multithreading = TRUE` in the `plot_runscatter()` calls.
+:::
+
 ### Import the MRMhub-INTEGRATOR results (initial version of the dataset)
 
-Unlike the other datasets in this series, this workflow deliberately demonstrates an **integration-curation cycle**: we first import an initial peak integration, use the QC plots below to detect peak-picking errors, then return to INTEGRATOR to correct them and re-import the curated data. (This is also why the detailed sample and feature metadata is only imported later, once the integration has been finalized.)
+Unlike the other datasets in this series, this workflow runs through an integration-curation cycle: we first import an initial peak integration, use the QC plots below to detect peak-picking errors, then return to INTEGRATOR to correct them and re-import the curated data. The detailed sample and feature metadata is therefore only imported later, once the integration has been finalized.
 
 We begin with the results of this initial integration, obtained with the INTEGRATOR workflow described in the previous section. The corresponding original result file 'long.csv' has been renamed to 'Dataset1_MRMhub-INTEGRATOR_Initial.csv'. The results contain peak areas (`intensity`), retention time (`rt`), and peak full width at half maximum (`fwhm`). Available metadata, i.e., sample type, acquisition time stamp, precursor and product m/z values are imported as well (`import_metadata = TRUE`). The data is stored in a `MRMhubExperiment` object, which will be used in subsequent steps as data object (container).
 
@@ -303,7 +322,7 @@ extfig4c <- plot_rla_boxplot(
 extfig4c
 ```
 
-However, the ISTD signals were comparable with other samples. This suggests that this study sample was not added to the extraction vial before extraction. The sample is excluded from further analysis.
+However, the ISTD signals were comparable with other samples. This likely suggests that this study sample was not added to the extraction vial before extraction. The sample will be excluded from further analysis.
 
 ```{r chunk09b-rla-plot-zoomin-batch6}
 #| label: fig-ds1-rla-batch6-istd
@@ -483,9 +502,9 @@ extfig6b
 
 ## Importing detailed metadata
 
-Now that the peak integration has been finalized, we import the detailed metadata required for the remaining processing steps; it was not needed for the peak-picking QC and integration curation above, which rely only on the integration results. This metadata describes the analyses/samples, features, internal standards (ISTDs), QC samples, and response curves. We are using the `MRMhub MSorganizer template`, an Excel template used to collect, organize and pre-validate analysis metadata. Other metadata formats can also be imported, such as CSV files, individual Excel tables, or R data frames.
+Now that the peak integration has been finalized, we import the detailed metadata required for the remaining processing steps; it was not needed for the peak-picking QC and integration curation above, which rely only on the integration results. This metadata describes the analyses/samples, features, internal standards (ISTDs), QC samples, and response curves. We are using the MRMhub MSorganizer template, an Excel template used to collect, organize and pre-validate analysis metadata. Other metadata formats can also be imported, such as CSV files, individual Excel tables, or R data frames.
 
-After metadata import, a summary of the data/metadata integrity validation is returned, highlighting for example duplicate or missing IDs. Warnings can be ignored (`ignore_warnings = TRUE`) to proceed with the analysis; errors, such as missing or duplicate IDs, must always be fixed before analysis can proceed.
+After metadata import, a summary of the data/metadata integrity validation is returned, e.g. duplicate or missing IDs. Warnings can be ignored (`ignore_warnings = TRUE`) to proceed with the analysis; errors, such as missing or duplicate IDs, must always be fixed before analysis can proceed.
 
 ```{r chunk16-import-metadata}
 file_path <- "./data/dataset-1/Dataset1_Metadata.xlsx"
@@ -640,7 +659,7 @@ fig5d
 
 ## Normalization and Correction QC
 
-To check whether each processing step actually reduced technical variability, the per-feature coefficient of variation (CV) is compared before and after the step, shown here as the change in CV per lipid class (a downward shift indicates reduced variability). The first two plots show the effect of ISTD normalization and of quantification for the PC and TG classes; the following plots repeat this across all classes.
+To check whether each processing step reduced technical variability, the per-feature coefficient of variation (CV) is compared before and after the step, as the change in CV per lipid class. The first two plots show the effect of ISTD normalization and of quantification for the PC and TG classes; the following plots repeat this across all classes.
 
 ```{r chunk23-norm-corr-qc}
 #| label: fig-ds1-norm-qc
@@ -800,7 +819,7 @@ fig5e
 
 Comparison of the variability in BQCs vs TQCs may be useful to understand the source of variability in the dataset [@broadhurst2018]. If the variability in BQCs is much higher than in TQCs, this may suggest that the sample processing is a major contributor to overall variability. If the variability in TQCs and BQCs is similar, this may suggest that technical variability is a major contributor to overall variability. We look here at the sphingomyelins (SM), phosphatidylcholines (PC) and triglycerides (TG). PC and TG species consistently show higher variability in BQCs than in TQCs, suggesting that sample processing, i.e. lipid extraction, was a major contributor to overall variability, though it is unclear which factors in the sample processing contributed to it.
 
-SMs, on the other hand, show similar variability in BQCs and TQCs, suggesting that sample processing contributed less to the overall variability for this class.
+SMs, on the other hand, show similar variability in BQCs and TQCs, suggesting that sample processing contributed less to the overall variability for this class. This may be due to the fact that SMs are generally more abundant and thus less affected by variability in extraction efficiency.
 
 ```{r chunk26b-bqc-vs-tqc-cv-2}
 #| label: fig-ds1-bqc-vs-tqc
@@ -879,7 +898,7 @@ mexp_final <- filter_features_qc(
 
 ## Feature filter Results
 
-The outcome of the filtering is summarized per lipid class, showing how many analytes passed and failed the QC criteria in each class.
+How many analytes passed and failed the QC criteria, per lipid class.
 
 ```{r chunk29-feature-filter-results}
 #| label: fig-ds1-qc-byclass
@@ -904,7 +923,7 @@ fig5h
 
 ## Overview analytical variability
 
-The plot below provides an overview of the analytical variability of the filtered dataset, showing the distribution of coefficients of variation (CVs) in the BQCs for all features. The cholesteryl esters (CE), which were retained in the final dataset despite failing QC, show higher variability. This must be taken into account in subsequent statistical analyses and interpretation.
+The analytical variability of the filtered dataset, as the distribution of coefficients of variation (CVs) in the BQCs for all features. The cholesteryl esters (CE), which were retained in the final dataset despite failing QC, show higher variability. This must be taken into account in subsequent statistical analyses and interpretation.
 
 ```{r chunk29b-cv-overview}
 #| label: fig-ds1-cv-overview
@@ -927,7 +946,7 @@ plot_abundanceprofile(
 
 ## Feature filter Venn
 
-This plot summarizes the overall filtering outcome, showing how many features passed or failed across all criteria and how the individual QC criteria overlapped in the features they removed.
+How many features passed or failed across all criteria, and how the individual QC criteria overlapped in the features they removed.
 
 ```{r chunk30-feature-filter-summary}
 #| label: fig-ds1-qc-overall
@@ -1149,7 +1168,7 @@ plot_runscatter(
   cap_outliers = TRUE, reference_sd_shade = FALSE,
   #batch_zebra_stripe = TRUE,
   show_progress = FALSE,
-  multithreading = TRUE, # parallelise PDF page generation across the mirai daemons
+  multithreading = FALSE, # set TRUE (needs mirai, carrier, qpdf) to parallelise PDF export across mirai daemons
   output_pdf = TRUE,
   path = "output/suppl-fig1_runscatter_area.pdf",
   return_plots = FALSE)
@@ -1165,7 +1184,7 @@ plot_runscatter(
   cap_outliers = TRUE, reference_sd_shade = FALSE,
   #batch_zebra_stripe = TRUE,
   show_progress = FALSE,
-  multithreading = TRUE, # parallelise PDF page generation across the mirai daemons
+  multithreading = FALSE, # set TRUE (needs mirai, carrier, qpdf) to parallelise PDF export across mirai daemons
   output_pdf = TRUE,
   path = "output/suppl-fig2_runscatter_conc-raw.pdf",
   return_plots = FALSE)
@@ -1181,7 +1200,7 @@ plot_runscatter(
   cap_outliers = TRUE, reference_sd_shade = FALSE,
   #batch_zebra_stripe = TRUE,
   show_progress = FALSE,
-  multithreading = TRUE, # parallelise PDF page generation across the mirai daemons
+  multithreading = FALSE, # set TRUE (needs mirai, carrier, qpdf) to parallelise PDF export across mirai daemons
   output_pdf = TRUE,
   path = "output/suppl-fig3_runscatter_conc-final.pdf",
   return_plots = FALSE)
